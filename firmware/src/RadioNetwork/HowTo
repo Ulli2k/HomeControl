@@ -1,0 +1,26 @@
+
+Checkout SVN: "https://github.com/weareleka/Arduino-Makefile/trunk" in firmware Verzeichnis
+
+---------------------------------
+-->FORCE_MONITOR_PORT=1
+-->MONITOR_PORT			=net:beagle:4001
+nano /usr/bin/ard-reset-arduino 
+In Zeile 34 einfügen um zu verhindern das eine Serial Verbindung auf den Netzwerkpfad versucht wird aufzubauen
+    if "net:" not in args.port[0]:
+-----------------------------------
+nano Arduino.mk (Zeile 1532)
+	else ifeq ($(MONITOR_CMD), nc)
+		$(MONITOR_CMD) $(MONITOR_PARAMS)
+-----------------------------------
+
+-----------------------------------
+
+#compile
+make -f Makefile.PowerMonitor
+
+#flash
+make -f Makefile.PowerMonitor do_upload
+
+#monitor --> Arduino
+
+make freq=<frequence 8/16> target=<mk-File>
