@@ -87,7 +87,9 @@ void myDataProcessing::send(char *cmd, uint8_t typecode) {
 	switch(typecode) {
 		
 		case MODULE_DATAPROCESSING_DEVICEID: //process command with DeviceID in Front (used only by UART)
-	    if(isRightDeviceID(cmd)) {
+	    if(!(cmd[0]>='0' && cmd[0]<='9' && cmd[1]>='0' && cmd[1]<='9')) { //no DeviceID noted
+	    	p=cmd;
+	    } else if(isRightDeviceID(cmd)) {
 				p=cmd+2; //jump over DeviceID
 			} else {
 				D_DS_P("Wrong DeviceID.");
@@ -104,6 +106,8 @@ void myDataProcessing::send(char *cmd, uint8_t typecode) {
 				} else {
 					DS_P("Data too long for tunneling.\n");
 				}
+			#else
+				DNL();
 			#endif
 			}
 			if(p) callSendFkt(p);
@@ -156,6 +160,8 @@ void myDataProcessing::displayData(RecvData *DataBuffer) {
 	switch(DataBuffer->ModuleID) {
 		case MODULE_DATAPROCESSING_FIRMWARE:
 			printPROGMEM(welcomeText);
+			break;
+		case MODULE_DATAPROCESSING_WAKE_SIGNAL:
 			break;
 	}
 } 

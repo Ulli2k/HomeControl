@@ -94,7 +94,7 @@ myRFM69::myRFM69(uint8_t spi_id, uint8_t resetPin, bool isRFM69HW, uint8_t proto
   RF69_Config.TunnelingSendBurst=false;
 #endif
 
-#if HAS_RFM69_CMD_TUNNELING==2
+#if HAS_RFM69_CMD_TUNNELING==2 //Satellite
 	safeHostID4Tunneling=RFM69_CMD_TUNNELING_HOSTID_DEFAULT_VALUE;
 #if defined(STORE_CONFIGURATION) 
 	getStoredValue((void*)&safeHostID4Tunneling, (const void*)&eesafeHostID4Tunneling,1);
@@ -137,6 +137,10 @@ void myRFM69::initialize() {
 
 	configure(RF69_Config.Protocol);
   cfgInterrupt(this, mySpi.getIntPin(RF69_Config.spi_id), mySpi.getIntState(RF69_Config.spi_id));
+
+	#if HAS_RFM69_CMD_TUNNELING==2 && RFM69_CMD_TUNNELING_DEFAULT_VALUE //Satellite send initializing command to Host
+	addToRingBuffer(MODULE_DATAPROCESSING_WAKE_SIGNAL, 0, NULL, 0);
+	#endif
 }
 
 void myRFM69::configure(uint8_t protocol) {
@@ -399,7 +403,7 @@ void myRFM69::displayData(RecvData *DataBuffer) {
 			DU(DataBuffer->Data[0],2);
 			break;		
 #endif
-
+			
 		default:
 				//DC(mySpi.getIdent(spi_id)); //add Module-ID to recv packet
 				DU(RF69_Config.Protocol,1);

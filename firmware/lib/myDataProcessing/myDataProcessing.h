@@ -12,7 +12,7 @@ private:
 	static byte OutputTunnel;
 #endif
 	
-	byte WelcomeMSG;
+	byte WelcomeMSG:1;
 	
 	static const char welcomeText[] PROGMEM;
 #if INCLUDE_HELP

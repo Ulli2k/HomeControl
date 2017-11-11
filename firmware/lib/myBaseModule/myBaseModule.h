@@ -30,6 +30,7 @@
 	#define MODULE_DATAPROCESSING_VERSION								0x20
 	#define MODULE_DATAPROCESSING_HELP									0x30	
 	#define MODULE_DATAPROCESSING_FIRMWARE							0x40
+	#define MODULE_DATAPROCESSING_WAKE_SIGNAL						0x50
 	#define MODULE_DATAPROCESSING_DEVICEID							0xE0	//internal use, no official command	
 	#define MODULE_DATAPROCESSING_OUTPUTTUNNEL					0xF0	//internal use, no official command
 #define MODULE_AVR							 									0x01
