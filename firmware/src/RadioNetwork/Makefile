@@ -7,7 +7,7 @@
 
 ### PROJECT_DIR
 ### This is the path to where you have created/cloned your project
-PROJECT_DIR       = /home/ulli/SubVersion/firmware
+PROJECT_DIR       = ../../../firmware
 
 ### AVR_GCC_VERSION
 ### Check if the version is equal or higher than 4.9

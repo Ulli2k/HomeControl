@@ -85,7 +85,7 @@ myDataProcessing DataProc;
 /*********************** Modules Table *****************************/
 
 const typeModuleInfo ModuleTab[] = {
-  { MODULE_DATAPROCESSING   ,"qvhw"    			, &DataProc }, //immer am Anfang
+  { MODULE_DATAPROCESSING   ,"qvhwW"    			, &DataProc }, //immer am Anfang
 
 
 #if HAS_UART  
