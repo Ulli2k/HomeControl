@@ -51,10 +51,10 @@ MONITOR_PORT				= /dev/ttyUSB0
 #	CPPFLAGS				 += -DHAS_ROLLO -DROLLO_UP_DOWN_PIN=8 -DROLLO_POWER_PIN=7
 
 ## TRIGGER (Interrupts) ##
-#	CPPFLAGS				 += -DHAS_TRIGGER=3 #trigger 3:button(click,doubleclick,longclick) 2:pulse 1:High 0:Low
+	CPPFLAGS				 += -DHAS_TRIGGER=1 #trigger 3:button(click,doubleclick,longclick) 2:pulse 1:High 0:Low
 #	CPPFLAGS				 += -DTRIGGER_EVENT=MODULE_ROLLO_EVENT #Module Message like default: MODULE_AVR_TRIGGER or e.g. MODULE_ROLLO_EVENT
-#	CPPFLAGS				 += -DTRIGGER_PIN=6 #INTZero or INTOne or digitalPin
-	#CPPFLAGS				 += -DTRIGGER_DEBOUNCE_TIME=2000 #[ms] !keeps AVR awake during debouncing time! (Just for pulse,high,low)
+	CPPFLAGS				 += -DTRIGGER_PIN=INTOne #INTZero or INTOne or digitalPin
+	CPPFLAGS				 += -DTRIGGER_DEBOUNCE_TIME=10 #[ms] !keeps AVR awake during debouncing time! (Just for pulse,high,low)
 
 #	CPPFLAGS				 += -DHAS_TRIGGER_1=2 #trigger 3:pulse&hold 2:pulse 1:High 0:Low
 #	#CPPFLAGS				 += -DTRIGGER_1_EVENT=MODULE_ROLLO_EVENT #Module Message like MODULE_ROLLO_EVENT

@@ -40,5 +40,5 @@ MONITOR_PORT				= /dev/ttyUSB0
 
 	CPPFLAGS				 += -DHAS_TRIGGER=2 #trigger High
 	CPPFLAGS				 += -DTRIGGER_PIN=INTOne
-	CPPFLAGS				 += -DTRIGGER_DEBOUNCE_TIME=10 #[ms] !keeps AVR awake during debouncing time!
+	CPPFLAGS				 += -DTRIGGER_DEBOUNCE_TIME=1000 #[ms] !keeps AVR awake during debouncing time!
 
