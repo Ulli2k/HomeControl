@@ -653,9 +653,9 @@ void myAVR::printHelp() {
 #endif
 #if defined(HAS_TRIGGER) || defined(HAS_TRIGGER_1)
 	#ifdef INCLUDE_BUTTON
-		DS_P(" * [TRIGGER] N<Pin><0:low,1:high/click,2:doubleClick,3:longClick>\n");
+		DS_P(" * [TRIGGER] N<Pin><0:low,1:pulse,2:doublePulse,3:longPulse>\n");
 	#else
-		DS_P(" * [TRIGGER] N<Pin><0:low,1:high>\n");
+		DS_P(" * [TRIGGER] N<Pin><0:low,1:pulse>\n");
 	#endif
 #endif
 #if READVCC_CALIBRATION_CONST
