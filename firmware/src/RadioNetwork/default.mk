@@ -3,11 +3,13 @@
 
 DEVICE_ID		= 9
 
+#ESP im Webinterface für das Flashen auf die richtige Baudrate einstellen (Atmega@8MHz 19200baud) und Webseite wechseln
 #FORCE_MONITOR_PORT	=	1
-#MONITOR_PORT				=	net:esp:23
+#MONITOR_PORT				=	net:192.168.188.40:23
 #MONITOR_CMD					=	nc
-#MONITOR_PARAMS			=	esp 23
-	
+#MONITOR_PARAMS			=	192.168.188.40 23
+
+#USB2Serial
 MONITOR_PORT				= /dev/ttyUSB0
 
 #MONITOR_PORT				= net:192.168.188.40:23
