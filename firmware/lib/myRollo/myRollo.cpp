@@ -1,7 +1,7 @@
 
 #include "myRollo.h"
 
-byte myROLLO::waiting4stop = 0;
+volatile byte myROLLO::waiting4stop = 0;
 
 void myROLLO_Interrupt_Function() {
 	myROLLO::waiting4stop=2;
