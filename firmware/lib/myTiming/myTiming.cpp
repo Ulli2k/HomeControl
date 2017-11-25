@@ -24,7 +24,7 @@ static unsigned char timer2_fract = 0;
 
 #define	ULONG_MAX	4294967295UL 	/* max value of "unsigned long int" */
 volatile uint8_t cTimeCallbacks=0;
-sTimeCallbacks TimeCallbacks[MAX_TIME_CALLBACKS];
+volatile sTimeCallbacks TimeCallbacks[MAX_TIME_CALLBACKS];
 
 #if defined(__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)
 ISR(TIM2_OVF_vect)
