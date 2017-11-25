@@ -50,10 +50,11 @@ ISR(TIMER2_OVF_vect)
 
 	for(uint8_t c=0; c<cTimeCallbacks; c++) {
 		if(timer2_millis < (TimeCallbacks[c].created) { // overflow
-			TimeCallbacks[c].created = ULONG_MAX - TimeCallbacks[c].created;
+			TimeCallbacks[c].created = 0;
+			TimeCallbacks[c].ms -= (ULONG_MAX - TimeCallbacks[c].created);
 		}
 		if(timer2_millis > (TimeCallbacks[c].created + TimeCallbacks[c].ms) ) {
-			TimeCallbacks[c].created=timer2_millis;
+			TimeCallbacks[c].created = timer2_millis;
 			TimeCallbacks[c].isrCallback();
 		}
 	}
