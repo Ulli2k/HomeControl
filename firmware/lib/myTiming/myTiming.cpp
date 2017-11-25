@@ -22,7 +22,8 @@ volatile unsigned long timer2_overflow_count = 0;
 volatile unsigned long timer2_millis = 0;
 static unsigned char timer2_fract = 0;
 
-static uint8_t cTimeCallbacks=0;
+#define	ULONG_MAX	4294967295UL 	/* max value of "unsigned long int" */
+volatile uint8_t cTimeCallbacks=0;
 sTimeCallbacks TimeCallbacks[MAX_TIME_CALLBACKS];
 
 #if defined(__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)
@@ -48,6 +49,9 @@ ISR(TIMER2_OVF_vect)
 	timer2_overflow_count++;
 
 	for(uint8_t c=0; c<cTimeCallbacks; c++) {
+		if(timer2_millis < (TimeCallbacks[c].created) { // overflow
+			TimeCallbacks[c].created = ULONG_MAX - TimeCallbacks[c].created;
+		}
 		if(timer2_millis > (TimeCallbacks[c].created + TimeCallbacks[c].ms) ) {
 			TimeCallbacks[c].created=timer2_millis;
 			TimeCallbacks[c].isrCallback();
