@@ -192,7 +192,7 @@ bool myDataProcessing::poll() {
 
   RecvData RecvDataBuffer;
   RecvData *PtrRecvData;
-  bool valid=0;
+  //bool valid=0;
   
   if(!WelcomeMSG) { printPROGMEM(welcomeText); DNL(); WelcomeMSG++; }
 
@@ -206,7 +206,7 @@ bool myDataProcessing::poll() {
     memcpy(&RecvDataBuffer, PtrRecvData, sizeof(RecvData));
     FIFO_release(DataRing);
     
-    //DS("<<Dataprocessing: <");DS((char*)RecvDataBuffer.Data);DS(">\n");
+    DS("<<Dataprocessing: <");DS((char*)RecvDataBuffer.Data);DS(">\n");
 
 		//Find right module in ModuleTable
 		const typeModuleInfo* pmt = ModuleTab;
@@ -287,7 +287,7 @@ bool myDataProcessing::poll() {
 		  pmt++;
 		}
 
-		if(pmt->typecode<0 && !valid) {
+		if(pmt->typecode<0 ) { //&& !valid) {
 			D_DS_P("Unknown received command\n");
 		}
   	return 1;
