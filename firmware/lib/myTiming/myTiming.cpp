@@ -44,20 +44,18 @@ ISR(TIMER2_OVF_vect)
 		m += 1;
 	}
 
+	for(uint8_t c=0; c<cTimeCallbacks; c++) {
+		if( (m - timer2_millis) <= TimeCallbacks[c].ms) {
+			 TimeCallbacks[c].ms -= (m - timer2_millis);
+		} else {
+			TimeCallbacks[c].ms = TimeCallbacks[c].init_ms;
+			TimeCallbacks[c].isrCallback();	
+		}
+	}
+	
 	timer2_fract = f;
 	timer2_millis = m;
 	timer2_overflow_count++;
-
-	for(uint8_t c=0; c<cTimeCallbacks; c++) {
-		if(timer2_millis < (TimeCallbacks[c].created) { // overflow
-			TimeCallbacks[c].created = 0;
-			TimeCallbacks[c].ms -= (ULONG_MAX - TimeCallbacks[c].created);
-		}
-		if(timer2_millis > (TimeCallbacks[c].created + TimeCallbacks[c].ms) ) {
-			TimeCallbacks[c].created = timer2_millis;
-			TimeCallbacks[c].isrCallback();
-		}
-	}
 }
 
 unsigned long TIMING::millis() {
@@ -225,7 +223,8 @@ void TIMING::attachInterrupt(void (*isr)(), unsigned long milliseconds)
 {
 	TimeCallbacks[cTimeCallbacks].isrCallback = isr;
 	TimeCallbacks[cTimeCallbacks].ms = milliseconds;
-	TimeCallbacks[cTimeCallbacks].created = TIMING::millis();
+	TimeCallbacks[cTimeCallbacks].init_ms = milliseconds;
+	//TimeCallbacks[cTimeCallbacks].created = TIMING::millis();
 	cTimeCallbacks++;
 }
 
@@ -235,8 +234,9 @@ void TIMING::detachInterrupt(void (*isr)())
 		if(TimeCallbacks[i].isrCallback == isr) {
 			for(uint8_t r=i+1; r<cTimeCallbacks; r++) {
 				TimeCallbacks[i].isrCallback = TimeCallbacks[r].isrCallback;
+				TimeCallbacks[i].init_ms = TimeCallbacks[r].init_ms;
 				TimeCallbacks[i].ms = TimeCallbacks[r].ms;
-				TimeCallbacks[i].created = TimeCallbacks[r].created;
+				//TimeCallbacks[i].created = TimeCallbacks[r].created;
 			}
 			cTimeCallbacks--;
 			break;
