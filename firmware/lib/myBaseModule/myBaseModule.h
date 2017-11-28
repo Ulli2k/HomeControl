@@ -271,7 +271,12 @@ void printRam() {
 		RecvData rBuf;
 
 		if(len >= MAX_RING_DATA_SIZE) {  //immer 1 zeichen für die Terminierung sicher stellen
-			/*if(DEBUG) */ { DS_P("Ringbuffer overrun <"); DU(len,0); DS(">\n"); }
+			/*if(DEBUG) */ { 
+				DS_P("Ringbuffer overrun <");  
+				for(uint_8 c=0; c<=len; len++) { DC((char)buf[c]); } DS_P("|"); 
+				DU(code,0);DS_P("|"); 
+				DU(len,0); DS_P(">\n"); 
+			}
 			len = MAX_RING_DATA_SIZE-1;
 		}
 			rBuf.ModuleID = module;
