@@ -31,7 +31,7 @@ public:
 	static void delay(unsigned long ms);
 	static unsigned long micros();
 	static unsigned long millis();
-
+	static unsigned long millis_since(unsigned long start_ms);
 };
 
 #endif
