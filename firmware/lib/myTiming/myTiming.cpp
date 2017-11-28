@@ -58,6 +58,19 @@ ISR(TIMER2_OVF_vect)
 	timer2_overflow_count++;
 }
 
+unsigned long TIMING::millis_since(unsigned long start_ms) {
+
+	unsigned long ms = TIMING::millis();
+	
+	if(start_ms < ms /* now */) { 
+		ms -= start_ms;
+	} else { //overflow
+		ms += (ULONG_MAX - start_ms);
+	}
+	
+	return ms;
+}
+
 unsigned long TIMING::millis() {
 	unsigned long m;
 	uint8_t oldSREG = SREG;
