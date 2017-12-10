@@ -62,12 +62,13 @@ unsigned long TIMING::millis_since(unsigned long start_ms) {
 
 	unsigned long ms = TIMING::millis();
 	
-	if(start_ms < ms /* now */) { 
-		ms -= start_ms;
+	if(start_ms <= ms) { 
+		ms =  ms - start_ms;
 	} else { //overflow
-		ms += (ULONG_MAX - start_ms);
+		//Serial.print("MILLIS Overflow "); Serial.print((unsigned long)start_ms); Serial.print(">"); Serial.println((unsigned long)ms);
+		ms = ms + (ULONG_MAX - start_ms);
 	}
-	
+		
 	return ms;
 }
 
