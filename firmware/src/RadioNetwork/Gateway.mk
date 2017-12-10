@@ -4,9 +4,9 @@
 
 
 	FORCE_MONITOR_PORT	=	1
-	MONITOR_PORT				=	net:beagle:4000
+	MONITOR_PORT				=	net:nuc:4000
 	MONITOR_CMD					=	nc
-	MONITOR_PARAMS			=	beagle 4001
+	MONITOR_PARAMS			=	nuc 4001
 	
 ### Libraries
 	ARDUINO_LIBS			+= mySPI myRFM69
