@@ -112,6 +112,8 @@
 
 /*********************** Global Helper Functions *******************************/
 
+#define	ULONG_MAX	4294967295UL 	/* max value of "unsigned long int" */
+
 #define HexStr2uint8(x) ((uint8_t) (HexChar2uint8((x)[0])*16 + HexChar2uint8((x)[1])))
 #define HexStr2uint16(x) ((uint16_t) ( (HexStr2uint8(x) << 8) + (HexStr2uint8(x+2)) ) )
 uint8_t HexChar2uint8(char data);
@@ -240,7 +242,7 @@ void printRam() {
 		} else {
 			if(tIdleCycles==0) tIdleCycles=TIMING::millis()+1;
 			//DS("idle ");Serial.print(TIMING::millis()-tIdleCycles);DNL();Serial.flush();
-			return ( ( ((TIMING::millis()-tIdleCycles)>=timeLimit) && !FIFO_available(DataRing)) ? 1 : 0);
+			return ( ( (TIMING::millis_since(tIdleCycles)>=timeLimit) && !FIFO_available(DataRing)) ? 1 : 0);
 		}
 		
 	}
@@ -249,7 +251,7 @@ void printRam() {
 #if HAS_INFO_POLL && INFO_POLL_CYCLE_TIME
 	static bool infoPollCycles(bool force=false, byte *ppreScaler=NULL) {
 		const typeModuleInfo* pmt = ModuleTab;
-		if(force || ((TIMING::millis()-tInfoPoll) >= (unsigned long)(INFO_POLL_CYCLE_TIME*1000UL))) {
+		if(force || (TIMING::millis_since(tInfoPoll) >= (unsigned long)(INFO_POLL_CYCLE_TIME*1000UL))) {
  			if(!ppreScaler) {
 	 			while(pmt->typecode >= 0) {
 					pmt->module->infoPoll(preScaler);
@@ -273,7 +275,7 @@ void printRam() {
 		if(len >= MAX_RING_DATA_SIZE) {  //immer 1 zeichen für die Terminierung sicher stellen
 			/*if(DEBUG) */ { 
 				DS_P("Ringbuffer overrun <");  
-				for(uint_8 c=0; c<=len; len++) { DC((char)buf[c]); } DS_P("|"); 
+				for(uint8_t c=0; c<=len; len++) { DC((char)buf[c]); } DS_P("|"); 
 				DU(code,0);DS_P("|"); 
 				DU(len,0); DS_P(">\n"); 
 			}
