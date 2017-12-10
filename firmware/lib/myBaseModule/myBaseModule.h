@@ -281,14 +281,14 @@ void printRam() {
 			}
 			len = MAX_RING_DATA_SIZE-1;
 		}
-			rBuf.ModuleID = module;
-			rBuf.DataTypeCode = code;
-			if(buf!=NULL && len!=0)
-				memcpy(rBuf.Data,buf,len); 
-			rBuf.DataSize = len;
-			rBuf.Data[len] = 0x0; //Terminierung; +1 ist sicher gestellt durch len check
+		rBuf.ModuleID = module;
+		rBuf.DataTypeCode = code;
+		if(buf!=NULL && len!=0)
+			memcpy(rBuf.Data,buf,len); 
+		rBuf.DataSize = len;
+		rBuf.Data[len] = 0x0; //Terminierung; +1 ist sicher gestellt durch len check
 		
-			DataFIFO_write(DataRing,rBuf);
+		DataFIFO_write(DataRing,rBuf);
 	}
 
 #if defined(STORE_CONFIGURATION)
