@@ -275,7 +275,7 @@ void printRam() {
 		if(len >= MAX_RING_DATA_SIZE) {  //immer 1 zeichen für die Terminierung sicher stellen
 			/*if(DEBUG) */ { 
 				DS_P("Ringbuffer overrun <");  
-				for(uint8_t c=0; c<=len; len++) { DC((char)buf[c]); } DS_P("|"); 
+				for(uint8_t c=0; c<=len; len++) { DH2(buf[c]); DC(' '); } DS_P("|"); 
 				DU(code,0);DS_P("|"); 
 				DU(len,0); DS_P(">\n"); 
 			}
