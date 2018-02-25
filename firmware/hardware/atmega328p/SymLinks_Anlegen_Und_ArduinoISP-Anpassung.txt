@@ -1,0 +1,9 @@
+ln -s /usr/share/arduino/hardware/arduino/variants ./variants
+ln -s /usr/share/arduino/hardware/arduino/cores ./cores
+oder
+ln -s /opt/arduino/hardware/arduino/avr/cores ./cores
+ln -s /opt/arduino/hardware/arduino/avr/variants ./variants
+
+ArduinoISP defines Anpassen
+	#define RESET     9
+	#define LED_HB    10
