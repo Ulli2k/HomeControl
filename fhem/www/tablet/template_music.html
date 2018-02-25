@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- FHEM Tablet UI V2.6 -->
+	<!-- Template für Startseite zum Aufruf der Contentseiten -->
+</head>
+<body>
+	<div class="row">
+
+		<div class="cell-0 left-align left-space">
+			<div class="big compressed" data-type="symbol"  data-device="var_tuner_device" 
+						data-color="blue" data-states='["off","on"]' data-icon='var_icon' data-colors='["blue","red"]'
+			></div>
+		</div>
+
+		<div class="cell-100 left-align left-space-2x">
+			<div class="big">var_name</div>
+			<div class="large" data-type="label" data-device="var_player_device" data-get="now_playing_name"'></div>
+		</div>
+		
+		<div class="cell right-align right-space">
+			<div class="row large">
+				<div class="cell right-space-2x" 
+							id="dropdown_var_tuner_device"
+							onclick="if ($('#var_tuner_device').is(':hidden')) { 
+														$('#var_tuner_device').slideDown(250); 
+														$('#var_tuner_device').trigger('changedSelection');
+														$('#dropdown_var_tuner_device > i.fa').addClass('fa-rotate-180'); 
+													} else { 
+														$('#var_tuner_device').slideUp(250); 
+														$('#dropdown_var_tuner_device > i.fa').removeClass('fa-rotate-180'); 
+													}">
+						<i class="fa fa-angle-double-down big right-space"></i>
+				</div>	
+				
+			   <div class="cell right-space" data-type="label" data-device="var_tuner_device"
+		       data-limits='["off","on"]'
+		       data-colors='["gray","blue"]'
+		       data-substitution="s/.*/OFF/"
+		       onclick="ftui.setFhemStatus('set var_tuner_device turnoff');">
+		    </div>
+				
+		    <div class="cell right-space" data-type="label" data-device="var_tuner_device"
+		       data-limits='["off","on"]'
+		    		  data-colors='["blue","gray"]'
+		       		data-substitution="s/.*/ON/"
+		       		onclick="ftui.setFhemStatus('set var_tuner_device turnon');">
+		    </div>
+			</div>
+		</div>
+		
+		<div class="prefetch" id="var_tuner_device" style="display: none;">
+			<div class="row top-space left-align">
+
+					<div class="left-align inline big" style="padding-left: 77px;">Volume</div>
+					
+					<div class="horizontal inline left-space-2x" data-type="slider" data-device="var_volume_device"
+		              data-get="volume" data-set="volume" data-min="0" data-max="100" data-width="50%"  
+					></div>
+					<div class="left-space-2x inline blue big" data-type="label" data-device="var_volume_device" data-get="volume" data-fix="0" data-unit="%" data-></div>
+				</div>
+				<br>
+				<div class="center">
+						<div class="left-space" data-type="image" data-url="../images/radio/egofm.png" data-size="100" onclick="ftui.setFhemStatus('set var_player_device now_playing_name egoFM');"></div> 	
+						<div class="left-space" data-type="image" data-url="../images/radio/egopure.png" data-size="100" onclick="ftui.setFhemStatus('set var_player_device now_playing_name egoFMpure');"></div>	
+						<div class="left-space" data-type="image" data-url="../images/radio/egoflash.png" data-size="100" onclick="ftui.setFhemStatus('set var_player_device now_playing_name egoFMflash');"></div>	
+						<div class="left-space" data-type="image" data-url="../images/radio/yourego.png" data-size="100" onclick="ftui.setFhemStatus('set var_player_device now_playing_name egoYour');"></div>	
+						<div class="left-space" data-type="image" data-url="../images/radio/egoriff.png" data-size="100" onclick="ftui.setFhemStatus('set var_player_device now_playing_name egoFMriff');"></div>	
+						<div class="left-space" data-type="image" data-url="../images/radio/energy.png" data-size="50" onclick="ftui.setFhemStatus('set var_player_device now_playing_name Energy');"></div>	
+						<div class="left-space" data-type="image" data-url="../images/radio/gong963.png" data-size="70" onclick="ftui.setFhemStatus('set var_player_device now_playing_name Gong');"></div>	
+				</div>
+			</div>
+		</div>
+		
+	</div>	
+</body>
+</html>

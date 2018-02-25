@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- FHEM Tablet UI V2.6 -->
+	<!-- Template für Startseite zum Aufruf der Contentseiten -->
+</head>
+<body>
+	<div class="row">
+
+		<div class="cell-0 left-align left-space">
+			<div class="big compressed" data-type="symbol" data-device="var_device" 
+						data-get="var_state" data-colors='["blue","red"]' data-limits='var_st_limit' data-icon="var_icon"
+			></div>
+		</div>
+		
+		<div class="cell-100 left-align left-space-2x">
+			<div class="big">var_name</div>
+			<div class="inline large" data-type="label" data-device="var_device" data-get="var_reading" data-hide-on="-" data-pre-text="offen:&nbsp;"></div>				
+		</div>
+		
+<!--		<div class="cell"></div>-->
+		
+		<div class="cell right-space-2x">
+			<div class="bigger robotothin" data-type="label" data-device="var_device" 
+					data-get="var_state" data-limits='var_st_limit' data-colors='["blue","red"]'>
+      </div>
+		</div>
+		
+	</div>
+</body>
+</html>

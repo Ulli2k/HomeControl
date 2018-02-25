@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- FHEM Tablet UI V2.6 -->
+	<!-- Template für Startseite zum Aufruf der Contentseiten -->
+</head>
+<body>
+	<div class="row">
+
+		<div class="cell-0 left-align left-space">
+			<div class="big compressed" data-type="symbol" data-device="var_device" 
+						data-get="1-state" data-states='["=>","=> X","=>  ((o))","=>  [=]","=> O_O"]' data-icons='["oa-phone_call_end_in","oa-phone_missed_in","oa-phone_ring fa-blink","oa-phone_ring_in fa-blink","oa-phone_answersing"]' data-color='blue'></div>	
+		</div>
+		
+		<div class="cell-100 left-align left-space-2x">
+			<div class="big">var_name</div>
+			<div class="inline timestamp large" data-type="label" data-device="var_device" 
+						data-get="1-timestamp" data-substitution="toDate().hhmm()"
+			></div>
+			<div class="inline large" data-type="label" data-device="var_device" 
+						data-get="1-name"
+			></div>				
+			<div class="inline large" data-type="label" data-device="var_device" 
+						data-get="1-number"
+			></div>
+		</div>
+		
+<!--		<div class="cell"></div>-->
+		
+		<div class="cell right-space">
+			<div data-type="link" data-url="#var_link.html" data-load="#var_link" data-color="black" data-fade-duration="0" onclick="ftui.setFhemStatus('setreading var_missed_device var_missed_reading 0');">
+				<div class="compressed" data-type="symbol" data-device="var_missed_device" 
+					data-get="var_missed_reading" data-states='["0","1"]' data-colors='["gray","red"]' data-icon="mi-phone"></div>
+			</div>
+		</div>
+		
+	</div>
+</body>
+</html>

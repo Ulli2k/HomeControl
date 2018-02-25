@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- FHEM Tablet UI V2.6 -->
+	<!-- Template für fhem Weather Modul -->
+</head>
+<body>
+		<div class="row">
+			<div class="cell-0 left-align left-space">
+				<div class="large	compressed" data-type="weather" data-device="Weather" data-get="fc0_weatherDay" data-imageset="meteocons"></div>
+			</div>
+			
+			<div class="cell-100 left-align left-space-2x">
+				<div class="big">Wetter aktuell</div>
+				<div class="inline large" data-type="label" data-device="HS_Climate" data-get="temperature" data-unit="&deg;C"></div>
+				<div class="inline large" data-type="label" data-device="Weather" data-get="humidity" data-unit="%"></div>
+				<div class="inline large" data-type="label" data-device="Weather" data-get="pressure" data-unit="hPa"></div>
+				<br>
+				<div class="inline large" data-type="label" data-device="Weather" data-get="weather"></div>
+			</div>
+			
+			<div class="cell right-space">
+				<div data-type="link" data-url="#content_weather.html" data-load="#content_weather" data-color="black" data-fade-duration="0">
+					<div data-type="symbol" data-color="gray" data-icon="mi-chevron_right" class="compressed"></div>
+				</div>
+			</div>
+			
+		</div>
+</body>
+</html>

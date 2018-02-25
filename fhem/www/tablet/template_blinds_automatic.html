@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- FHEM Tablet UI V2.6 -->
+	<!-- Template für Homematic Funk Schaltaktoren HM-LC-Sw1PBU-FM und HM-LC-SW2-FM und HM-LC-SW1-FM -->
+</head>
+<body>
+	<div class="row">
+
+		<div class="cell-0 left-align left-space"">
+			<div class="big compressed" data-type="symbol" data-device="var_device" 
+						data-color="blue" data-states='["off","on"]' data-icons='["oa-fts_shutter_manual","oa-fts_shutter_automatic"]' data-colors='["red","blue"]'
+			></div>
+		</div>
+		
+		<div class="cell-100 left-align left-space-2x">
+			<div class="big">var_name</div>
+			<div class="large" data-type="label" data-device="var_device" data-get="sum_state"></div>
+		</div>
+		
+		
+		<div class="cell right-align right-space">
+
+			<div class="row large">
+		    <div class="cell right-space" data-type="label" data-device="var_device"
+		       data-limits='["off","on"]'
+		       data-colors='["gray","blue"]'
+		       data-substitution="s/.*/MANUAL/"
+		       onclick="ftui.setFhemStatus('set var_device off');">
+		    </div>
+				
+		    <div class="cell right-space" data-type="label" data-device="var_device"
+						data-limits='["off","on"]'
+		    		data-colors='["blue","gray"]'
+		       	data-substitution="s/.*/AUTO/"
+		       	onclick="ftui.setFhemStatus('set var_device on');">
+		    </div>
+			</div>
+		</div>
+
+	</div>
+</body>

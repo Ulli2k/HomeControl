@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- FHEM Tablet UI V2.6 -->
+	<!-- Template für Homematic Funk Schaltaktoren HM-LC-Sw1PBU-FM und HM-LC-SW2-FM und HM-LC-SW1-FM -->
+</head>
+<body>
+	<div class="row">
+
+		<div class="cell-0 left-align left-space"">
+			<div class="big compressed" data-type="symbol" data-device="var_device" 
+						data-states='["unlocked","locked"]' data-icons='["mi-lock_open","mi-lock"]' data-colors='["red","blue"]'
+			></div>
+		</div>
+		
+		<div class="cell-100 left-align left-space-2x">
+			<div class="big">var_name</div>
+			<div class="large" data-type="label" data-device="var_device"'></div>
+		</div>
+		
+<!--		<div class="cell"></div>-->
+		
+		<div class="cell right-align right-space">
+
+			<div class="row large">
+		    <div class="cell right-space" data-type="label" data-device="var_device"
+		       data-limits='["unlocked","locked"]'
+		       data-colors='["gray","blue"]'
+		       data-substitution="s/.*/UNLOCK/"
+		       onclick="ftui.setFhemStatus('set var_device unlock');">
+		    </div>
+				
+		    <div class="cell right-space" data-type="label" data-device="var_device"
+							data-limits='["unlocked","locked"]'
+		    		  data-colors='["blue","gray"]'
+		       		data-substitution="s/.*/LOCK/"
+		       		onclick="ftui.setFhemStatus('set var_device lock');">
+		    </div>
+			</div>
+		</div>
+
+	</div>
+</body>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- FHEM Tablet UI V2.6 -->
+	<!-- Template für fhem Phone Modul -->
+</head>
+<body>
+	<div class="row">
+		<div class="cell left-align left-space">
+			<div data-type="symbol" data-device="var_device" data-get="var_call-state"
+			data-icons='["mi-call_missed","mi-call_missed_outgoing","mi-call_received","mi-call_made","mi-call_made","mi-call_received","oa-phone_call","oa-phone_call"]'
+			data-get-on='["=> X","<= X","=> ((o))","<= ((o))","<=","=>","<= [=]","=> [=]"]'
+			data-on-colors='["#ad3333","#ad3333","#3399ff","#33ad33","#3399ff","#33ad33","#3399ff","#33ad33"]' class="big compressed"></div>
+		</div>
+		<div class="cell-80 left-align">
+			<div data-type="label" data-device="var_device" data-get="var_call-name" class="big"></div>
+			<div data-type="label" data-device="var_device" data-pre-text="(" data-post-text=")" data-get="var_call-number" class="inline"></div>
+			<div data-type="label" data-device="var_device" data-get="var_call-timestamp" class="inline"></div>
+		</div>
+		<div class="cell">
+		</div>
+		<div class="cell right-space">
+		</div>
+	</div>
+</body>
+</html>

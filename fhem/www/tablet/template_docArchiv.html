@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- FHEM Tablet UI V2.6 -->
+	<!-- Template für Homematic Funk Schaltaktoren HM-LC-Sw1PBU-FM und HM-LC-SW2-FM und HM-LC-SW1-FM -->
+</head>
+
+<body>
+	<div class="row">
+
+		<div class="cell-0 left-align left-space"">
+			<div class="big compressed" data-type="symbol" data-device="var_device" 
+						data-color="blue" data-states='["var_state_off","var_state_on"]' data-icons='["var_icon_off","var_icon_on"]' data-colors='["blue","red"]'
+			></div>
+		</div>
+		
+		<div class="cell-100 left-align left-space-2x">
+			<div class="big">var_name</div>
+			<div class="large" data-type="label" data-device="var_docArchiv_device"
+				data-substitution='["scan.*","scanning . . .","ascan.*","scanning . . .","done","scan successful done","failed","scan failed"]'
+			></div>
+		</div>
+	
+		
+		<div class="cell right-align right-space">
+
+			<div class="row large">
+		    <div class="cell right-space" data-type="label" data-device="var_device"
+		       data-limits='["var_state_off","var_state_on"]'
+		       data-colors='["gray","blue"]'
+		       data-substitution="s/.*/var_text_off/"
+		       onclick="ftui.setFhemStatus('set var_device var_set_off');">
+		    </div>
+				
+		    <div class="cell right-space" data-type="label" data-device="var_device"
+		       data-limits='["var_state_off","var_state_on"]'
+		    		  data-colors='["blue","gray"]'
+		       		data-substitution="s/.*/var_text_on/"
+		       		onclick="ftui.setFhemStatus('set var_device var_set_on');">
+		    </div>
+			</div>
+		</div>
+
+	</div>
+
+	<div class="row top-space">
+
+		<div class="cell-100 left-align">
+			<div class="notransmit autoselect" style="padding-left: 77px;" data-type="input" data-device="BU_DocArchiv" 
+						id="sendValue" data-get="lastName"
+			></div>
+		</div>
+		
+		<div class="cell right-align right-space">
+
+			<div class="row large left-space-2x">
+		    <div class="cell right-space blue" data-type="label" data-device="var_docArchiv_device"
+		       data-substitution="s/.*/NEU/"
+					 onclick="ftui.setFhemStatus('set var_docArchiv_device scan ' + $('#sendValue input').val() );">
+		    </div>
+				
+		    <div class="cell right-space blue" data-type="label" data-device="var_docArchiv_device"
+		       		data-substitution="s/.*/ANH&Auml;NGEN/"
+		       		onclick="ftui.setFhemStatus('set var_docArchiv_device ascan ' + $('#sendValue input').val() );">
+		    </div>
+
+		    <div class="cell right-space" data-type="label" data-device="var_docArchiv_device"
+		       		data-get="locked" data-limits='["0","1"]' data-colors='["gray","red"]' data-substitution="s/.*/UNLOCK/"
+		       		onclick="ftui.setFhemStatus('set var_docArchiv_device unlock');">
+		    </div>
+
+			</div>
+		</div>
+	
+	</div>
+</body>
+
+
+
+
+
+
+

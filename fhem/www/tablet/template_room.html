@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- FHEM Tablet UI V2.6 -->
+	<!-- Template für Startseite zum Aufruf der Contentseiten -->
+</head>
+<body>
+	<div class="row">
+
+		<div class="cell-0 left-align left-space">
+			<div class="big compressed" data-type="symbol" data-device="var_device" 
+						data-color="blue" data-icon="var_icon"
+			></div>
+		</div>
+		
+		<div class="cell-100 left-align left-space-2x">
+			<div class="big">var_name</div>
+			<div class="inline large" data-type="label" data-device="var_device" 
+						data-get="temperature" data-limits='var_temp_limit' data-fix='0' data-colors='["#6699FF","","#ad3333"]' data-unit="%B0C"
+			></div>				
+			<div class="inline left-space large" data-type="label" data-device="var_device" 
+						data-get="humidity" data-limits='var_hum_limit' data-fix='0' data-colors='["#6699FF","","#ad3333"]' data-unit="%"
+			></div>
+			<div class="inline left-space large" data-type="label" data-device="var_device" 
+						data-get="dewpoint" data-limits='var_dew_limit' data-fix='0' data-colors='["#6699FF","","#ad3333"]' data-unit="%B0C"
+			></div>
+		</div>
+		
+<!--		<div class="cell"></div>-->
+		
+		<div class="cell right-space">
+			<div class="bigger robotothin" data-type="label" data-device="var_device" 
+					data-get="humidity" data-limits='var_hum_limit' data-fix="0" data-colors='["#6699FF","","#ad3333"]' data-unit="%">
+      </div>
+		</div>
+		
+	</div>
+</body>
+</html>

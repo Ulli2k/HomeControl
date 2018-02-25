@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- FHEM Tablet UI V2.6 -->
+	<!-- Template für Startseite zum Aufruf der Contentseiten -->
+</head>
+<!--<div data-type="homestatus" data-device='HomeSceneDebounce'-->
+<!--							data-set='scene'-->
+<!--       				data-get-on='["Home","Night","Away","Vacation"]'-->
+<!--       				data-alias='["Dahoam","Nacht","Weg","Urlaub"]'-->
+<!--       				data-icons='["fa-home","fa-bed","fa-car","fa-suitcase"]'>-->
+<!--					</div>-->
+<body>
+	<div class="row">
+
+		<div class="cell-0 left-align left-space">
+			<div class="big compressed" data-type="symbol"  
+						data-color="blue" data-icon="var_icon"
+			></div>
+		</div>
+		
+		<div class="cell-100 left-align left-space-2x">
+			<div class="big">var_name</div>
+		</div>
+		
+<!--		<div class="cell"></div>-->
+		
+		<div class="cell right-space">
+			<div class="row large">
+				<div class="cell green left-space" data-type="switch" data-device="var_device"
+					data-get-off="!Home" data-set-off="" data-get-on="Home"					
+					data-icon="fa-home"
+				></div>
+				<div class="cell blue left-space" data-type="switch" data-device="var_device"
+							data-get-off="!Night" data-set-off="" data-get-on="Night"
+							data-icon="fa-bed"
+				></div>				
+				<div class="cell red left-space" data-type="switch" data-device="var_device"
+							data-get-off="!Away" data-set-off="" data-get-on="Away"
+							data-icon="fa-car"
+				></div>				
+				
+			</div>
+		</div>
+		
+	</div>
+</body>
+</html>

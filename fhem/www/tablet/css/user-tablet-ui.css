@@ -1,0 +1,114 @@
+/* FHEM Tablet UI 2.6 - eigene Anpassungen */
+
+/* Phone-Header und Phone-Backbutton Definition */
+.phone-header {
+	display: none;
+}
+
+.phone-back-btn {
+	display: none;
+}
+
+/* Menübreite und Zeilenabstand der Menüpunkte korrigiert*/
+@media screen and (max-width: 900px) and (min-width: 480px) {
+	.menu {
+		width: 90px !important;
+	}
+}
+
+/* Menüleiste oben auf Bildschirmbreite angepasst, damit keine Elemente mehr überdeckt werden */
+@media screen and (max-width: 480px) {
+	.menu ~ main > .page {
+		padding-left: 0px;
+		padding-top: 40px;
+	}
+	.phone-header {
+    top: 0px;
+    left: 0px;
+		height: 40px;
+		width: 100%;
+		position: absolute;
+		background: #1D1F20;
+		z-index: 4;
+		display: block;
+	}
+	.phone-back-btn {
+    top: 0px;
+    left: 0px;
+		height: 39px;
+		width: 39px;
+    position: absolute;
+    background: #1D1F20;
+		padding-top: 0.31em;
+		z-index: 5;
+		display: block;
+	}
+}
+
+/* Header Hintergrundfarbe und Schriftgröße korrigiert */
+.card > header {
+  background-color: #e6e6e6;
+	font-size: 125%;
+}
+
+/* Weather Iconfarbe korrektur */
+.weather:before {
+   color: #337ab7;
+}
+
+/* Chart Farben und Text Korrekturen */
+.chart-background {
+	fill: #fff !important;
+}
+.gridlines {
+   stroke: #222222 !important;
+}
+.text.axes {
+	fill: #222222 !important;
+	font-size: smaller;
+  font-family: "Helvetica Neue", "Helvetica", "Open Sans", "Arial", sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+.legend {
+	font-size: smaller;
+  font-family: "Helvetica Neue", "Helvetica", "Open Sans", "Arial", sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Section Korrektur für die Höhen der Zeilen und Zellen  */
+section {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  line-height: 1.6em;
+  border:0;
+}
+
+/* Hintergrundbild und Schriftart */
+body {
+    background-color: #444444;
+    color: #444444;
+}
+
+/* Zeilen Hintergrundfarbe abwechselnd */
+.card, section:nth-child(odd) {
+	background-color: #f2f2f2;
+}
+
+/* Header */
+.card > header {
+	background-color: #2588aa;
+	color: #FFFFFF;
+	border:0;
+	text-transform: uppercase;
+}
+
+/* Menühintergrundfarbe */
+:not(.circlemenu-wrapper) > .menu {
+	background-color:#444444;
+}
+
+/* Textfelder */
+select, input.textinput {
+	color: #337ab7;
+}
+

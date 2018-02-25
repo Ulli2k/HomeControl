@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- FHEM Tablet UI V2.6 -->
+	<!-- Template für Startseite zum Aufruf der Contentseiten -->
+</head>
+<body>
+	<div class="row">
+
+		<div class="cell-0 left-align left-space">
+			<div class="big compressed" data-type="symbol" data-device="var_device" 
+						data-color="blue" data-icon="var_icon"
+			></div>
+		</div>
+
+		<div class="cell-100 left-align left-space-2x">
+			<div class="big">var_name</div>
+<!--			<div class="large" data-type="label" data-device="var_device" data-get="var_reading"'></div>-->
+		</div>
+		
+		<div class="cell right-space bigger " data-type="label" data-device="var_device" data-get="var_reading" data-limits='["0","1"]' data-colors='["gray","red"]'></div>
+		
+		<div class="cell right-space" 
+					id="dropdown_var_dropdown"
+					onclick="if ($('#var_dropdown').is(':hidden')) { 
+												$('#var_dropdown').slideDown(250); 
+												$('#dropdown_var_dropdown > i.fa').addClass('fa-rotate-180'); 
+											} else { 
+												$('#var_dropdown').slideUp(250); 
+												$('#dropdown_var_dropdown > i.fa').removeClass('fa-rotate-180'); 
+											}">
+				<i class="fa fa-angle-double-down big right-space"></i>
+		</div>	
+		
+	</div>
+	
+</body>
+</html>

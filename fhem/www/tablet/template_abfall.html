@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- FHEM Tablet UI V2.6 -->
+	<!-- Template für Startseite zum Aufruf der Contentseiten -->
+</head>
+<body>
+	<div class="row">
+
+		<div class="cell-0 left-align left-space">
+			<div class="big compressed" data-type="symbol" data-device="var_device" 
+						data-color="blue" data-icon="var_icon"
+			></div>
+		</div>
+		
+		<div class="cell-100 left-align left-space-2x">
+			<div class="big">var_name</div>
+			<div class="large" data-type="label" data-device="var_device"'></div>
+		</div>
+		
+<!--		<div class="cell"></div>-->
+<!--		-->
+<!--		<div class="cell right-space">-->
+<!--			<div class="bigger" data-type="label" data-device="var_device" -->
+<!--					data-get="naechsteAbholung" data-limits='[2,3,7]' data-fix="0" data-colors='["#ad3333","#6699FF","#000000"]'>-->
+<!--      </div>-->
+<!--		</div>-->
+
+		<div class="cell right-align">
+			<div class="row">
+					<div class="cell right-space large compressed" data-type="symbol" data-device="var_device" 
+							data-get="BioTonne" data-icons='["fa-trash-o warn fa-spin","fa-trash warn"]' data-on-colors='["SaddleBrown","SaddleBrown"]' data-get-on='["0","2"]'>
+				  </div>
+					<div class="cell right-space large compressed" data-type="symbol" data-device="var_device" 
+							data-get="GelbeTonne" data-icons='["fs-bag warn fa-spin","fs-bag warn"]' data-on-colors='["yellow","yellow"]' data-get-on='["0","2"]'>
+				  </div>
+					<div class="cell right-space large compressed" data-type="symbol" data-device="var_device" 
+							data-get="Restmuell" data-icons='["fa-trash-o warn fa-spin","fa-trash warn"]' data-on-colors='["blue","blue"]' data-get-on='["0","2"]'>
+				  </div>
+					<div class="cell right-space large compressed" data-type="symbol" data-device="var_device" 
+							data-get="Sperrmuell"data-icons='["fa-trash-o warn fa-spin","fa-trash warn"]' data-on-colors='["black","black"]' data-get-on='["0","2"]'>
+					</div>
+			</div>
+		</div>	
+
+	</div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- FHEM Tablet UI V2.6 -->
+	<!-- Template für Homematic Funk Schaltaktoren HM-LC-Sw1PBU-FM und HM-LC-SW2-FM und HM-LC-SW1-FM -->
+</head>
+<body>
+	<div class="row">
+
+		<div class="cell-0 left-align left-space"">
+			<div class="big compressed" data-type="symbol" data-device="var_device" 
+						data-color="blue" data-get="position" data-states='["0","25","50","75","100"]' data-icons='["oa-fts_shutter_10","oa-fts_shutter_30","oa-fts_shutter_50","oa-fts_shutter_70","oa-fts_shutter_90"]'
+			></div>
+		</div>
+		
+		<div class="cell-100 left-align left-space-2x">
+			<div class="big">var_name</div>
+<!--			<div class="large" data-type="label" data-device="var_device" data-get="position" data-pre-text="Position: " data-post-text="%"></div>-->
+			<div class="large" data-type="joinedlabel" data-device="var_device" 
+						data-get='["position","automatic"]' data-mask='$1% $2' data-substitution='["enabled","auto","disabled",""]'
+			></div>	
+		</div>
+		
+		
+		<div class="cell right-align right-space">
+
+			<div class="row large">
+		    <div class="cell right-space" data-type="label" data-device="var_device" data-get="position"
+		       data-limits='["0","1"]'
+		       data-colors='["gray","blue"]'
+		       data-substitution="s/.*/UP/"
+		       onclick="ftui.setFhemStatus('set var_device position 0;set var_device automatic disable');">
+		    </div>
+		    <div class="cell right-space" data-type="label" data-device="var_device" data-get="position"
+		       data-limits='["0","25","26"]'
+		       data-colors='["blue","gray","blue"]'
+		       data-substitution="s/.*/25/"
+		       onclick="ftui.setFhemStatus('set var_device position 25;set var_device automatic disable');">
+		    </div>
+		    <div class="cell right-space" data-type="label" data-device="var_device" data-get="position"
+		       data-limits='["0","50","51"]'
+		       data-colors='["blue","gray","blue"]'
+		       data-substitution="s/.*/50/"
+		       onclick="ftui.setFhemStatus('set var_device position 50;set var_device automatic disable');">
+		    </div>
+		    <div class="cell right-space" data-type="label" data-device="var_device" data-get="position"
+		       data-limits='["0","75","100"]'
+		       data-colors='["blue","gray","blue"]'
+		       data-substitution="s/.*/75/"
+		       onclick="ftui.setFhemStatus('set var_device position 75;set var_device automatic disable');">
+		    </div>
+		    
+		    <div class="cell right-space" data-type="label" data-device="var_device" data-get="position"
+		       data-limits='["0","100"]'
+		       data-colors='["blue","gray"]'
+		       data-substitution="s/.*/DOWN/"
+		       onclick="ftui.setFhemStatus('set var_device position 100;set var_device automatic disable');">
+		    </div>
+				
+				<div class="cell right-space" data-type="label"> | </div>
+				
+		    <div class="cell right-space" data-type="label" data-device="var_device" data-get="automatic"
+						data-limits='["enabled","disabled"]'
+		    		data-colors='["gray","red"]'
+		       	data-substitution="s/.*/AUTO/"
+		       	onclick="ftui.setFhemStatus('set var_device automatic enable');">
+		    </div>
+			</div>
+		</div>
+
+	</div>
+</body>

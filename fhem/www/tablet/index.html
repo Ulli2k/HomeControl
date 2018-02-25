@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<!-- FHEM Tablet UI 2.6 -->
+
+<head>
+	<link rel="icon" href="favicon.ico" type="image/x-icon" />
+	
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="debug" content="3"> <!-- verbose level 1-6 = output to console;0 = not output -->
+	<meta name='toast' content='1'> <!-- keine Ausgabe von Protokollmeldungen -->
+	
+	<link rel="stylesheet" href="css/fhem-mobil-ui.css" />
+	<link rel="stylesheet" href="css/user-tablet-ui.css" />
+	<script src="js/fhem-tablet-ui.js" defer></script>
+
+  <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+	
+	<title>SmartDahoam</title>
+</head>
+
+<body style="font-family: 'Quicksand', sans-serif;">
+	<div class="phone-header"></div>
+	<nav class="menu">
+		<div class="menu-trigger"></div>
+		<header>Menu</header>
+    <ul>
+			<li>
+				<div class="large default center" data-type="link" data-url="#content_home.html"
+				data-color="white"
+				data-active-color="blue"
+				data-width="115"
+				data-load="#content_home"
+				data-text-align="left"
+				data-active-pattern=".*(index.html|#content_home.html)"
+				data-return-time="60"
+				data-icon="fa-home"><span>Home</span></div>
+			</li>
+			<li>
+				<div class="large center" data-type="link" data-url="#content_light.html"
+				data-color="white"
+				data-active-color="blue"
+				data-width="115"
+				data-load="#content_light"
+				data-text-align="left"
+				data-active-pattern=".*(#content_light.html)"
+				data-icon="mi-lightbulb_outline"><span>Lampen<br>&nbsp;&nbsp;Geräte</span></div>
+			</li>
+			<li>
+				<div class="large center" data-type="link" data-url="#content_blinds.html"
+				data-color="white"
+				data-active-color="blue"
+				data-width="115"
+				data-load="#content_blinds"
+				data-text-align="left"
+				data-active-pattern=".*(#content_blinds.html)"
+				data-icon="mi-line_weight"><span>Rollos</span></div>
+			</li>			
+			<li>
+				<div class="large center" data-type="link" data-url="#content_chart.html"
+				data-color="white"
+				data-active-color="blue"
+				data-width="115"
+				data-load="#content_chart"
+				data-text-align="left"
+				data-active-pattern=".*(#content_chart.html)"
+				data-icon="mi-show_chart"><span>Grafiken</span></div>
+			</li>
+			<li>
+				<div class="large center" data-type="link" data-url="#content_settings.html"
+				data-color="white"
+				data-active-color="blue"
+				data-width="115"
+				data-load="#content_settings"
+				data-text-align="left"
+				data-active-pattern=".*(#content_settings.html)"
+				data-icon="mi-settings"><span>Einstellungen</span></div>
+			</li>
+
+
+			<li style="position:absolute; bottom: 0; width: 100%;">
+				<div class="bigger center" data-type="clock"
+					data-format="H:i:s"
+					data-interval="100"
+				></div>
+				<div class="darker big center" data-type="clock"
+					data-format="D d.m.Y"
+				 	data-interval="100"
+				></div>			
+			</li>
+		</ul>
+	</nav>
+	
+	<main>
+		<div class="page" id="content_home"></div>
+<!--		<div class="page" id="content_heating"></div>-->
+		<div class="page" id="content_light"></div>
+<!--		<div class="page" id="content_contact"></div>-->
+		<div class="page" id="content_blinds"></div>
+<!--		<div class="page" id="content_blinds_detail"></div>-->
+<!--		<div class="page" id="content_smoke"></div>		-->
+		<div class="page" id="content_weather"></div>		
+		<div class="page" id="content_phone"></div>				
+<!--		<div class="page" id="content_cam"></div>			-->
+		<div class="page" id="content_chart"></div>				
+		<div class="page" id="content_settings"></div>				
+	</main>
+</body>
+</html>
