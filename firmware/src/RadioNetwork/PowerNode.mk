@@ -1,0 +1,47 @@
+
+
+	DEVICE_ID		= 2
+
+#FORCE_MONITOR_PORT	=	1
+#MONITOR_PORT				=	net:esp:23
+#MONITOR_CMD					=	nc
+#MONITOR_PARAMS			=	esp 23
+	
+MONITOR_PORT				= /dev/ttyUSB0
+	
+### Libraries
+	ARDUINO_LIBS			+= mySPI myRFM69
+	ARDUINO_LIBS			+= myPowerMonitor
+
+### CPPFLAGS
+### Flags you might want to set for debugging purpose. Comment to stop.
+#	CPPFLAGS				 	+= -DINCLUDE_DEBUG_OUTPUT -DQUIETMODE_DEFAULT_VALUE=false
+	#CPPFLAGS				 	+= -DSTORE_CONFIGURATION
+	CPPFLAGS         	+= -DHAS_INFO_POLL -DINFO_POLL_CYCLE_TIME=300UL #[s] 300s->5min
+	CPPFLAGS				 	+= -DREADVCC_CALIBRATION_CONST=1120553L
+	
+	CPPFLAGS					+= -DHAS_SPI -DHAS_RFM69
+	CPPFLAGS					+= -DHAS_RFM69_CMD_TUNNELING=2	#1: Host | 2: Satellite
+	CPPFLAGS					+= -DRFM69_CMD_TUNNELING_DEFAULT_VALUE=true -DRFM69_CMD_TUNNELING_HOSTID_DEFAULT_VALUE=1
+	CPPFLAGS					+= -DRFM69_NO_OTHER_PROTOCOLS -DRFM69_NO_BROADCASTS0
+	CPPFLAGS				 	+= -DHAS_RFM69_ADC_NOISE_REDUCTION
+	
+#	CPPFLAGS				 	+= -DHAS_LEDs -DLED_ACTIVITY
+	
+	CPPFLAGS				 += -DHAS_TRIGGER=2 #trigger 2:pulse 1:High 0:Low
+	CPPFLAGS				 += -DTRIGGER_PIN=INTOne #INTZero or INTOne or digitalPin
+	CPPFLAGS				 += -DTRIGGER_DEBOUNCE_TIME=1000 #[ms] !keeps AVR awake during debouncing time!
+
+	CPPFLAGS				 += -DHAS_TRIGGER_1=2 #trigger 2:pulse 1:High 0:Low
+	CPPFLAGS				 += -DTRIGGER_1_PIN=8 #INTZero or INTOne or digitalPin
+	CPPFLAGS				 += -DTRIGGER_1_DEBOUNCE_TIME=1000 #[ms] !keeps AVR awake during debouncing time!
+	
+	#Burden Resistor 150 Ohm
+	CPPFLAGS				 += -DHAS_POWER_MONITOR_CT=2 -DPOWER_MONITOR_CT_ADJUST=0.92 -DHAS_POWER_MONITOR_CT2_1 -DHAS_POWER_MONITOR_CT3_1 
+	#-DHAS_POWER_MONITOR_VCC_2 
+#ursprünglich
+#	CPPFLAGS				 += -DHAS_POWER_MONITOR_PULSE=0
+	
+									
+
+
