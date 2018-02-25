@@ -132,7 +132,7 @@ void myPOWERMONITOR::send(char *cmd, uint8_t typecode) {
 			}
 			if(cmd[0] != 'c') {
 				unsigned long startTime = TIMING::millis();
-				while (TIMING::millis()-startTime <= SAMPLE_CYCLE_TIME_MS && !(_emon.FlagCALC_READY));
+				while (TIMING::millis_since(startTime) <= SAMPLE_CYCLE_TIME_MS && !(_emon.FlagCALC_READY));
 				if(!_emon.FlagCALC_READY) break;
 				_emon.calculateResult();
 			}

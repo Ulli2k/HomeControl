@@ -206,7 +206,7 @@ bool myDataProcessing::poll() {
     memcpy(&RecvDataBuffer, PtrRecvData, sizeof(RecvData));
     FIFO_release(DataRing);
     
-    DS("<<Dataprocessing: <");DS((char*)RecvDataBuffer.Data);DS(">\n");
+    //DS("<<Dataprocessing: <");DS((char*)RecvDataBuffer.Data);DS(">\n");
 
 		//Find right module in ModuleTable
 		const typeModuleInfo* pmt = ModuleTab;

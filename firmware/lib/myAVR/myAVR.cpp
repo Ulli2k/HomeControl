@@ -39,7 +39,7 @@
 		#define DELAY_ACTIVITY_LED	100
 	#endif
 	
-	uint16_t myAVR::DelayActivityLED = 0;
+	unsigned long myAVR::DelayActivityLED = 0;
 	byte myAVR::activityLEDActive = 1;
 	byte myAVR::blockActivityLED = 0;
 #endif
@@ -131,7 +131,7 @@ bool myAVR::poll() {
 	if(AVR_Auto_LowPower && idleCycles(0,LOWPOWER_MAX_IDLETIME)) {
 		//send((char*)"",MODULE_AVR_POWERDOWN);
 		#if INCLUDE_DEBUG_OUTPUT
-		if(DEBUG) { DS_P("awake: ");DU(TIMING::millis()-awakeTime,0);DS_P("ms\n"); }
+		if(DEBUG) { DS_P("awake: ");DU(TIMING::millis_since(awakeTime),0);DS_P("ms\n"); }
 		#endif
 		addToRingBuffer(MODULE_DATAPROCESSING, MODULE_SERIAL, NULL, 0); //flush UARTs
 		addToRingBuffer(MODULE_DATAPROCESSING, MODULE_AVR_POWERDOWN, NULL, 0); //execute PowerDown command with RingBuffer because Debug Messages have to be flushed!
@@ -458,9 +458,9 @@ void myAVR::activityLed(uint8_t on) {
 
   if( (!DelayActivityLED && !on) || !activityLEDActive || blockActivityLED) return;
   
- 	word msec = TIMING::millis();
+ 	unsigned long msec = TIMING::millis();
   if(!on) {
-    if( DELAY_ACTIVITY_LED <= ( DelayActivityLED > msec ? 0xFFFFFFFF - DelayActivityLED + msec : msec - DelayActivityLED ) ) {
+    if( DELAY_ACTIVITY_LED <= (DelayActivityLED > msec ? 0xFFFFFFFF - DelayActivityLED + msec : msec - DelayActivityLED ) ) {
       DelayActivityLED=0;
 			LedOnOff(LED_ACTIVITY,on);
     }

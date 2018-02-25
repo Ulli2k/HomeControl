@@ -17,7 +17,7 @@ private:
 
 public:
 
-	static byte waiting4stop;
+	volatile static byte waiting4stop;
 		
 	myROLLO() { };
 	

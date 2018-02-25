@@ -351,10 +351,10 @@ inline bool myRFM69::DebounceRecvData(myRFM69_DATA *lDataStruct) {
 	    //crc = _crc16_update(crc, lDataStruct->DATA[i]);
     // if different crc or too long ago, this cannot be a repeated packet
    	//if((lDataStruct->CheckSum == _tDebCRC) && (((now - _tDebCmd) < _minDebounceTime) || (_bDebMsgCnt == lDataStruct->MsgCnt && lDataStruct->MsgCnt!=0 )) ) {
-   	if((lDataStruct->CheckSum == _tDebCRC) && (((now - _tDebCmd) < _minDebounceTime)) ) {
+   	if((lDataStruct->CheckSum == _tDebCRC) && ((TIMING::millis_since(_tDebCmd) < _minDebounceTime)) ) {
 			debounced=false;
 		}
-		if(DEBUG) { DS_P("Debounce ");DU(now - _tDebCmd,0);if(!debounced) {DC('!');} DC('>');DU(_minDebounceTime,0);DS("\n"); }
+		if(DEBUG) { DS_P("Debounce ");DU(TIMING::millis_since(_tDebCmd),0);if(!debounced) {DC('!');} DC('>');DU(_minDebounceTime,0);DS("\n"); }
     // save last values and decide whether to report this as a new packet
     _tDebCRC = lDataStruct->CheckSum;
     _tDebCmd = now;
@@ -956,7 +956,7 @@ void myRFM69::readAllRegs(byte addr)
 bool myRFM69::canSend() {
 
 	#if HAS_RFM69_TX_FORCED_DELAY 
-		if((TIMING::millis() - lastRadioFrame) < HAS_RFM69_TX_FORCED_DELAY) {
+		if(TIMING::millis_since(lastRadioFrame) < HAS_RFM69_TX_FORCED_DELAY) {
 			//Auskommentiert um ggf. keinen laufenden Empfang abzubrechen.
 			//#if HAS_RFM69_LISTENMODE //Satellite --> delay between TX needed
 		 	//setMode(RF69_MODE_SLEEP);
@@ -1095,8 +1095,8 @@ void myRFM69::send(myRFM69_DATA *lDataStruct) {
 #endif
 
 	unsigned long startTime = TIMING::millis();
-  while (!canSend() && (TIMING::millis()-startTime) < RF69_CSMA_LIMIT_MS) receiveDone(); //receiveBegin(); //??Begin führt zu einem kleineren Delay als receiveDone(); besonders ohne ListenMode//
-	if(DEBUG & ((TIMING::millis()-startTime) >= RF69_CSMA_LIMIT_MS_DEBUG)) { DS_P("CSMA ");DU(TIMING::millis()-startTime,0);DS("ms\n"); }
+  while (!canSend() && TIMING::millis_since(startTime) < RF69_CSMA_LIMIT_MS) receiveDone(); //receiveBegin(); //??Begin führt zu einem kleineren Delay als receiveDone(); besonders ohne ListenMode//
+	if(DEBUG & (TIMING::millis_since(startTime) >= RF69_CSMA_LIMIT_MS_DEBUG)) { DS_P("CSMA ");DU(TIMING::millis_since(startTime),0);DS("ms\n"); }
 	 
 #if HAS_RFM69_LISTENMODE
 	writeReg(REG_RSSITHRESH,rssiThreshold); //reset Threshold value
@@ -1117,11 +1117,11 @@ void myRFM69::send(myRFM69_DATA *lDataStruct) {
 			//if(!i) startTime = TIMING::millis();
 		  //unsigned long sentTime = TIMING::millis();
 		  startTime = TIMING::millis();
-			while (TIMING::millis()-startTime <= RF69_SEND_RETRY_WAITTIME) {
+			while (TIMING::millis_since(startTime) <= RF69_SEND_RETRY_WAITTIME) {
 			 	if(ACKReceived(lDataStruct->TARGETID,lDataStruct->XData_Config & XDATA_ACK_REQUEST, lDataStruct->XData_Config & XDATA_CMD_REQUEST)) {
 			   	//DU(lDataStruct->TARGETID,2);(lDataStruct->XData_Config & XDATA_ACK_REQUEST) ? DS_P("ACK") : DS_P("CMD");
 			   	//DU(lDataStruct->CheckSum,0);DC(' ');DU(TIMING::millis()-startTime,0);DS("ms-");DU(i,0);DNL();
-			   	DU(lDataStruct->TARGETID,2);(lDataStruct->XData_Config & XDATA_ACK_REQUEST) ? DS_P(" ACK ") : DS_P(" CMD ");DU(TIMING::millis()-startTime,0);DS("ms-");DU(i,0);DNL();
+			   	DU(lDataStruct->TARGETID,2);(lDataStruct->XData_Config & XDATA_ACK_REQUEST) ? DS_P(" ACK ") : DS_P(" CMD ");DU(TIMING::millis_since(startTime),0);DS("ms-");DU(i,0);DNL();
 			   	gotACK=true;
 			   	break;
 			 	}
@@ -1157,8 +1157,8 @@ void myRFM69::sendFrame(myRFM69_DATA *lDataStruct) {
 	byte bufferSize	=	lDataStruct->PAYLOADLEN;
 	
 	if((lDataStruct->XData_Config & XDATA_BURST) && (lDataStruct->XData_Config & XDATA_BURST_INFO_APPENDIX)) bufferSize-=2; //add two BurstDelay bytes to payloadlenght byte 
-	uint32_t txStart=0;
-	uint32_t txBusy=0;
+	unsigned long txStart=0;
+	unsigned long txBusy=0;
 	
   //turn off receiver to prevent reception while filling fifo
  	setMode(RF69_MODE_STANDBY);  // no sleep mode possible due to not working BURST TX in SleepMode
@@ -1182,7 +1182,7 @@ void myRFM69::sendFrame(myRFM69_DATA *lDataStruct) {
   //send Frame
   uint16_t cycles=0;
   txStart = TIMING::millis();
-  uint16_t diff = (uint16_t) lDataStruct->XDATA_BurstTime - (TIMING::millis()-txStart);
+  uint16_t diff = (uint16_t) lDataStruct->XDATA_BurstTime - TIMING::millis_since(txStart);
 
 	while(cycles <= ( (lDataStruct->XDATA_BurstTime>0) ? lDataStruct->XDATA_BurstTime : lDataStruct->XDATA_Repeats)) { //also valid for burst mode because one cycle always takes more than 1ms
 
@@ -1207,15 +1207,15 @@ void myRFM69::sendFrame(myRFM69_DATA *lDataStruct) {
 		txBusy=TIMING::millis();
 		if((lDataStruct->XData_Config & XDATA_BURST) && (lDataStruct->XData_Config & XDATA_BURST_INFINITY)) { 
 			//needed for ETH, infinity PackageMode. Fillup FIFO before it is empty!
-			while ((readReg(REG_IRQFLAGS2) & RF_IRQFLAGS2_FIFOLEVEL) != 0x00 && (TIMING::millis()-txBusy) < RF69_TX_LIMIT_MS);
+			while ((readReg(REG_IRQFLAGS2) & RF_IRQFLAGS2_FIFOLEVEL) != 0x00 && TIMING::millis_since(txBusy) < RF69_TX_LIMIT_MS);
 		} else {
-			while(digitalRead(mySpi.getIntPin(RF69_Config.spi_id)) == 0 && (TIMING::millis()-txBusy) < RF69_TX_LIMIT_MS); //wait till TX is done
+			while(digitalRead(mySpi.getIntPin(RF69_Config.spi_id)) == 0 && TIMING::millis_since(txBusy) < RF69_TX_LIMIT_MS); //wait till TX is done
 		}
-		if(DEBUG & ((TIMING::millis()-txBusy) >= RF69_CSMA_LIMIT_MS_DEBUG)) { DS_P("TX ");DU(TIMING::millis()-txBusy,0);DS("ms\n"); }
+		if(DEBUG & (TIMING::millis_since(txBusy) >= RF69_CSMA_LIMIT_MS_DEBUG)) { DS_P("TX ");DU(TIMING::millis_since(txBusy),0);DS("ms\n"); }
 		
 		//done?		
 		if((lDataStruct->XData_Config & XDATA_BURST) && (lDataStruct->XDATA_BurstTime>0)) {
-			if( (diff = (TIMING::millis()-txStart)) > lDataStruct->XDATA_BurstTime )  //check time during burst
+			if( (diff = TIMING::millis_since(txStart)) > lDataStruct->XDATA_BurstTime )  //check time during burst
 				break;
 			diff = (uint16_t) lDataStruct->XDATA_BurstTime - diff;
 		} else {

@@ -276,6 +276,7 @@ void printRam() {
 			/*if(DEBUG) */ { 
 				DS_P("Ringbuffer overrun <");  
 				for(uint8_t c=0; c<=len; c++) { DH2(buf[c]); DC(' '); } DS_P("|"); 
+				DH2(module);DS_P("|"); 
 				DU(code,0);DS_P("|"); 
 				DU(len,0); DS_P(">\n"); 
 			}

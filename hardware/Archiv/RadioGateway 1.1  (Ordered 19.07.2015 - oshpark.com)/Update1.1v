@@ -1,0 +1,62 @@
+
+Changes:
+---------
+
+
+
+Offen:
+----------
+
+Umgesetzt in 1.1v:
+----------------------
+IR-RX nach unten gesetzt
+Querschnitte korrigieren
+Beschriftungen größer
+IR-RX Pullup entfernen
+2-wire und ADC raus legen oder dummy Löcher für Fädelaufbau? --> P/T/H Sensor integriert
+Position LDR und IR-RX vor Gehäuseloch + RF Positionen nach aussen?  !! LED an 3.3V, da an Atmega Input Pin
+Austausch von IR-RX auf Tsop34836 --> Versorgung von 3.3Volt
+IR-RX an 3.3 Volt hängen
+IR-Diode an 5V für mehr Power
+Pullup IR-RX entfernen da im TSOP schon einer ist.
+Quarz schlecht einzulöfen und scheiß qualität -> DiP Quarz mit Kondensatoren!
+ISP Pin 1 Quadratisch
+RF Platinenausschnitt tiefer
+DIO2 aus RFM69 entfernen, da für OOK nicht notwendig
+RFM69 Beschriftung inkl. orientierung korrigiert auf tPlace (RFM mit Umrahmung)
+C3 Kondensator in Reihe zum AtemgaReset --> nur für FTDI & Beagle Reset notwendig! Für spi(programming) reset nicht
+C4 1µF Kondesator für mehr spannung am Eingang 25V Bürklin 53D1660
+LED Markierung wo die Flachseite ist.
+ADC6/7 kann kein output sein --> Buzzer verschieben derzeit auf PC0 ...am besten ein analoger pin mit PWM -> PD5
+Ungebnutzte Pins lösen BBB Probleme !
+BBB Massepunkte verbunden
+Abblockkondensator an die Atmegas direkt! 0,1µF je IC und möglichst nah. --> evtl. auch direkt an den BBB Versorgungspins
+Abblockkondensator an BBB Versorgung + Resetpin an RFM Modulen?
+Reset von BBB an controller. Diode auf Atmega Resetpin von BBB SYS_RESETn.
+RFM Module Reset ergänzt
+2x3 polig Bürklin 56F6228
+Klinkenstecker ggf. neu belegen (Schirm => 5V?)  Pin 4 ist Versorgung
+SMA Connector Attribute (eBay eingefügt)
+BBB RF Slot vergrößert (länge+tiefe) und Board erweitert
+Buzzer tauschen durch smd --> SMD-Piezosummer Buerklin 5V mit 85mA Stromaufnahme, daher auf 5V Versorgung lassen mit 4,7µF Kondensator
+
+Nicht mehr notwendig:
+--------------
+Reset Button
+Ladeschaltung? MCP7383X-2
+Evtl Versorgung-OnOff Schaltung über BBB Pin?
+
+
+Einkauf:
+----------
+eBay (schwer zu bekommen)
+ SMA Edge, TSOP34836 ggf. auch Conrad TEil i.O.??
+ 
+ MYBOX
+SRAM 23K256-I/SN SOIC-8N Microchip Technology
+Best.-Nr.: 651216 - 62 
+
+#### MODULE ####
+Ladeschaltung mit MCP73832/1 (conrad.de)
+--> Ladestatus auslesen wie http://lowpowerlab.com/blog/2014/03/13/moteino-power-shield-now-available/
+--> https://lowpowerlab.com/shop/index.php?_route_=powershield

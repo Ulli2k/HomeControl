@@ -71,9 +71,9 @@ bool myAVRInterrupt::poll() {
 #endif
 
 		if(sTrigger.triggerDetectedTime) {
-			if( (((TIMING::millis() - sTrigger.triggerDetectedTime) > sTrigger.debounce))) { //time is over
+			if(TIMING::millis_since(sTrigger.triggerDetectedTime) > sTrigger.debounce) { //time is over
 					
-				if(DEBUG) { DS_P("TRIGGER: "); DU((sTrigger.triggerDetected?1:0),0); DC('>'); DU((sTrigger.triggerLevel?1:0),0); DC(' '); DU(TIMING::millis() - sTrigger.triggerDetectedTime,0); DNL(); }
+				if(DEBUG) { DS_P("TRIGGER: "); DU((sTrigger.triggerDetected?1:0),0); DC('>'); DU((sTrigger.triggerLevel?1:0),0); DC(' '); DU(TIMING::millis_since(sTrigger.triggerDetectedTime),0); DNL(); }
 						
 				if(sTrigger.triggerDetected != sTrigger.triggerLevel) { //TriggerLevel Change
 					sTrigger.triggerDetected = sTrigger.triggerLevel;

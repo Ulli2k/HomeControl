@@ -30,7 +30,7 @@ private:
 
 #if HAS_LEDs
 	#ifdef LED_ACTIVITY
-	static uint16_t DelayActivityLED;
+	static unsigned long DelayActivityLED;
 	static byte activityLEDActive;
 	static byte blockActivityLED;
 	#endif
