@@ -323,7 +323,7 @@ void myAVR::send(char *cmd, uint8_t typecode) {
   	  }
 		  #endif
 
-		  send("",MODULE_AVR_LOWPOWER);
+		  send((char*)"",MODULE_AVR_LOWPOWER);
 
 	#if INFO_POLL_CYCLE_TIME
 			for(; (AVR_LowPower_InfoPoll_Counter*8)<INFO_POLL_CYCLE_TIME; AVR_LowPower_InfoPoll_Counter++) {

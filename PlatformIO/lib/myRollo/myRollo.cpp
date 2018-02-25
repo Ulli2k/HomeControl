@@ -12,18 +12,18 @@ void myROLLO::initialize() {
 
 	waiting4stop = 0;
 	maxMovingTime = ROLLO_MAX_MOVING_TIME;
-	
+
 	digitalWrite(ROLLO_POWER_PIN, 0); //Wichtig: Erst ausschalten dann als Output konfigurieren
 	pinMode(ROLLO_POWER_PIN, OUTPUT);
 	TIMING::delay(ROLLO_POWER_OFF_DELAY);
-	
+
 	digitalWrite(ROLLO_UP_DOWN_PIN, 0); //Wichtig: Erst ausschalten dann als Output konfigurieren
 	pinMode(ROLLO_UP_DOWN_PIN, OUTPUT);
 
 }
 
 bool myROLLO::poll() {
-	
+
 	if(waiting4stop) {
 		if(waiting4stop == 2) { // End of moving
 			//byte directionUp = (digitalRead(ROLLO_UP_DOWN_PIN)? 2 : 1);
@@ -36,13 +36,13 @@ bool myROLLO::poll() {
 }
 
 //void myROLLO::infoPoll(byte prescaler) {
-//	
+//
 //}
 
-void myROLLO::send(char *cmd, uint8_t typecode) { 
-	
+void myROLLO::send(char *cmd, uint8_t typecode) {
+
 	switch(typecode) {
-		
+
 		case MODULE_ROLLO_CMD:
 			if(cmd[0] != 't') {
 				SwitchUpDown(cmd);
@@ -55,7 +55,7 @@ void myROLLO::send(char *cmd, uint8_t typecode) {
 				}
 			}
 			break;
-			
+
 		case MODULE_ROLLO_EVENT:
 			if(DEBUG) {	DS_P("EVENT - ");DU(cmd[0],0);DNL(); }
 			byte directionUp;
@@ -71,12 +71,12 @@ void myROLLO::send(char *cmd, uint8_t typecode) {
 						addToRingBuffer(MODULE_ROLLO_CMD, 0, &directionUp, 1);
 					}
 					break;
-				case 3: 
+				case 3:
 					SwitchUpDown("2"); //Up
 					directionUp = 2;
 					addToRingBuffer(MODULE_ROLLO_CMD, 0, &directionUp, 1);
 					break;
-			}		
+			}
 			break;
 	}
 }
@@ -93,7 +93,7 @@ void myROLLO::SwitchUpDown(const char* cmd) {
 	if(DEBUG) {	DS_P("Power OFF\n"); }
   digitalWrite(ROLLO_POWER_PIN, 0);
   TIMING::delay(ROLLO_POWER_OFF_DELAY);//ms 50Hz supply frequence --> 0.02s
-  
+
 	//Up/Down/off
   switch(cmd[0]) {
   	case '1': //Down
@@ -114,7 +114,7 @@ void myROLLO::SwitchUpDown(const char* cmd) {
 
 	if(DEBUG) {	DS("Power ON\n"); }
 	digitalWrite(ROLLO_POWER_PIN, 1);
-	
+
 	if(!sdelay) { waiting4stop=0; return; }
 	if(DEBUG) { DU(sdelay*100-ROLLO_POWER_OFF_DELAY,1);DNL(); }
 
@@ -124,9 +124,9 @@ void myROLLO::SwitchUpDown(const char* cmd) {
 }
 
 void myROLLO::displayData(RecvData *DataBuffer) {
-	
-	unsigned long buf[2];
-	
+
+	//unsigned long buf[2];
+
 	switch(DataBuffer->ModuleID) {
 		case  MODULE_ROLLO_CMD:
 			if(DataBuffer->DataTypeCode == 't') {
@@ -140,9 +140,8 @@ void myROLLO::displayData(RecvData *DataBuffer) {
 }
 
 void myROLLO::printHelp() {
- 
+
 	DS_P("\n ## ROLLO-SWITCH ##\n");
 	DS_P(" * [ROLLO]  	J<0:off,1:down,2:up><sec*10>\n");
 	DS_P(" * [MOV-TIME]	Jt<sec*10>\n");
 }
-
