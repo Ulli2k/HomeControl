@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<div class="page" id="content_home">
+		<div class="hbox">
+
+			<div class="vbox phone-width">
+			
+				<div class="card lift">
+					<header>HomeState</header>
+					<section>
+						<div data-template="template_home_status.html" data-parameter='{"var_name":"Anwesenheit","var_device":"HomeSceneDebounce","var_icon":"fa-home"}'></div>
+					</section>
+				</div>
+	
+				<div class="card lift">
+					<header>Klima</header>
+					<section>
+						<div data-template="template_room.html" data-parameter='{"var_name":"Bad","var_device":"BZ_Climate","var_icon":"ftui-thermo","var_temp_limit":"[0,15,25]","var_hum_limit":"[0,40,60]","var_dew_limit":"[0,15,25]"}'></div>
+					</section>
+					
+					<section>
+						<div data-template="template_room.html" data-parameter='{"var_name":"Klo","var_device":"KL_Climate","var_icon":"ftui-thermo","var_temp_limit":"[0,15,25]","var_hum_limit":"[0,40,60]","var_dew_limit":"[0,15,25]"}'></div>
+					</section>
+										
+					<section>
+						<div data-template="template_room.html" data-parameter='{"var_name":"Schlafzimmer","var_device":"SZ_Climate","var_icon":"ftui-thermo","var_temp_limit":"[0,15,20]","var_hum_limit":"[0,40,60]","var_dew_limit":"[0,15,25]"}'></div>
+					</section>
+
+					<section>
+						<div data-template="template_room.html" data-parameter='{"var_name":"Waschzimmer","var_device":"WZ_Climate","var_icon":"ftui-thermo","var_temp_limit":"[0,15,18]","var_hum_limit":"[0,40,60]","var_dew_limit":"[0,15,25]"}'></div>
+					</section>			
+
+					<section>
+						<div data-template="template_room.html" data-parameter='{"var_name":"Keller","var_device":"KZ_Climate","var_icon":"ftui-thermo","var_temp_limit":"[0,10,15]","var_hum_limit":"[0,50,65]","var_dew_limit":"[0,15,25]"}'></div>
+					</section>	
+
+					<section>
+						<div data-template="template_room.html" data-parameter='{"var_name":"Bügelzimmer","var_device":"HZ_Climate","var_icon":"ftui-thermo","var_temp_limit":"[0,15,20]","var_hum_limit":"[0,50,65]","var_dew_limit":"[0,15,25]"}'></div>
+					</section>	
+					
+					<section>
+						<div data-template="template_room.html" data-parameter='{"var_name":"Wohnküche","var_device":"WK_Climate","var_icon":"ftui-thermo","var_temp_limit":"[0,15,25]","var_hum_limit":"[0,40,60]","var_dew_limit":"[0,15,25]"}'></div>
+					</section>					
+				</div>
+			</div>
+		
+			<div class="vbox phone-width">
+				<div class="card lift">
+					<header>Komfort</header>
+					<section>
+						<div data-template="template_switch.html" data-parameter='{"var_name":"Türschloss","var_device":"NukiDevice",
+								"var_state_off":"locked","var_state_on":"unlocked",
+								"var_icon_off":"mi-lock","var_icon_on":"mi-lock_open",
+								"var_text_off":"LOCK","var_text_on":"UNLOCK","var_set_off":"lock","var_set_on":"unlock"}'></div>
+					</section>
+					<section>
+						<div data-template="template_reading.html" data-parameter='{"var_name":"Fenster&nbsp;&&nbsp;Türen","var_device":"MemoryDummy","var_reading":"offeneFenster",
+								"var_state":"offeneFensterCnt","var_st_limit":"[0,1]","var_icon":"fa-windows"}'></div>
+					</section>
+				</div>
+				
+				<div class="card lift">
+					<header>Infos</header>
+					<section>
+						<div data-template="template_weather.html" data-parameter='{"var_name":"Wetter","var_device":"Weather","var_link":"content_weather"}'></div>
+					</section>
+					<section>
+						<div data-template="template_missedCalls.html" data-parameter='{"var_name":"Anrufe","var_device":"FritzBox_CallList","var_missed_device":"MemoryDummy","var_missed_reading":"FritzBoxMissedCalls","var_link":"content_phone"}'></div>
+					</section>
+<!--					<section>-->
+<!--						<div data-template="template_abfall.html" data-parameter='{"var_name":"Abfall","var_device":"MuellTermine","var_icon":"fa-trash-o"}'></div>-->
+<!--					</section>	-->
+					<section>
+						<div data-template="template_sumReading.html" data-parameter='{"var_name":"Abfall","var_device":"MuellTermine","var_state_reading":"naechsteAbholung",
+							"var_state_on":"0|1","var_state_color_off":"blue","var_state_color_on":"red",
+							"var_state_limit":"[0,2]","var_state_colors":"[\"red\",\"blue\"]", 
+							"var_icon":"fa-trash-o",
+							"var_reading":"Abholung","var_mask_reading":""}'
+						></div>
+					</section>					
+					<section>
+						<div data-template="template_sumReading.html" data-parameter='{"var_name":"Auto","var_device":"MemoryDummy","var_state_reading":"VerkehrslageCnt",
+								"var_state_off":"0","var_state_on":"!0","var_state_color_off":"blue","var_state_color_on":"red",
+								"var_state_limit":"[0,1]","var_state_colors":"[\"blue\",\"red\"]",
+								"var_icon":"mi-directions_car",
+								"var_reading":"Verkehrslage","var_mask_reading":""}'
+						></div>
+					</section>
+		
+					<section>
+						<div data-template="template_sumReading.html" data-parameter='{"var_name":"Zug - Hackerbrücke","var_device":"DB_Hackerbruecke","var_state_reading":"STATE",
+								"var_state_off":"0","var_state_on":"!0","var_state_color_off":"blue","var_state_color_on":"red",
+								"var_state_limit":"[0,1]","var_state_colors":"[\"blue\",\"red\"]",
+								"var_icon":"mi-train",
+								"var_joind_reading":"[\"plan_departure_1\",\"plan_departure_delay_1\",\"plan_departure_2\",\"plan_departure_delay_2\",\"plan_departure_3\",\"plan_departure_delay_3\"]",
+								"var_mask_reading":"$1 - $2 min  |  $3 - $4 min  |  $5 - $6 min"}'
+								
+						></div>
+					</section>
+
+				
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
