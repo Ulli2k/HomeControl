@@ -5,11 +5,14 @@ avrdude -b 115200 -p m328p -c arduino -P net:beagle:5000 -Uflash:w:HomeControl.c
 nc beagle 4001
 */
 
-#include <myTiming.h> //notwendig da es nur im BaseModule nicht reicht ?
-#include <PinChangeInt.h> //notwendig da es nur im BaseModule nicht reicht ?
+#if defined(__AVR_ATmega328P__)
+//   #include <myTiming.h> //notwendig da es nur im BaseModule nicht reicht ?
+  #include <PinChangeInt.h> //notwendig da es nur im BaseModule nicht reicht ?
+#endif
 
 /*********************** Include all Modules *****************************/
 #include <myBaseModule.h>
+
 #include <RingBuffer.h>
 DataFIFO_t DataRing;
 
@@ -21,7 +24,7 @@ myDataProcessing DataProc;
   myUart Remote(SER_BAUD, HW_UART);
 #endif
 
-#if HAS_AVR
+#if HAS_AVR && defined(__AVR_ATmega328P__)
   #include <myAVR.h>
   myAVR myAvr;
 #endif

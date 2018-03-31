@@ -129,7 +129,7 @@ Copyright 2010-2014 Michael Schwager (aka, "GreyGnome")
 #include <new.h>
 #include <wiring_private.h> // cbi and sbi defined here
 
-#undef DEBUG
+//#undef DEBUG
 
 /*
 * Theory: For the IO pins covered by Pin Change Interrupts
@@ -193,7 +193,7 @@ typedef void (*PCIntvoidFuncPtr)(void);
 class PCintPort {
 public:
 	// portB=PCintPort(2, 1,PCMSK1);
-	// index:   portInputReg(*portInputRegister(index)), 
+	// index:   portInputReg(*portInputRegister(index)),
 	// pcindex: PCICRbit(1 << pcindex)
 	// maskReg: portPCMask(maskReg)
 	PCintPort(int index,int pcindex, volatile uint8_t& maskReg) :
@@ -306,7 +306,7 @@ void PCintPort::ledsetup(void) {
 #endif
 
 //
-// ATMEGA 644 
+// ATMEGA 644
 //
 #if defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644__) // Sanguino, Mosquino uino bobino bonanafannafofino, me my momino...
 
@@ -339,7 +339,7 @@ PCintPort portD=PCintPort(4, 2,PCMSK2); // port PD==4
 
 #ifdef __USE_PORT_JK
 #ifndef NO_PORTJ_PINCHANGES
-PCintPort portJ=PCintPort(10,1,PCMSK1); // port PJ==10 
+PCintPort portJ=PCintPort(10,1,PCMSK1); // port PJ==10
 #endif
 #ifndef NO_PORTK_PINCHANGES
 PCintPort portK=PCintPort(11,2,PCMSK2); // port PK==11
@@ -615,7 +615,7 @@ ISR(PORTCVECT) {
 #endif
 
 #ifndef NO_PORTD_PINCHANGES
-ISR(PORTDVECT){ 
+ISR(PORTDVECT){
 	#ifdef PINMODE
 	PCintPort::s_PORT='D';
 	#endif
@@ -636,7 +636,7 @@ ISR(PCINT1_vect) {
 #endif
 
 #ifndef NO_PORTK_PINCHANGES
-ISR(PCINT2_vect){ 
+ISR(PCINT2_vect){
 	#ifdef PINMODE
 	PCintPort::s_PORT='K';
 	#endif
