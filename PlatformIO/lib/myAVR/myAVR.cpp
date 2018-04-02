@@ -11,7 +11,11 @@
 #endif
 
 //#define PwrDown_AVR() { TIMING::delay(10); cli(); set_sleep_mode(SLEEP_MODE_PWR_DOWN); sleep_mode(); } // in den Schlafmodus wechseln
-#define Reset_AVR() { wdt_enable(WDTO_15MS); while(1) {} }
+#if defined(__AVR_ATmega328P__)
+	#define Reset_AVR() { wdt_enable(WDTO_15MS); while(1) {} }
+#else
+	#define Reset_AVR() { /*NVIC_SystemReset(); */ }
+#endif
 
 #if READVCC_CALIBRATION_CONST
 	uint16_t myAVR::AVR_InternalReferenceVoltage = 1150;
@@ -176,9 +180,11 @@ void myAVR::infoPoll(byte prescaler) {
 }
 
 int myAVR::getAvailableRam() {
+	#if defined(__AVR_ATmega328P__)
 	extern int __heap_start, *__brkval;
 	int v;
 	return ((int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval));
+	#endif
 }
 
 #if HAS_ADC

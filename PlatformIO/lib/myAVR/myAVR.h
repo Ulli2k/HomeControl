@@ -1,7 +1,9 @@
 #ifndef _MY_AVR_MODULE_h
 #define _MY_AVR_MODULE_h
 
+#if defined(__AVR_ATmega328P__)
 #include <avr/wdt.h> // Reset_AVR
+#endif
 #include <myBaseModule.h>
 //#include "LowPower.h"
 
@@ -18,7 +20,7 @@ private:
 #ifdef READVCC_CALIBRATION_CONST
 	bool initialVCCSample:1;
 #endif
-	
+
 	static uint16_t AVR_InternalReferenceVoltage;
 #if HAS_POWER_OPTIMIZATIONS
 	static byte AVR_Auto_LowPower;
@@ -49,7 +51,7 @@ private:
 
 	int getAvailableRam();
 
-#if HAS_ADC	
+#if HAS_ADC
 	unsigned long getADCValue(uint8_t aPin);
 #endif
 	unsigned long getVCC(void);
@@ -63,8 +65,8 @@ private:
 #endif
 
 public:
-	
-	myAVR() 
+
+	myAVR()
 		#ifdef HAS_TRIGGER
 		: cInterrupt(TRIGGER_PIN,TRIGGER_DEBOUNCE_TIME, HAS_TRIGGER, TRIGGER_EVENT)
 		#endif
@@ -72,19 +74,19 @@ public:
 		, cInterrupt1(TRIGGER_1_PIN,TRIGGER_1_DEBOUNCE_TIME, HAS_TRIGGER_1, TRIGGER_1_EVENT)
 		#endif
 		{ };
-	
+
 	void initialize();
 	bool poll();
 	void infoPoll(byte prescaler);
 	void send(char *cmd, uint8_t typecode=0) REDUCED_FUNCTION_OPTIMIZATION; //needed for Low Power Mode -> https://lowpowerlab.com/forum/index.php/topic,1620.msg11752.html#msg11752
 	void displayData(RecvData *DataBuffer);
 	void printHelp();
-	
-#if HAS_LEDs	
+
+#if HAS_LEDs
 	static void activityLed (uint8_t on);
 #endif
 
 //	static void tick();
-	
+
 };
 #endif
