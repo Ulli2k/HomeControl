@@ -14,8 +14,8 @@
 #include <myBaseModuleDefines.h>
 
 /*********************** Declare Timing Functions for all Modules ***********************/
-#include <myBaseTiming.h>
 #define TIMING myTiming
+#include <myBaseTiming.h>
 
 /*********************** Declare Interrupt Functions for all Modules ***********************/
 #include <myBaseInterrupt.h>
