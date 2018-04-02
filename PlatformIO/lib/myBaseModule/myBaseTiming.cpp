@@ -61,20 +61,6 @@ ISR(TIMER2_OVF_vect)
 	timer2_overflow_count++;
 }
 
-unsigned long myTiming::millis_since(unsigned long start_ms) {
-
-	unsigned long ms = myTiming::millis();
-
-	if(start_ms <= ms) {
-		ms =  ms - start_ms;
-	} else { //overflow
-		//Serial.print("MILLIS Overflow "); Serial.print((unsigned long)start_ms); Serial.print(">"); Serial.println((unsigned long)ms);
-		ms = ms + (ULONG_MAX - start_ms);
-	}
-
-	return ms;
-}
-
 unsigned long myTiming::millis() {
 	unsigned long m;
 	uint8_t oldSREG = SREG;
@@ -262,3 +248,22 @@ void myTiming::detachTimeInterrupt(void (*isr)())
 }
 
 #endif
+
+
+unsigned long myTiming::millis_since(unsigned long start_ms) {
+
+#if defined(__AVR_ATmega328P__)
+	unsigned long ms = myTiming::millis();
+#else
+	unsigned long ms = millis();
+#endif
+
+	if(start_ms <= ms) {
+		ms =  ms - start_ms;
+	} else { //overflow
+		//Serial.print("MILLIS Overflow "); Serial.print((unsigned long)start_ms); Serial.print(">"); Serial.println((unsigned long)ms);
+		ms = ms + (ULONG_MAX - start_ms);
+	}
+
+	return ms;
+}
