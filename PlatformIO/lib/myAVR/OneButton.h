@@ -17,6 +17,7 @@
 #define OneButton_h
 
 #include "Arduino.h"
+#include <myBaseModule.h>
 
 // ----- Callback function types -----
 
@@ -25,7 +26,7 @@ extern "C" {
 }
 
 
-class OneButton
+class OneButton : public myBaseModule
 {
 public:
   // ----- Constructor -----

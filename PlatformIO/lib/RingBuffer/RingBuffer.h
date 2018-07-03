@@ -1,12 +1,16 @@
 #ifndef _MY_FIFO_H_
 #define _MY_FIFO_H_
- 
+
 #include <stdint.h>
 #include <Arduino.h> //type byte
 
 // Vorsicht der Buffer benötigt viel RAM
-#define MAX_RING_BUFFER 				8  // muss 2^n betragen (4, 8, 16, 32, 64 ...) 
-																	 // >8 notwendig für z.B: 4xRFM-Module da Querys wie "00f0" erst einmal alles in den RingBuffer lädt
+#if defined(__AVR_ATmega328P__)
+  #define MAX_RING_BUFFER 				8  // muss 2^n betragen (4, 8, 16, 32, 64 ...)
+																	   // >8 notwendig für z.B: 4xRFM-Module da Querys wie "00f0" erst einmal alles in den RingBuffer lädt
+#else
+  #define MAX_RING_BUFFER 				32
+#endif
 #define MAX_RING_DATA_SIZE			30 // IR: irmp_data struct muss reinpassen | Homematic: Payload 30 Bytes
 
 typedef struct {
@@ -25,19 +29,19 @@ typedef struct {
 
 /* memset(&(fifo),0,sizeof(&(fifo)));*/
 #define FIFO_init(fifo)		{ /*memset(&(fifo),0,sizeof(&(fifo)));*/ fifo._read = 0; fifo._write = 0; fifo._ready = 1; }
- 
+
 #define FIFO_available(fifo)	( fifo._read != fifo._write )
 
 #define FIFO_ready(fifo) ( fifo._ready == 1 )
 
 #define FIFO_block(fifo) ( fifo._ready = 0 )
 #define FIFO_release(fifo) ( fifo._ready = 1 )
- 
+
 #define FIFO_read(fifo, size) (						\
 	(FIFO_available(fifo)) ?					\
 	&(fifo._buffer[fifo._read = (fifo._read + 1) & (size-1)]) : NULL	\
-) 
- 
+)
+
 #define FIFO_write(fifo, data, size) {								\
 	while(!FIFO_ready(fifo)); \
 	FIFO_block(fifo); \
@@ -46,7 +50,7 @@ typedef struct {
 		fifo._write = tmphead;				/* store new index */		\
 		memcpy(&fifo._buffer[tmphead],&data,sizeof(RecvData)); /* store data in buffer */	\
 	} else { \
-		Serial.println(PSTR("FIFO!")); \
+      Serial.println(PSTR("FIFO!")); \
 	} \
 	FIFO_release(fifo); \
 }
@@ -61,9 +65,9 @@ typedef struct {
 
 #define FIFO64_read(fifo)			FIFO_read(fifo, 64)
 #define FIFO64_write(fifo, data)		FIFO_write(fifo, data, 64)
- 
+
 #define FIFO128_read(fifo)			FIFO_read(fifo, 128)
 #define FIFO128_write(fifo, data)		FIFO_write(fifo, data, 128)
 */
 
-#endif /*FIFO_H_*/ 
+#endif /*FIFO_H_*/

@@ -5,7 +5,7 @@ volatile byte myROLLO::waiting4stop = 0;
 
 void myROLLO_Interrupt_Function() {
 	myROLLO::waiting4stop=2;
-	TIMING::detachInterrupt(&myROLLO_Interrupt_Function);
+	TIMING::detachTimeInterrupt(&myROLLO_Interrupt_Function);
 }
 
 void myROLLO::initialize() {
@@ -108,7 +108,7 @@ void myROLLO::SwitchUpDown(const char* cmd) {
 	  	if(DEBUG) {	DS("Stop\n"); }
 	  	digitalWrite(ROLLO_UP_DOWN_PIN, 0);
 	  	waiting4stop=0;
-	  	TIMING::detachInterrupt(&myROLLO_Interrupt_Function);
+	  	TIMING::detachTimeInterrupt(&myROLLO_Interrupt_Function);
 	  	return;
 	}
 
@@ -119,8 +119,8 @@ void myROLLO::SwitchUpDown(const char* cmd) {
 	if(DEBUG) { DU(sdelay*100-ROLLO_POWER_OFF_DELAY,1);DNL(); }
 
 	waiting4stop=1;
-	TIMING::detachInterrupt(&myROLLO_Interrupt_Function);
-	TIMING::attachInterrupt(&myROLLO_Interrupt_Function, (sdelay*100-ROLLO_POWER_OFF_DELAY) );
+	TIMING::detachTimeInterrupt(&myROLLO_Interrupt_Function);
+	TIMING::attachTimeInterrupt(&myROLLO_Interrupt_Function, (sdelay*100-ROLLO_POWER_OFF_DELAY) );
 }
 
 void myROLLO::displayData(RecvData *DataBuffer) {

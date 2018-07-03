@@ -1,76 +1,76 @@
 
 #include <myDataProcessing.h>
 
-#if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING
-#include <myRFM69protocols.h> //needed for Tunneling Function
-#endif
+// #if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING
+// 	#include <myRFM69protocols.h> //needed for Tunneling Function
+// #endif
 
-extern const char helpText[] PROGMEM;
+// extern const char helpText[] PROGMEM;
 extern void printPROGMEM (const char * s);
 
 #if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING==2 //Satellite
 byte myDataProcessing::OutputTunnel	=	0;
 #endif
 
-#define STR_HELPER(x) #x
-#define STR(x) STR_HELPER(x)
+// #define STR_HELPER(x) #x
+// #define STR(x) STR_HELPER(x)
 
-const char myDataProcessing::welcomeText[] PROGMEM =
-	  "[RN"
-	#if (DEVICE_ID<=9)
-		"0"
-	#endif
-	  STR(DEVICE_ID)
-	#if defined(STORE_CONFIGURATION)
-		"s"
-	#endif
-	#ifdef HAS_ADC
-		",C"
-	#endif
-	#ifdef HAS_TRIGGER
-		",N"
-	#endif
-	#ifdef HAS_LEDs
-		",L"
-	#endif
-	#ifdef HAS_SWITCH //|| HAS_ROLLO_SWITCH
-		",S"
-	#endif
-	#ifdef HAS_ROLLO
-		",J"
-	#endif
-	#ifdef HAS_BUZZER
-		",B"
-	#endif
-	#ifdef HAS_RFM69
-		",R"
-		#if HAS_RFM69_LISTENMODE && !HAS_RFM69_TXonly
-		"l"
-		#elif !HAS_RFM69_LISTENMODE && HAS_RFM69_TXonly
-		"t"
-		#endif
-		#if HAS_RFM69_CMD_TUNNELING==1
-		"h"
-		#elif(HAS_RFM69_CMD_TUNNELING==2)
-		"s"
-		#endif
-	#endif
-	#if (defined(HAS_IR_TX) || defined(HAS_IR_RX))
-		",I"
-		#if HAS_IR_TX
-			"s"
-		#endif
-		#if HAS_IR_RX
-			"r"
-		#endif
-	#endif
-	#ifdef HAS_POWER_MONITOR_CT //|| HAS_POWER_MONITOR_PULSE
-		",P"
-	#endif
-	#ifdef HAS_BME280
-		",E"
-	#endif
-	"]";
+// const char myDataProcessing::welcomeText[] PROGMEM =
+// 	  "[RN"
+// 	#if (DEVICE_ID<=9)
+// 		"0"
+// 	#endif
+// 	  STR(DEVICE_ID)
+// 	#if defined(STORE_CONFIGURATION)
+// 		"s"
+// 	#endif
+// 	#ifdef HAS_ADC
+// 		",C"
+// 	#endif
+// 	#ifdef HAS_TRIGGER
+// 		",N"
+// 	#endif
+// 	#ifdef HAS_LEDs
+// 		",L"
+// 	#endif
+// 	#ifdef HAS_SWITCH //|| HAS_ROLLO_SWITCH
+// 		",S"
+// 	#endif
+// 	#ifdef HAS_ROLLO
+// 		",J"
+// 	#endif
+// 	#ifdef HAS_BUZZER
+// 		",B"
+// 	#endif
+// 	#ifdef HAS_RFM69
+// 		",R"
+// 		#if HAS_RFM69_LISTENMODE && !HAS_RFM69_TXonly
+// 		"l"
+// 		#elif !HAS_RFM69_LISTENMODE && HAS_RFM69_TXonly
+// 		"t"
+// 		#endif
+// 		#if HAS_RFM69_CMD_TUNNELING==1
+// 		"h"
+// 		#elif(HAS_RFM69_CMD_TUNNELING==2)
+// 		"s"
+// 		#endif
+// 	#endif
+// 	#if (defined(HAS_IR_TX) || defined(HAS_IR_RX))
+// 		",I"
+// 		#if HAS_IR_TX
+// 			"s"
+// 		#endif
+// 		#if HAS_IR_RX
+// 			"r"
+// 		#endif
+// 	#endif
+// 	#ifdef HAS_POWER_MONITOR_CT //|| HAS_POWER_MONITOR_PULSE
+// 		",P"
+// 	#endif
+// 	#ifdef HAS_BME280
+// 		",E"
+// 	#endif
+// 	"]";
 
 
 myDataProcessing::myDataProcessing() {
@@ -115,7 +115,7 @@ void myDataProcessing::send(char *cmd, uint8_t typecode) {
 
 #if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING==2 //Satellite
 		case MODULE_DATAPROCESSING_OUTPUTTUNNEL:
-			display_flush();
+			DFL();
 			if(cmd[0]=='0') {
 				if(!isUartTxActive) {
 					PowerOpti_USART0_ON;
@@ -140,7 +140,7 @@ void myDataProcessing::send(char *cmd, uint8_t typecode) {
 			}
 #endif
 			break;
-		
+
 #if INCLUDE_HELP
 		case MODULE_DATAPROCESSING_HELP:
 			printModuleHelp();

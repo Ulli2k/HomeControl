@@ -5,9 +5,9 @@
 	byte myAVRInterrupt::myAVR_ButtonState = TRIGGER_BUTTON_NONE;
 #endif
 
-myAVRInterrupt::myAVRInterrupt(uint8_t irq, uint16_t debounce, uint8_t level /* 3:button fkt 2:pulse 1:High 0:Low */, uint8_t event) 
+myAVRInterrupt::myAVRInterrupt(uint8_t irq, uint16_t debounce, uint8_t level /* 3:button fkt 2:pulse 1:High 0:Low */, uint8_t event)
 #ifdef INCLUDE_BUTTON
-		: cButton(irq, false) 
+		: cButton(irq, false)
 #endif
 {
 	sTrigger.irqPin = (irq==INTOne?3:(irq==INTZero?2:irq));
@@ -31,33 +31,33 @@ void myAVRInterrupt::initialize() {
 		sTrigger.triggerLevel=sTrigger.triggerDetected;
 		sTrigger.triggerDetectedTime=0;
 		cfgInterrupt(this, sTrigger.irqPin, Interrupt_Change);
-#ifdef INCLUDE_BUTTON	
+#ifdef INCLUDE_BUTTON
  	}
 #endif
 }
 
 void myAVRInterrupt::interrupt() {
-	
+
 	byte buf[2];
 	buf[1] = sTrigger.irqPin;
-	
+
 	sTrigger.triggerLevel = digitalRead(sTrigger.irqPin);
 	if(!sTrigger.triggerDetectedTime && sTrigger.triggerLevel==sTrigger.level) {
-		sTrigger.triggerDetectedTime = TIMING::millis();
+		sTrigger.triggerDetectedTime = millis();
 		sTrigger.triggerDetected = sTrigger.triggerLevel;
 		buf[0] = sTrigger.triggerDetected;
 		addToRingBuffer((sTrigger.event!=MODULE_AVR_TRIGGER ? MODULE_DATAPROCESSING : MODULE_AVR_TRIGGER), sTrigger.event, buf, sizeof(byte)*2);
 	}
-	
+
 	//DS_P("TRIGGER_INT: "); DU((triggerDetected?1:0),0); DC('>'); DU((triggerLevel?1:0),0); DC(' '); DU(TIMING::millis() - triggerDetectedTime,0); DNL();
 }
 
 bool myAVRInterrupt::poll() {
-		
+
 	byte buf[2];
 	buf[1] = sTrigger.irqPin;
-		
-#ifdef INCLUDE_BUTTON	
+
+#ifdef INCLUDE_BUTTON
 	if(sTrigger.button) {
 		cButton.tick();
 		if(myAVR_ButtonState != TRIGGER_BUTTON_NONE) {
@@ -66,15 +66,15 @@ bool myAVRInterrupt::poll() {
 			addToRingBuffer((sTrigger.event!=MODULE_AVR_TRIGGER ? MODULE_DATAPROCESSING : MODULE_AVR_TRIGGER), sTrigger.event, buf, sizeof(byte)*2);
 			return 1;
 		}
-		
+
 	} else {
 #endif
 
 		if(sTrigger.triggerDetectedTime) {
-			if(TIMING::millis_since(sTrigger.triggerDetectedTime) > sTrigger.debounce) { //time is over
-					
-				if(DEBUG) { DS_P("TRIGGER: "); DU((sTrigger.triggerDetected?1:0),0); DC('>'); DU((sTrigger.triggerLevel?1:0),0); DC(' '); DU(TIMING::millis_since(sTrigger.triggerDetectedTime),0); DNL(); }
-						
+			if(millis_since(sTrigger.triggerDetectedTime) > sTrigger.debounce) { //time is over
+
+				if(DEBUG) { DS_P("TRIGGER: "); DU((sTrigger.triggerDetected?1:0),0); DC('>'); DU((sTrigger.triggerLevel?1:0),0); DC(' '); DU(millis_since(sTrigger.triggerDetectedTime),0); DNL(); }
+
 				if(sTrigger.triggerDetected != sTrigger.triggerLevel) { //TriggerLevel Change
 					sTrigger.triggerDetected = sTrigger.triggerLevel;
 					if(!sTrigger.pulse || (sTrigger.pulse && sTrigger.triggerDetected)) {
@@ -94,7 +94,7 @@ bool myAVRInterrupt::poll() {
 			}
 			return 1;
 		}
-#ifdef INCLUDE_BUTTON			
+#ifdef INCLUDE_BUTTON
 	}
 #endif
 
@@ -109,32 +109,31 @@ bool myAVRInterrupt::poll() {
 //	DS_P("TRIGGER_info: "); DU((triggerDetected?1:0),0); DC('>'); DU((triggerLevel?1:0),0); DC(' '); DU(TIMING::millis(),0); DS("-"); DU(triggerDetectedTime,0); DNL();
 //	if(triggerDetected != triggerLevel) {
 //		triggerDetected = triggerLevel;
-//		addToRingBuffer(MODULE_AVR_TRIGGER, 0, NULL, 0);	
+//		addToRingBuffer(MODULE_AVR_TRIGGER, 0, NULL, 0);
 //	}
 //}
 /*
-void myAVRInterrupt::send(char *cmd, uint8_t typecode) { 
+void myAVRInterrupt::send(char *cmd, uint8_t typecode) {
 
 	unsigned long buf[2];
-	
+
 	switch(typecode) {
 
 		case MODULE_AVR_TRIGGER:
 			addToRingBuffer(MODULE_AVR_TRIGGER, sTrigger.irqPin, NULL, 0);
 			break;
-	
+
 	}
 }
 */
 void myAVRInterrupt::displayData(RecvData *DataBuffer) {
-	
+
 	if((uint8_t)DataBuffer->Data[1] != sTrigger.irqPin)
 		return;
 	DU(DataBuffer->Data[1],0);
-	DU(DataBuffer->Data[0],0);	
+	DU(DataBuffer->Data[0],0);
 }
 
 //void printHelp() {
 //	DS_P(" * [TRIGGER] N<Pin><0:low,1:high>\n");
 //}
-

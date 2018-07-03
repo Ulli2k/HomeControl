@@ -11,7 +11,11 @@
 #endif
 
 //#define PwrDown_AVR() { TIMING::delay(10); cli(); set_sleep_mode(SLEEP_MODE_PWR_DOWN); sleep_mode(); } // in den Schlafmodus wechseln
-#define Reset_AVR() { wdt_enable(WDTO_15MS); while(1) {} }
+#if defined(__AVR_ATmega328P__)
+	#define Reset_AVR() { wdt_enable(WDTO_15MS); while(1) {} }
+#else
+	#define Reset_AVR() { NVIC_SystemReset(); }
+#endif
 
 #if READVCC_CALIBRATION_CONST
 	uint16_t myAVR::AVR_InternalReferenceVoltage = 1150;
@@ -44,10 +48,6 @@
 	byte myAVR::blockActivityLED = 0;
 #endif
 
-#if (HAS_RFM12_OOK || HAS_RFM12_FSK)
-	#include <myRFM12.h>
-	extern myRFM12 myRFM;
-#endif
 
 void myAVR::initialize() {
 
@@ -131,7 +131,7 @@ bool myAVR::poll() {
 	if(AVR_Auto_LowPower && idleCycles(0,LOWPOWER_MAX_IDLETIME)) {
 		//send((char*)"",MODULE_AVR_POWERDOWN);
 		#if INCLUDE_DEBUG_OUTPUT
-		if(DEBUG) { DS_P("awake: ");DU(TIMING::millis_since(awakeTime),0);DS_P("ms\n"); }
+		if(DEBUG) { DS_P("awake: ");DU(millis_since(awakeTime),0);DS_P("ms\n"); }
 		#endif
 		addToRingBuffer(MODULE_DATAPROCESSING, MODULE_SERIAL, NULL, 0); //flush UARTs
 		addToRingBuffer(MODULE_DATAPROCESSING, MODULE_AVR_POWERDOWN, NULL, 0); //execute PowerDown command with RingBuffer because Debug Messages have to be flushed!
@@ -175,10 +175,22 @@ void myAVR::infoPoll(byte prescaler) {
 
 }
 
+#ifdef __arm__
+// should use uinstd.h to define sbrk but Due causes a conflict
+extern "C" char* sbrk(int incr);
+#else  // __ARM__
+extern char *__brkval;
+#endif  // __arm__
+
 int myAVR::getAvailableRam() {
-	extern int __heap_start, *__brkval;
-	int v;
-	return ((int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval));
+	char top;
+#ifdef __arm__
+	return &top - reinterpret_cast<char*>(sbrk(0));
+#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
+	return &top - __brkval;
+#else  // __arm__
+	return __brkval ? &top - __brkval : &top - __malloc_heap_start;
+#endif
 }
 
 #if HAS_ADC
@@ -230,12 +242,12 @@ unsigned long myAVR::getVCC(void) { // gibt tatsächlichen Wert Vcc x 100 aus.
   ADMUX = (1<<REFS0) | (1<<MUX3) | (1<<MUX2) | (1<<MUX1);
   ADCSRA = (1<<ADEN) | (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0);
 	ADCSRB=0;
-  TIMING::delay(20); // Wait for Vref to settle
+  delay(20); // Wait for Vref to settle
 
 	//first measurement is most of the time slightly wrong
   ADCSRA |= (1<<ADSC);
   while(ADCSRA & (1<<ADSC)); //measuring
-  TIMING::delay(50); // Wait for Vref to settle
+  delay(50); // Wait for Vref to settle
 	ADCSRA |= (1<<ADSC);
   while(ADCSRA & (1<<ADSC)); //measuring
 
@@ -318,7 +330,7 @@ void myAVR::send(char *cmd, uint8_t typecode) {
 			//DS_P("PowerDown\n");
 		  #if HAS_LEDs && defined(LED_ACTIVITY)
 		  if(activityLEDActive) {
-				LedOnOff(LED_ACTIVITY,0);
+				LedOnOff(LED_ACTIVITY_LED,0);
   	    DelayActivityLED=0;
   	  }
 		  #endif
@@ -332,12 +344,12 @@ void myAVR::send(char *cmd, uint8_t typecode) {
 				lowPowerBodOff(SLEEP_MODE_PWR_DOWN); //with BOD_OFF only
 				if(WDTCSR) break; //WDTCSR will be cleared after a WD event, otherwhise it was an ExtInterrupt
 			}
-			TIMING::configure(); //reset timing functionality millis,delay...
+			// TIMING::configure(); //reset timing functionality millis,delay...
 
 		  #if HAS_LEDs && defined(LED_ACTIVITY)
 		  if(activityLEDActive) {
-			  LedOnOff(LED_ACTIVITY,1);
-  	  	DelayActivityLED=TIMING::millis();
+			  LedOnOff(LED_ACTIVITY_LED,1);
+  	  	DelayActivityLED=millis();
   	  }
 		  #endif
 
@@ -353,11 +365,11 @@ void myAVR::send(char *cmd, uint8_t typecode) {
 			FKT_WDT_OFF;
 			lowPowerBodOff(SLEEP_MODE_PWR_DOWN); //with BOD_OFF only
 
-			TIMING::configure(); //reset timing functionality millis,delay...
+			// TIMING::configure(); //reset timing functionality millis,delay...
 	#endif
 
 	#if INCLUDE_DEBUG_OUTPUT
-			awakeTime = TIMING::millis();
+			awakeTime = millis();
 	#endif
 			idleCycles(1); //reset idle cylces
 			break;
@@ -400,12 +412,12 @@ void myAVR::send(char *cmd, uint8_t typecode) {
 		case  MODULE_AVR_LED:
 			if(cmd[0]=='0') {
 			#ifdef LED_ACTIVITY
-				if(LED_ACTIVITY==1) blockActivityLED=0;
+				blockActivityLED=0;
 			#endif
 				LedOnOff(1,0);
 			} else {
 			#ifdef LED_ACTIVITY
-				if(LED_ACTIVITY==1) blockActivityLED=1;
+				blockActivityLED=1;
 			#endif
 				LedOnOff(1,1);
 			}
@@ -413,7 +425,7 @@ void myAVR::send(char *cmd, uint8_t typecode) {
 
 	#ifdef LED_ACTIVITY
 		case MODULE_AVR_ACTIVITYLED:
-      LedOnOff(LED_ACTIVITY,0);
+      LedOnOff(LED_ACTIVITY_LED,0);
       DelayActivityLED=0;
       activityLEDActive = (cmd[0]=='0' ? 0 : 1);
 			break;
@@ -446,12 +458,20 @@ void myAVR::LedOnOff (uint8_t id, uint8_t on) {
 		if(id==1) {
 	#ifdef LED1_PIN
 		  pinMode(LED1_PIN, OUTPUT);
-		  digitalWrite(LED1_PIN, on);
+			#ifdef LED_PIN_INVERSE
+		  	digitalWrite(LED1_PIN, !on);
+			#else
+				digitalWrite(LED1_PIN, on);
+			#endif
 	#endif
 		} else if(id==2) {
 	#ifdef LED2_PIN
 		  pinMode(LED2_PIN, OUTPUT);
-		  digitalWrite(LED2_PIN, on);
+			#ifdef LED_PIN_INVERSE
+		  	digitalWrite(LED2_PIN, !on);
+			#else
+				digitalWrite(LED2_PIN, on);
+			#endif
 	#endif
 		}
 }
@@ -462,16 +482,16 @@ void myAVR::activityLed(uint8_t on) {
 
   if( (!DelayActivityLED && !on) || !activityLEDActive || blockActivityLED) return;
 
- 	unsigned long msec = TIMING::millis();
+ 	unsigned long msec = millis();
   if(!on) {
     if( DELAY_ACTIVITY_LED <= (DelayActivityLED > msec ? 0xFFFFFFFF - DelayActivityLED + msec : msec - DelayActivityLED ) ) {
       DelayActivityLED=0;
-			LedOnOff(LED_ACTIVITY,on);
+			LedOnOff(LED_ACTIVITY_LED,on);
     }
   } else {
-    DelayActivityLED=TIMING::millis();
+    DelayActivityLED=millis();
 		if(!DelayActivityLED) DelayActivityLED++; //for initialization
-   	LedOnOff(LED_ACTIVITY,on);
+   	LedOnOff(LED_ACTIVITY_LED,on);
   }
 }
 #endif
@@ -528,7 +548,7 @@ void myAVR::SwitchOnOff(const char* cmd) {
 	}
 #endif
 
-	TIMING::delay(50);
+	delay(50);
 
 #if (defined(SWITCH1_S_PIN) && defined(SWITCH1_R_PIN))
 	if(cmd[0]=='1') {

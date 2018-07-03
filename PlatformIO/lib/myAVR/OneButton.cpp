@@ -20,7 +20,7 @@ OneButton::OneButton(int pin, int activeLow)
   _debounceTicks = 50;      // number of millisec that have to pass by before a click is assumed as safe.
   _clickTicks = 600;        // number of millisec that have to pass by before a click is detected.
   _pressTicks = 1000;       // number of millisec that have to pass by before a long button press is detected.
- 
+
   _state = 0; // starting with state 0: waiting for button to be pressed
   _isLongPressed = false;  // Keep track of long press state
 
@@ -52,12 +52,12 @@ OneButton::OneButton(int pin, int activeLow)
 
 
 // explicitly set the number of millisec that have to pass by before a click is assumed as safe.
-void OneButton::setDebounceTicks(int ticks) { 
+void OneButton::setDebounceTicks(int ticks) {
   _debounceTicks = ticks;
 } // setDebounceTicks
 
 // explicitly set the number of millisec that have to pass by before a click is detected.
-void OneButton::setClickTicks(int ticks) { 
+void OneButton::setClickTicks(int ticks) {
   _clickTicks = ticks;
 } // setClickTicks
 
@@ -83,7 +83,7 @@ void OneButton::attachDoubleClick(callbackFunction newFunction)
 
 
 // save function for press event
-// DEPRECATED, is replaced by attachLongPressStart, attachLongPressStop, attachDuringLongPress, 
+// DEPRECATED, is replaced by attachLongPressStart, attachLongPressStop, attachDuringLongPress,
 void OneButton::attachPress(callbackFunction newFunction)
 {
   _pressFunc = newFunction;
@@ -114,10 +114,9 @@ bool OneButton::isLongPressed(){
 
 void OneButton::tick(void)
 {
-  // Detect the input information 
+  // Detect the input information
   int buttonLevel = digitalRead(_pin); // current button signal.
-  unsigned long now = TIMING::millis(); // current (relative) time in msecs.
-
+  unsigned long now = millis(); // current (relative) time in msecs.
   // Implementation of the state machine
   if (_state == 0) { // waiting for menu pin being pressed.
     if (buttonLevel == _buttonPressed) {
@@ -127,7 +126,7 @@ void OneButton::tick(void)
 
   } else if (_state == 1) { // waiting for menu pin being released.
 
-    if ((buttonLevel == _buttonReleased) && (TIMING::millis_since(_startTime) < _debounceTicks)) {
+    if ((buttonLevel == _buttonReleased) && (millis_since(_startTime) < _debounceTicks)) {
       // button was released to quickly so I assume some debouncing.
 	  // go back to state 0 without calling a function.
       _state = 0;
@@ -136,24 +135,24 @@ void OneButton::tick(void)
       _state = 2; // step to state 2
       _stopTime = now; // remember stopping time
 
-    } else if ((buttonLevel == _buttonPressed) && (TIMING::millis_since(_startTime) > _pressTicks)) {
+    } else if ((buttonLevel == _buttonPressed) && (millis_since(_startTime) > _pressTicks)) {
       _isLongPressed = true;  // Keep track of long press state
       if (_pressFunc) _pressFunc();
 	  if (_longPressStartFunc) _longPressStartFunc();
 	  if (_duringLongPressFunc) _duringLongPressFunc();
       _state = 6; // step to state 6
-      
+
     } else {
       // wait. Stay in this state.
     } // if
 
   } else if (_state == 2) { // waiting for menu pin being pressed the second time or timeout.
-    if (_doubleClickFunc == NULL || TIMING::millis_since(_startTime) > _clickTicks) {
+    if (_doubleClickFunc == NULL || millis_since(_startTime) > _clickTicks) {
       // this was only a single short click
       if (_clickFunc) _clickFunc();
       _state = 0; // restart.
 
-    } else if ((buttonLevel == _buttonPressed) && (TIMING::millis_since(_stopTime) > _debounceTicks)) {
+    } else if ((buttonLevel == _buttonPressed) && (millis_since(_stopTime) > _debounceTicks)) {
       _state = 3; // step to state 3
       _startTime = now; // remember starting time
     } // if
@@ -161,7 +160,7 @@ void OneButton::tick(void)
   } else if (_state == 3) { // waiting for menu pin being released finally.
     // Stay here for at least _debounceTicks because else we might end up in state 1 if the
     // button bounces for too long.
-    if (buttonLevel == _buttonReleased && (TIMING::millis_since(_startTime) > _debounceTicks)) {
+    if (buttonLevel == _buttonReleased && (millis_since(_startTime) > _debounceTicks)) {
       // this was a 2 click sequence.
       if (_doubleClickFunc) _doubleClickFunc();
       _state = 0; // restart.
@@ -176,11 +175,10 @@ void OneButton::tick(void)
 	  // button is being long pressed
 	  _isLongPressed = true; // Keep track of long press state
 	  if (_duringLongPressFunc) _duringLongPressFunc();
-    } // if  
+    } // if
 
-  } // if  
+  } // if
 } // OneButton.tick()
 
 
 // end.
-

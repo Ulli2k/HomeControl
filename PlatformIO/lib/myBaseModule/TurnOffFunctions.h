@@ -1,4 +1,6 @@
 
+#if defined(__AVR_ATmega328P__)
+
 #include <avr/power.h>
 #include <avr/wdt.h>
 #include <avr/sleep.h>
@@ -6,7 +8,7 @@
 enum period_t
 {
 	SLEEP_15Ms,
-	SLEEP_30MS,	
+	SLEEP_30MS,
 	SLEEP_60MS,
 	SLEEP_120MS,
 	SLEEP_250MS,
@@ -91,7 +93,7 @@ enum period_t
 	#define PowerOpti_ADC2_ON
 	#define PowerOpti_TIMER0_OFF
 	#define PowerOpti_TIMER0_ON
-	#define PowerOpti_TIMER1_OFF	
+	#define PowerOpti_TIMER1_OFF
 	#define PowerOpti_TIMER1_ON
 	#define PowerOpti_TIMER2_OFF
 	#define PowerOpti_TIMER2_ON
@@ -122,7 +124,7 @@ enum period_t
 			MCUCR = bit (BODS) | bit (BODSE);\
 			MCUCR = bit (BODS);\
 			}
-			
+
 #define FKT_AIN_OFF			{	DIDR1 |= (1 << AIN1D) | (1 << AIN0D);	}
 #define FKT_AIN_ON			{	DIDR1 &= ~((1 << AIN1D) | (1 << AIN0D));	}
 
@@ -136,7 +138,7 @@ enum period_t
 			DIDR0 &= ~((1 << ADC5D) | (1 << ADC4D) | (1 << ADC3D) | (1 << ADC2D) | (1 << ADC1D) | (1 << ADC0D));\
 			ADCSRA |= (1 << ADEN);\
 			}
-		
+
 #define FKT_ADC0_OFF			{\
 			DIDR0 |= (1 << ADC0D);\
 			if((DIDR0 & 0x3F) == 0x3F) {\
@@ -184,7 +186,7 @@ enum period_t
 			if (clockSource & CS20) TCCR2B |= (1 << CS20);\
 			power_timer2_enable();\
 			}
-			
+
 #define FKT_SPI_OFF {\
 			SPCR &= ~(1<<SPE);\
 			power_spi_disable();\
@@ -226,7 +228,7 @@ enum period_t
 			wdt_enable((periode));\
 			WDTCSR |= (1 << WDIE);\
 			}
-			
+
 #define FKT_POWERDOWN(periode,cycles) {\
 		for(uint16_t i=0; i<=cycles; i++) {\
 				FKT_WDT_PERIODE_ON(periode);\
@@ -237,56 +239,56 @@ enum period_t
 }
 /*
 void	TurnOffFunktions(bod_t bod, adc_t adc, ain_t ain, timer2_t timer2, timer1_t timer1, timer0_t timer0, spi_t spi, usart0_t usart0,	twi_t twi, wdt_t wdt) {
-	// Temporary clock source variable 
+	// Temporary clock source variable
 	unsigned char clockSource = 0;
-	
+
 	if(bod == BOD_OFF) {
 		// turn off brown-out enable in software
 		MCUCR = bit (BODS) | bit (BODSE);  // turn on brown-out enable select
-		MCUCR = bit (BODS);        // this must be done within 4 clock cycles of above	
+		MCUCR = bit (BODS);        // this must be done within 4 clock cycles of above
 	}
-	
+
 	if (timer2 == TIMER2_OFF) {
 		if (TCCR2B & CS22) clockSource |= (1 << CS22);
 		if (TCCR2B & CS21) clockSource |= (1 << CS21);
 		if (TCCR2B & CS20) clockSource |= (1 << CS20);
-	
+
 		// Remove the clock source to shutdown Timer2
 		TCCR2B &= ~(1 << CS22);
 		TCCR2B &= ~(1 << CS21);
 		TCCR2B &= ~(1 << CS20);
-		
+
 		power_timer2_disable();
 	} else if(timer2 == TIMER2_ON) {
 		if (clockSource & CS22) TCCR2B |= (1 << CS22);
 		if (clockSource & CS21) TCCR2B |= (1 << CS21);
 		if (clockSource & CS20) TCCR2B |= (1 << CS20);
-		
-		power_timer2_enable();	
+
+		power_timer2_enable();
 	}
-	
+
 	if (ain == AIN_OFF) {
 		DIDR1 |= (1 << AIN1D) | (1 << AIN0D);
 	} else if(ain == AIN_ON) {
 		DIDR1 &= ~((1 << AIN1D) | (1 << AIN0D));
 	}
-	
+
 	switch(adc) {
 		case ADC_OFF:
 			ADCSRA &= ~(1 << ADEN);
 			DIDR0 |= (1 << ADC5D) | (1 << ADC4D) | (1 << ADC3D) | (1 << ADC2D) | (1 << ADC1D) | (1 << ADC0D);
-			power_adc_disable();		
+			power_adc_disable();
 		break;
 		case ADC_ON:
 			power_adc_enable();
 			DIDR0 &= ~((1 << ADC5D) | (1 << ADC4D) | (1 << ADC3D) | (1 << ADC2D) | (1 << ADC1D) | (1 << ADC0D));
-			ADCSRA |= (1 << ADEN);		
+			ADCSRA |= (1 << ADEN);
 		break;
 		case ADC0_OFF:
 			DIDR0 |= (1 << ADC0D);
 			if((DIDR0 & 0x3F) == 0x3F) {
 				ADCSRA &= ~(1 << ADEN);
-				power_adc_disable();				
+				power_adc_disable();
 			}
 		break;
 		case ADC0_ON:
@@ -295,32 +297,32 @@ void	TurnOffFunktions(bod_t bod, adc_t adc, ain_t ain, timer2_t timer2, timer1_t
 			ADCSRA |= (1 << ADEN);
 		break;
 		case ADC2_OFF:
-			DIDR0 |= (1 << ADC2D);	
+			DIDR0 |= (1 << ADC2D);
 			if((DIDR0 & 0x3F) == 0x3F) {
 				ADCSRA &= ~(1 << ADEN);
-				power_adc_disable();				
-			}			
+				power_adc_disable();
+			}
 		break;
 		case ADC2_ON:
 			power_adc_enable();
 			DIDR0 &= ~(1 << ADC2D); //Just Turn ADC0 on
-			ADCSRA |= (1 << ADEN);		
+			ADCSRA |= (1 << ADEN);
 		break;
 		default: break;
 	}
-	
+
 	if (timer1 == TIMER1_OFF)	{
-		power_timer1_disable();	
+		power_timer1_disable();
 	} else if(timer1 == TIMER1_ON) {
 		power_timer1_enable();
 	}
-	
+
 	if (timer0 == TIMER0_OFF)	{
-		power_timer0_disable();	
+		power_timer0_disable();
 	} else if(timer0 == TIMER0_ON) {
 		power_timer0_enable();
 	}
-	
+
 	if (spi == SPI_OFF) {
 		SPCR &= ~(1<<SPE);
 		power_spi_disable();
@@ -328,7 +330,7 @@ void	TurnOffFunktions(bod_t bod, adc_t adc, ain_t ain, timer2_t timer2, timer1_t
 		power_spi_enable();
 		SPCR |= (1<<SPE);
 	}
-	
+
 	if (usart0 == USART0_OFF)	{
 		UCSR0B &= ~((1<<RXEN0) | (1<<TXEN0));
 	 	power_usart0_disable();
@@ -336,7 +338,7 @@ void	TurnOffFunktions(bod_t bod, adc_t adc, ain_t ain, timer2_t timer2, timer1_t
 		power_usart0_enable();
 		UCSR0B |= (1<<RXEN0) | (1<<TXEN0);
 	}
-	
+
 	if (twi == TWI_OFF) {
 		TWCR &= ~(1<<TWEN);
 		power_twi_disable();
@@ -344,15 +346,15 @@ void	TurnOffFunktions(bod_t bod, adc_t adc, ain_t ain, timer2_t timer2, timer1_t
 		power_twi_enable();
 		TWCR |= (1<<TWEN);
 	}
-	
+
 	if (wdt == WDT_OFF)	{
 		wdt_reset();
 		wdt_disable();
 		WDTCSR |= (1<<WDCE) | (1<<WDE);
-		WDTCSR = 0x00; 	
-//	} else { 
+		WDTCSR = 0x00;
+//	} else {
 //		wdt_enable();
-//		WDTCSR |= (1 << WDIE);	
+//		WDTCSR |= (1 << WDIE);
 //	}
 
 }
@@ -360,8 +362,8 @@ void	TurnOffFunktions(bod_t bod, adc_t adc, ain_t ain, timer2_t timer2, timer1_t
 
 /*******************************************************************************
 * Name: ISR (WDT_vect)
-* Description: Watchdog Timer interrupt service routine. This routine is 
-*		           required to allow automatic WDIF and WDIE bit clearance in 
+* Description: Watchdog Timer interrupt service routine. This routine is
+*		           required to allow automatic WDIF and WDIE bit clearance in
 *			         hardware.
 *
 *******************************************************************************/
@@ -404,3 +406,4 @@ do { 						\
 } while (0);
 #endif
 
+#endif

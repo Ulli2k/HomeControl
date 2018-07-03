@@ -4,27 +4,28 @@
 #include <myBaseModule.h>
 
 extern const typeModuleInfo ModuleTab[];
+extern const char welcomeText[] PROGMEM;
 
 class myDataProcessing : public myBaseModule {
-	
+
 private:
 #if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING==2 //Satellite
 	static byte OutputTunnel;
 #endif
-	
+
 	byte WelcomeMSG:1;
-	
-	static const char welcomeText[] PROGMEM;
+
+	// static const char welcomeText[] PROGMEM;
 #if INCLUDE_HELP
 	void printModuleHelp();
 #endif
 	inline bool isRightDeviceID(char *cmd);
 	inline void callSendFkt(char *cmd);
-	
+
 public:
-	
+
 	myDataProcessing();
-	
+
 	//void initialize();
 	bool poll();
 	void send(char *cmd, uint8_t typecode=0);
