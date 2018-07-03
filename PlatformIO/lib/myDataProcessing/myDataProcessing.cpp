@@ -2,7 +2,7 @@
 #include <myDataProcessing.h>
 
 #if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING
-#include <myRFM69protocols.h> //needed for Tunneling Function
+	#include <myRFM69protocols.h> //needed for Tunneling Function
 #endif
 
 extern const char helpText[] PROGMEM;
@@ -140,7 +140,7 @@ void myDataProcessing::send(char *cmd, uint8_t typecode) {
 			}
 #endif
 			break;
-		
+
 #if INCLUDE_HELP
 		case MODULE_DATAPROCESSING_HELP:
 			printModuleHelp();

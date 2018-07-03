@@ -114,15 +114,16 @@ public:
   	}
 
   	static void display_string_P(const char *s) {
-  		uint8_t c;
+
 #if defined(__AVR_ATmega328P__)
+			char c;
   		while((c = __LPM(s))) {
-#else
-			while(c = (uint8_t)s[0]) {
-#endif
-  			display_char(c);
+				display_char(c);
   			s++;
   		}
+#else
+			display_string(s);
+#endif
   	}
 
   	static void display_int(int16_t d, int8_t pad, uint8_t padc) {

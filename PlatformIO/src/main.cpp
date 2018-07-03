@@ -24,7 +24,7 @@ myDataProcessing DataProc;
   myUart Remote(SER_BAUD, HW_UART);
 #endif
 
-#if HAS_AVR && defined(__AVR_ATmega328P__)
+#if HAS_AVR
   #include <myAVR.h>
   myAVR myAvr;
 #endif
@@ -33,24 +33,24 @@ myDataProcessing DataProc;
 	#include <myRollo.h>
 	myROLLO myRollo;
 #endif
-
-#if HAS_IR_TX || HAS_IR_RX
-  #include <myIRMP.h>
-  myIRMP myIrmp;
-#endif
-
-#if HAS_BME280
-  #include <Wire.h>
-  #include <myBME280.h>
-  myBME280 myBME;
-#endif
-
-#if HAS_POWER_MONITOR_CT || HAS_POWER_MONITOR_PULSE
-	#include <myPowerMonitor.h>
-	myPOWERMONITOR myPowerMonitor;
-#endif
-
-
+//
+// #if HAS_IR_TX || HAS_IR_RX
+//   #include <myIRMP.h>
+//   myIRMP myIrmp;
+// #endif
+//
+// #if HAS_BME280
+//   #include <Wire.h>
+//   #include <myBME280.h>
+//   myBME280 myBME;
+// #endif
+//
+// #if HAS_POWER_MONITOR_CT || HAS_POWER_MONITOR_PULSE
+// 	#include <myPowerMonitor.h>
+// 	myPOWERMONITOR myPowerMonitor;
+// #endif
+//
+//
 #if HAS_SPI && HAS_RFM69
   #include <mySPI.h>
   mySPI mySpi;
@@ -159,7 +159,6 @@ void loop() {
   	if(infoPoll) {
   		pmt->module->infoPoll(preScaler);
   	}
-
   	if(pmt->module->poll() || infoPoll) {
 	#else
 		if(pmt->module->poll()) {
