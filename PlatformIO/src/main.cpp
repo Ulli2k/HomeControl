@@ -5,15 +5,16 @@ avrdude -b 115200 -p m328p -c arduino -P net:beagle:5000 -Uflash:w:HomeControl.c
 nc beagle 4001
 */
 
+//TODO: BUZZER is missing! --> pwmPin.h
+
 #if defined(__AVR_ATmega328P__)
-//   #include <myTiming.h> //notwendig da es nur im BaseModule nicht reicht ?
   #include <PinChangeInt.h> //notwendig da es nur im BaseModule nicht reicht ?
 #endif
 
 /*********************** Include all Modules *****************************/
 #include <myBaseModule.h>
 
-#include <RingBuffer.h>
+//Global Command RingBuffer
 DataFIFO_t DataRing;
 
 #include <myDataProcessing.h>
@@ -49,7 +50,6 @@ ActivityType activity;
   #include <digitalPin.h>
   // typedef digitalPin<Relay_SetReset,8,9> SwitchType;
   typedef digitalPin<PinMode_ALL_EVENTS,9> DigitalPinType;
-
   DigitalPinType digPin;
 #endif
 
@@ -91,11 +91,6 @@ const typeModuleInfo ModuleTab[] = {
 #if HAS_UART
   { MODULE_SERIAL           ,""       			, &Remote   },
 #endif
-
-// #if HAS_AVR
-//   { MODULE_AVR              ,"mdopCAbSN"   , &myAvr    },
-//   #error dass
-// #endif
 
 #if HAS_DIGITAL_PIN
   { MODULE_DIGITAL_PIN      ,"SSN"           , &digPin     },
