@@ -2,8 +2,8 @@
 #ifndef _MY_BASE_MODULE_
 #define _MY_BASE_MODULE_
 
-#include <avr/pgmspace.h> //PSTR() und phm_read_byte
-#include <../RingBuffer/RingBuffer.h>
+// #include <avr/pgmspace.h> //PSTR() und phm_read_byte
+#include <../myFunctions/RingBuffer.h>
 
 #if defined(STORE_CONFIGURATION)
 	#include <avr/eeprom.h>
@@ -20,8 +20,8 @@
 #include <myBaseInterrupt.h>
 
 /*********************** Power Saving Functions *******************************/
-#include <TurnOffFunctions.h>
 #define REDUCED_FUNCTION_OPTIMIZATION		__attribute__((optimize("-O1")))
+#include <TurnOffFunctions.h>
 
 /*********************** Global Helper Functions *******************************/
 #define	ULONG_MAX	4294967295UL 	/* max value of "unsigned long int" */

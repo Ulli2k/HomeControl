@@ -9,7 +9,7 @@
 		#define LED1_PIN	9
 	#endif
 	#ifndef DELAY_ACTIVITY_LED
-		#define DELAY_ACTIVITY_LED	100
+		#define DELAY_ACTIVITY_LED	200
 	#endif
 
 #endif
@@ -20,7 +20,7 @@
 	#define bLED_PIN_INVERSE	false
 #endif
 
-template <uint8_t LEDpin=9, bool LEDinverse=bLED_PIN_INVERSE, bool Activity=true, uint8_t ActivityDelay=100>
+template <uint8_t LEDpin=9, bool LEDinverse=bLED_PIN_INVERSE, bool Activity=true, uint8_t ActivityDelay=DELAY_ACTIVITY_LED>
 class LED : public myBaseModule {
 
   private:
@@ -77,9 +77,10 @@ class LED : public myBaseModule {
 
       if( (!timeActivity && !on) || !Activity || blockActivity) return;
 
-     	unsigned long msec = millis();
+     	// unsigned long msec = millis();
       if(!on) {
-        if( ActivityDelay <= (timeActivity > msec ? 0xFFFFFFFF - timeActivity + msec : msec - timeActivity ) ) {
+        // if( ActivityDelay <= ( (timeActivity > msec) ? (0xFFFFFFFF - timeActivity + msec) : (msec - timeActivity) ) ) {
+				if( ActivityDelay <= millis_since(timeActivity)) {
           timeActivity=0;
     			LedOnOff(on);
         }
