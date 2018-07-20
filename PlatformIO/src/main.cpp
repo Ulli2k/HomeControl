@@ -19,27 +19,47 @@ DataFIFO_t DataRing;
 #include <myDataProcessing.h>
 myDataProcessing DataProc;
 
+#if HAS_LEDs
+  #include <led.h>
+  typedef LED<LED1_PIN> LEDType;
+  LEDType cLED;
+#endif
+
+#include <activity.h>
+typedef Activity<LEDType> ActivityType;
+ActivityType activity;
+
 #if HAS_UART
   #include <myUart.h>
   myUart Remote(SER_BAUD, HW_UART);
 #endif
 
-  #include <test.h>
-  typedef LibSPI<10 /* SS */> SPIType;
-  typedef LibRadio<1, SPIType, 5 /* ResetPin */> libRadioType;
-  typedef myRadio<libRadioType,7/*Interrupt*/> RadioType;
-  RadioType cTest;
-
-  // typedef LibSPI<9 /* SS */> SPIType1;
-  // typedef LibRadio<2, SPIType, 8 /* ResetPin */> libRadioType1;
-  // typedef myRadio<libRadioType,4/*Interrupt*/> RadioType1;
-  // RadioType cTest1;
-
-#if HAS_AVR
-  #include <myAVR.h>
-  myAVR myAvr;
+#if HAS_RADIO
+  #include <myRadio.h>
+  typedef LibSPI<10 /* SS */> SPI1;
+  typedef LibRadio<1, SPI1, 6 /* ResetPin */> LibRadio1;
+  typedef myRadio<LibRadio1, 7/*Interrupt*/> RadioType1;
+  // typedef LibSPI<SS /* SS */> SPI1;
+  // typedef LibRadio<1, SPI1, A0 /* ResetPin */> LibRadio1;
+  // typedef myRadio<LibRadio1, 2/*Interrupt*/> RadioType1;
+  RadioType1 cRadio;
 #endif
 
+#if HAS_DIGITAL_PIN
+  #include <digitalPin.h>
+  // typedef digitalPin<Relay_SetReset,8,9> SwitchType;
+  typedef digitalPin<PinMode_ALL_EVENTS,9> DigitalPinType;
+
+  DigitalPinType digPin;
+#endif
+
+#if HAS_ANALOG_PIN
+  #include <analogPin.h>
+  typedef analogPin<A1> AnalogPinType;
+  AnalogPinType anaPin;
+  // typedef analogPin<1> Analog2PinType;
+  // Analog2PinType ana2Pin;
+#endif
 // #if HAS_ROLLO
 // 	#include <myRollo.h>
 // 	myROLLO myRollo;
@@ -61,54 +81,33 @@ myDataProcessing DataProc;
 // 	myPOWERMONITOR myPowerMonitor;
 // #endif
 
-
-// #if HAS_SPI && HAS_RFM69
-//   #include <mySPI.h>
-//   mySPI mySpi;
-//   //PROGMEM http://www.arduino.cc/en/Reference/PROGMEM
-//   //http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&t=38003
-//   const typeSPItable SPITab[] = {
-//   //{ ID              , SS           , SPI-IRQ, IRQ_InterruptType }
-//     { SPI_CONFIG_ID_1 , 10 /*PB2*/, INTZero /*PD2:INT0*/	, Interrupt_Rising },
-// 	#if HAS_RFM69>=2
-//     { SPI_CONFIG_ID_2 , 4	 /*PD4*/, INTOne	/*PD4:INT1*/	, Interrupt_Rising },
-//   #endif
-//   #if HAS_RFM69>=3
-//     { SPI_CONFIG_ID_3 , 7	 /*PD7*/, 8				/*PB0:PINCHG*/, Interrupt_Rising },
-//   #endif
-//   #if HAS_RFM69>=4
-//   	/* ACHTUNG!! doppelter PinChangeInterrupt geht aktuell nur mit Pin 6 */
-//     { SPI_CONFIG_ID_4 , A5/*ADC5*/, 6				/*PD6:PINCHG*/, Interrupt_Rising },
-//   #endif
-//     { SPI_CONFIG_ID_INVALID, 0, 0, Interrupt_Off   },
-//   };
-//
-//   #include <myRFM69.h>
-//   myRFM69 myRFM69_1(SPI_CONFIG_ID_1, A0 /*Reset*/,true /*HighPower*/,RFM69_PROTOCOL_MyProtocol);	//868MHz - top
-//   #if HAS_RFM69>=2
-//   myRFM69 myRFM69_2(SPI_CONFIG_ID_2, A1 /*ADC1*/,true /*HighPower*/,RFM69_PROTOCOL_MyProtocol); //868MHz - bottom
-//   #endif
-//   #if HAS_RFM69>=3
-//   myRFM69 myRFM69_3(SPI_CONFIG_ID_3, A3 /*ADC3*/,true /*HighPower*/,RFM69_PROTOCOL_MyProtocol); 	//868MHz - top
-//   #endif
-//   #if HAS_RFM69>=4
-//   myRFM69 myRFM69_4(SPI_CONFIG_ID_4, A4 /*ADC4*/,true /*HighPower*/,RFM69_PROTOCOL_HX2262); 		//433MHz - top
-//   #endif
-// #endif
-
 /*********************** Modules Table *****************************/
 
 const typeModuleInfo ModuleTab[] = {
   { MODULE_DATAPROCESSING   ,"qhwW"    			, &DataProc }, //immer am Anfang
 
+  { MODULE_ACTIVITY         ,"modp"           , &activity },
+
 #if HAS_UART
   { MODULE_SERIAL           ,""       			, &Remote   },
 #endif
 
-  { MODULE_RFM69            ,"RfT"             , &cTest    },
+// #if HAS_AVR
+//   { MODULE_AVR              ,"mdopCAbSN"   , &myAvr    },
+//   #error dass
+// #endif
 
-#if HAS_AVR
-  { MODULE_AVR              ,"mdopCAlabSN"   , &myAvr    },
+#if HAS_DIGITAL_PIN
+  { MODULE_DIGITAL_PIN      ,"SSN"           , &digPin     },
+#endif
+
+#if HAS_ANALOG_PIN
+  { MODULE_ANALOG_PIN      ,"AC"           , &anaPin     },
+  // { MODULE_ANALOG_PIN      ,"AC"           , &ana2Pin     },
+#endif
+
+#if HAS_LEDs
+  { MODULE_LED              , "la"          , &cLED    },
 #endif
 
 #if HAS_ROLLO
@@ -127,21 +126,10 @@ const typeModuleInfo ModuleTab[] = {
 	{ MODULE_POWERMONITOR			,"P"					, &myPowerMonitor	},
 #endif
 
-
-// RFM immer am Schluss für Tunneling
-// #if HAS_RFM69
-//   { MODULE_SPI              ,""       		, &mySpi    },
-//   { MODULE_RFM69            ,"RfT" 				, &myRFM69_1   }, 	//868Mhz - top
-// 	#if HAS_RFM69>=2
-//   { MODULE_RFM69            ,"RfT" 				, &myRFM69_2   }, //868Mhz - bottom
-//  	#endif
-//  	#if HAS_RFM69>=3
-//   { MODULE_RFM69            ,"RfT" 				, &myRFM69_3   }, //868Mhz - top
-//   #endif
-//  	#if HAS_RFM69>=4
-//   { MODULE_RFM69            ,"RfT" 				, &myRFM69_4   }, //433Mhz - top
-// 	#endif
-// #endif
+#if HAS_RADIO
+// RADIO immer am Schluss für Tunneling
+  { MODULE_RADIO            ,"RfT"             , &cRadio    },
+#endif
 
   { -1, "", NULL }
 };
@@ -160,30 +148,9 @@ void setup() {
 void loop() {
   const typeModuleInfo* pmt = ModuleTab;
 
-#if HAS_INFO_POLL
-  bool infoPoll;
-  byte preScaler=0;
-  infoPoll = myBaseModule::infoPollCycles(false,&preScaler);
-#endif
-
   while(pmt->typecode >= 0) {
-
-	#if HAS_INFO_POLL
-  	if(infoPoll) {
-  		pmt->module->infoPoll(preScaler);
-  	}
-
-  	if(pmt->module->poll() || infoPoll) {
-	#else
 		if(pmt->module->poll()) {
- 	#endif
-
-    #if HAS_LEDs && defined(LED_ACTIVITY)
-      myAVR::activityLed(1);
-    #endif
-		#if HAS_POWER_OPTIMIZATIONS
-			myBaseModule::idleCycles(1); //is FIFO empty and idle time over?
-		#endif
+      activity.trigger();
     }
 
     pmt++;

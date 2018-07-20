@@ -6,6 +6,10 @@
 
 #include <SPI.h>
 
+#ifdef ARDUINO_ARCH_AVR
+  typedef uint8_t BitOrder;
+#endif
+
 template <uint8_t CS, uint32_t CLOCK=2000000, BitOrder BITORDER=MSBFIRST, uint8_t MODE=SPI_MODE0>
 class LibSPI {
 

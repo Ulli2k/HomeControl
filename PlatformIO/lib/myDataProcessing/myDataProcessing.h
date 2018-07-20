@@ -9,7 +9,7 @@ extern const char welcomeText[] PROGMEM;
 class myDataProcessing : public myBaseModule {
 
 private:
-#if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING==2 //Satellite
+#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
 	static byte OutputTunnel;
 #endif
 

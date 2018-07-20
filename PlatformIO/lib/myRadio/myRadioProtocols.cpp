@@ -1,6 +1,5 @@
 
 #include <myRadioProtocols.h>
-// #include <myRFM69.h> //für numRepeatsInListening!!
 
 /*****************************************************************************************************/
 /****************************** DATA Transform Functions RX & TX *************************************/
@@ -14,7 +13,7 @@
 // RECEIVE
 #define ITPlus_MSG_HEADER_MASK 0xF0
 #define ITPlus_MSG_START 0x09
-bool transformRxData_LaCrosse(myRFM69_DATA *sData) {
+bool transformRxData_LaCrosse(myRADIO_DATA *sData) {
 
 	volatile byte *data = sData->DATA;
 	volatile byte *len = &(sData->PAYLOADLEN);
@@ -42,7 +41,7 @@ bool transformRxData_LaCrosse(myRFM69_DATA *sData) {
 /********************************************************************/
 
 // RECEIVE
-bool transformRxData_HomeMatic(myRFM69_DATA *sData) {
+bool transformRxData_HomeMatic(myRADIO_DATA *sData) {
 
 	volatile byte *data = sData->DATA;
 	volatile byte *len = &(sData->PAYLOADLEN);
@@ -53,7 +52,7 @@ bool transformRxData_HomeMatic(myRFM69_DATA *sData) {
 	sData->XData_Config = XDATA_NOTHING;
 
 	*len = (data[0] ^ 0xFF/*PN9*/) + 1 + 2; //+1 LengthByte; +2 CRC16
-	if (*len >= RFM69_PROTOCOL_HOMEMATIC_PAYLOADLENGTH) {
+	if (*len >= RADIO_PROTOCOL_HOMEMATIC_PAYLOADLENGTH) {
 		return false;
 	}
 
@@ -83,7 +82,7 @@ bool transformRxData_HomeMatic(myRFM69_DATA *sData) {
 }
 
 // TRANSFER
-void transformTxData_HomeMatic	(char *cmd, myRFM69_DATA *sData) {
+void transformTxData_HomeMatic	(char *cmd, myRADIO_DATA *sData) {
 
 	volatile byte *data = sData->DATA;
 	volatile byte *len = &(sData->PAYLOADLEN);
@@ -93,7 +92,7 @@ void transformTxData_HomeMatic	(char *cmd, myRFM69_DATA *sData) {
 
 	*len = (byte)cmd[0];
 	*len += 1; //+1 inclusive LengthByte
-	if (*len >= RFM69_PROTOCOL_HOMEMATIC_PAYLOADLENGTH) {
+	if (*len >= RADIO_PROTOCOL_HOMEMATIC_PAYLOADLENGTH) {
 		*len = 0;
 		return;
 	}
@@ -133,7 +132,7 @@ void transformTxData_HomeMatic	(char *cmd, myRFM69_DATA *sData) {
 /********************************************************************/
 
 // RECEIVE
-bool transformRxData_FS20(myRFM69_DATA *sData) {
+bool transformRxData_FS20(myRADIO_DATA *sData) {
 
 	volatile byte *data = sData->DATA;
 	volatile byte *len = &(sData->PAYLOADLEN);
@@ -221,7 +220,7 @@ bool transformRxData_FS20(myRFM69_DATA *sData) {
 // RECEIVE
 
 // TRANSFER (00R1s501004300 --> Msg Transformed: 6AA965555595555595555555A55955556A5A9656 <320>)
-void transformTxData_ETH(char *cmd, myRFM69_DATA *sData) {
+void transformTxData_ETH(char *cmd, myRADIO_DATA *sData) {
 
 	volatile byte *data = sData->DATA;
 	volatile byte *len = &(sData->PAYLOADLEN);
@@ -309,7 +308,7 @@ void transformTxData_ETH(char *cmd, myRFM69_DATA *sData) {
 
 	*len = ethPaketi;
 	sData->XData_Config = XDATA_BURST | XDATA_BURST_INFINITY | XDATA_CMD_ECHO;
-	sData->XDATA_Repeats = RFM69_PROTOCOL_ETH_REPEATS;
+	sData->XDATA_Repeats = RADIO_PROTOCOL_ETH_REPEATS;
 	sData->XDATA_BurstTime = 0;
 }
 
@@ -319,7 +318,7 @@ void transformTxData_ETH(char *cmd, myRFM69_DATA *sData) {
 // Packet: [Len][toAddress][fromAddress][XData_Config][Msg][2xopt.DelayBurst]
 
 // RECEIVE
-bool transformRxData_MyProtocol(myRFM69_DATA *sData) {
+bool transformRxData_MyProtocol(myRADIO_DATA *sData) {
 
 	volatile byte *data			= sData->DATA;
 	volatile byte *len 			= &(sData->PAYLOADLEN);
@@ -356,8 +355,8 @@ bool transformRxData_MyProtocol(myRFM69_DATA *sData) {
 }
 
 // TRANSFER
-void transformTxData_MyProtocol(char *cmd, myRFM69_DATA *sData) {
-//newPaket darf nie 0xAA enthalten. Dies führt zu Problemen im RFM69
+void transformTxData_MyProtocol(char *cmd, myRADIO_DATA *sData) {
+//newPaket darf nie 0xAA enthalten. Dies führt zu Problemen im RADIO
 	volatile byte *newPaket = sData->DATA;
 	volatile byte *len = &(sData->PAYLOADLEN);
 
@@ -403,7 +402,7 @@ void transformTxData_MyProtocol(char *cmd, myRFM69_DATA *sData) {
 // Packet: [Len][toAddress][fromAddress][DataOptions][MsgCounter][Msg][CRC]
 
 // RECEIVE
-bool transformRxData_HX2262(myRFM69_DATA *sData) {
+bool transformRxData_HX2262(myRADIO_DATA *sData) {
 
 	volatile byte *data = sData->DATA;
 	volatile byte *len = &(sData->PAYLOADLEN);
@@ -439,7 +438,7 @@ bool transformRxData_HX2262(myRFM69_DATA *sData) {
 }
 
 // TRANSFER
-void transformTxData_HX2262(char *cmd, myRFM69_DATA *sData) {
+void transformTxData_HX2262(char *cmd, myRADIO_DATA *sData) {
 
 	volatile byte *newPaket = sData->DATA;
 	volatile byte *len = &(sData->PAYLOADLEN);

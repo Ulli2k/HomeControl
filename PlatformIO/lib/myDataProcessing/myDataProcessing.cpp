@@ -1,81 +1,21 @@
 
 #include <myDataProcessing.h>
 
-// #if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING
-// 	#include <myRFM69protocols.h> //needed for Tunneling Function
-// #endif
+#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING
+	#include <myRadioGlobals.h> //needed for Tunneling Function
+#endif
 
 // extern const char helpText[] PROGMEM;
 extern void printPROGMEM (const char * s);
 
-#if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING==2 //Satellite
+#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
 byte myDataProcessing::OutputTunnel	=	0;
 #endif
-
-// #define STR_HELPER(x) #x
-// #define STR(x) STR_HELPER(x)
-
-// const char myDataProcessing::welcomeText[] PROGMEM =
-// 	  "[RN"
-// 	#if (DEVICE_ID<=9)
-// 		"0"
-// 	#endif
-// 	  STR(DEVICE_ID)
-// 	#if defined(STORE_CONFIGURATION)
-// 		"s"
-// 	#endif
-// 	#ifdef HAS_ADC
-// 		",C"
-// 	#endif
-// 	#ifdef HAS_TRIGGER
-// 		",N"
-// 	#endif
-// 	#ifdef HAS_LEDs
-// 		",L"
-// 	#endif
-// 	#ifdef HAS_SWITCH //|| HAS_ROLLO_SWITCH
-// 		",S"
-// 	#endif
-// 	#ifdef HAS_ROLLO
-// 		",J"
-// 	#endif
-// 	#ifdef HAS_BUZZER
-// 		",B"
-// 	#endif
-// 	#ifdef HAS_RFM69
-// 		",R"
-// 		#if HAS_RFM69_LISTENMODE && !HAS_RFM69_TXonly
-// 		"l"
-// 		#elif !HAS_RFM69_LISTENMODE && HAS_RFM69_TXonly
-// 		"t"
-// 		#endif
-// 		#if HAS_RFM69_CMD_TUNNELING==1
-// 		"h"
-// 		#elif(HAS_RFM69_CMD_TUNNELING==2)
-// 		"s"
-// 		#endif
-// 	#endif
-// 	#if (defined(HAS_IR_TX) || defined(HAS_IR_RX))
-// 		",I"
-// 		#if HAS_IR_TX
-// 			"s"
-// 		#endif
-// 		#if HAS_IR_RX
-// 			"r"
-// 		#endif
-// 	#endif
-// 	#ifdef HAS_POWER_MONITOR_CT //|| HAS_POWER_MONITOR_PULSE
-// 		",P"
-// 	#endif
-// 	#ifdef HAS_BME280
-// 		",E"
-// 	#endif
-// 	"]";
 
 
 myDataProcessing::myDataProcessing() {
 	WelcomeMSG=0;
-#if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING==2 //Satellite
+#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
 	OutputTunnel=0;
 #endif
 }
@@ -93,12 +33,12 @@ void myDataProcessing::send(char *cmd, uint8_t typecode) {
 				p=cmd+2; //jump over DeviceID
 			} else {
 				D_DS_P("Wrong DeviceID.");
-			#if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING==1 //Host
+			#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==1 //Host
 				uint8_t len=strlen(cmd);
 				if(len+3 <= MAX_RING_DATA_SIZE) {
 					//transform send msg in forward msg (<devID>... -> T<devID>....)
 					shiftCharRight((byte*)cmd,len+1,3);
-					cmd[0] = MODULE_COMMAND_CHAR(MODULE_RFM69, MODULE_RFM69_TUNNELING);
+					cmd[0] = MODULE_COMMAND_CHAR(MODULE_RADIO, MODULE_RADIO_TUNNELING);
 					cmd[1] = '0'; //dummy SPI-ID, will be replaced by RFM Module if Tunneling function is active
 					cmd[2] = XDATA_ACK_REQUEST;
 					if(DEBUG) { DS_P("..forward with <");DS(cmd);DS_P(">\n"); }
@@ -113,7 +53,7 @@ void myDataProcessing::send(char *cmd, uint8_t typecode) {
 			if(p) callSendFkt(p);
 			break;
 
-#if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING==2 //Satellite
+#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
 		case MODULE_DATAPROCESSING_OUTPUTTUNNEL:
 			DFL();
 			if(cmd[0]=='0') {
@@ -132,7 +72,7 @@ void myDataProcessing::send(char *cmd, uint8_t typecode) {
 
 		case MODULE_DATAPROCESSING_QUIET:
 			DEBUG_ONOFF((cmd[0]=='1') ? 1:0);
-#if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING==2 //Satellite
+#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
 			if(cmd[0]=='0' && !isUartTxActive) {
 				PowerOpti_USART0_ON;
 			} else if(cmd[0]=='0' && OutputTunnel) {
@@ -181,7 +121,6 @@ void myDataProcessing::printHelp() {
 	DS_P("\n ## General ##\n");
 	DS_P(" * [FW]      w\n");
 	DS_P(" * [Quiet]   q<State>\n");
-	DS_P(" * [Version] v\n");
 	DS_P(" * [Help]    h\n");
 }
 
@@ -245,9 +184,9 @@ bool myDataProcessing::poll() {
 						if(!(pmt->module->validdisplayData(&RecvDataBuffer)))
 							break;
 
-						#if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING==2 //Satellite
+						#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
 						if(OutputTunnel) {
-							setDisplayCopy(1);
+							setDisplayCopy(1); //reset & clear DisplayCopy Buffer
 							//00F1s500
 							setDisplayCopy(1,'0'/*dummy Module SPI ID*/);
 							//setDisplayCopy(1,RF69_getModeDataOptionChar(RF69_DataOption_sendCMD));
@@ -259,7 +198,8 @@ bool myDataProcessing::poll() {
 						DC(c); //Print Module Name Character
 						//Print Module Data
 						pmt->module->displayData(&RecvDataBuffer);
-						#if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING==2 //Satellite
+
+						#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
 						if(OutputTunnel) {
 							setDisplayCopy(0);
 							DS_P(" >> tunneled"); if(DEBUG) { DS_P(" with <");DS(getDisplayCopy());DS_P(">"); }
@@ -267,11 +207,11 @@ bool myDataProcessing::poll() {
 						#endif
 						DNL();
 
-					#if HAS_RFM69 && HAS_RFM69_CMD_TUNNELING==2 //Satellite
+					#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
 						if(OutputTunnel) {
 							uint8_t len=strlen(getDisplayCopy());
 							if((getDisplayCopy())[len-1] == '\n') len--;
-							addToRingBuffer(MODULE_DATAPROCESSING, MODULE_RFM69_TUNNELING, (const byte*)getDisplayCopy(), len);
+							addToRingBuffer(MODULE_DATAPROCESSING, MODULE_RADIO_TUNNELING, (const byte*)getDisplayCopy(), len);
 							poll(); //directly push Message through Ringbuffer
 						}
 					#endif

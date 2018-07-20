@@ -1,6 +1,6 @@
 
-#ifndef _MY_RFM69_GLOBALS_h
-#define _MY_RFM69_GLOBALS_h
+#ifndef _MY_RADIO_GLOBALS_h
+#define _MY_RADIO_GLOBALS_h
 
 #define RF69_MAX_DATA_LEN         61 // to take advantage of the built in AES/CRC we want to limit the frame size to the internal FIFO size (66 bytes - 3 bytes overhead)
 
@@ -24,7 +24,7 @@
 #define XDATA_BURST_INFINITY			(1<<11) //In TX mode: Pushes continuously data into FIFO. No wait for TX done. Just checks the FIFO level before pushing more data
 
 
-typedef struct { //ist ebenso in myRFM69protocols.h definiert!
+typedef struct { //ist ebenso in myRADIOprotocols.h definiert!
     volatile byte DATA[RF69_MAX_DATA_LEN];          // recv/xmit buf, including hdr & crc bytes
 		volatile byte PAYLOADLEN;
     volatile int RSSI; 				//most accurate RSSI during reception (closest to the reception)
@@ -38,7 +38,7 @@ typedef struct { //ist ebenso in myRFM69protocols.h definiert!
    	uint16_t XDATA_BurstTime;	//time of continues transmission
 
     uint16_t XData_Config;				//TX+RX configuration
-} myRFM69_DATA;
+} myRADIO_DATA;
 
 /*
 HX2262: SyncOff + TXRepeats, 																					(TX&RX aber beide kein CRC, kein Preamble)

@@ -1,20 +1,20 @@
 
-#ifndef _MY_RFM69_PROTOCOLS_h
-#define _MY_RFM69_PROTOCOLS_h
+#ifndef _MY_RADIO_PROTOCOLS_h
+#define _MY_RADIO_PROTOCOLS_h
 
 #include <myBaseModule.h>
 #include <myRadioRegisters.h>
 #include <myRadioGlobals.h>
 
-//#define RFM69_NO_OTHER_PROTOCOLS
-#define RFM69_DEFAULT_PROTOCOL		RFM69_PROTOCOL_MyProtocol
+//#define RADIO_NO_OTHER_PROTOCOLS
+#define RADIO_DEFAULT_PROTOCOL		RADIO_PROTOCOL_MyProtocol
 
 //enum RFM69SendType { LargePackage, FixPackage };
 typedef const struct ProtocolInfos_ {
     const unsigned char (*config)[2];
     uint8_t 						PayloadLength;
-    bool 								(*transformRxData)	(myRFM69_DATA *);
-    void 								(*transformTxData)	(char *, myRFM69_DATA *);
+    bool 								(*transformRxData)	(myRADIO_DATA *);
+    void 								(*transformTxData)	(char *, myRADIO_DATA *);
 } ProtocolInfos;
 
 /*********************************************************************************************/
@@ -32,20 +32,20 @@ typedef const struct ProtocolInfos_ {
 */
 
 // RECEIVE
-bool transformRxData_MyProtocol (myRFM69_DATA *sData);
-#if !defined(RFM69_NO_OTHER_PROTOCOLS)
-bool transformRxData_HX2262			(myRFM69_DATA *sData);
-bool transformRxData_LaCrosse		(myRFM69_DATA *sData);
-bool transformRxData_FS20				(myRFM69_DATA *sData);
-bool transformRxData_HomeMatic	(myRFM69_DATA *sData);
+bool transformRxData_MyProtocol (myRADIO_DATA *sData);
+#if !defined(RADIO_NO_OTHER_PROTOCOLS)
+bool transformRxData_HX2262			(myRADIO_DATA *sData);
+bool transformRxData_LaCrosse		(myRADIO_DATA *sData);
+bool transformRxData_FS20				(myRADIO_DATA *sData);
+bool transformRxData_HomeMatic	(myRADIO_DATA *sData);
 #endif
 
 // TRANSFER
-void transformTxData_MyProtocol (char *cmd, myRFM69_DATA *sData);
-#if !defined(RFM69_NO_OTHER_PROTOCOLS)
-void transformTxData_HX2262			(char *cmd, myRFM69_DATA *sData);
-void transformTxData_ETH				(char *cmd, myRFM69_DATA *sData);
-void transformTxData_HomeMatic	(char *cmd, myRFM69_DATA *sData);
+void transformTxData_MyProtocol (char *cmd, myRADIO_DATA *sData);
+#if !defined(RADIO_NO_OTHER_PROTOCOLS)
+void transformTxData_HX2262			(char *cmd, myRADIO_DATA *sData);
+void transformTxData_ETH				(char *cmd, myRADIO_DATA *sData);
+void transformTxData_HomeMatic	(char *cmd, myRADIO_DATA *sData);
 #endif
 
 /**************************** HELPER Functions **************************/
@@ -60,25 +60,25 @@ int parity(unsigned char x);
 /****************************** CONFIGs for Protocols ****************************************/
 /*********************************************************************************************/
 //Payload lenght for TX AND RX!
-#define RFM69_PROTOCOL_MyProtocol										0x01
-	#define RFM69_PROTOCOL_MYPROTOCOL_PAYLOADLENGTH		  66 //max length --> RF69_MAX_DATA_LEN=61
-#define RFM69_PROTOCOL_HX2262 											0x02 //ID must match to ProtocolInfo Struct id/line
-	#define RFM69_PROTOCOL_HX2262_PAYLOADLENGTH		 			12+4 //+4 for sync in TX mode
-#define RFM69_PROTOCOL_FS20													0x03
-	#define RFM69_PROTOCOL_FS20_PAYLOADLENGTH 					30
-#define RFM69_PROTOCOL_LaCrosse 										0x04
-	#define RFM69_PROTOCOL_LACROSSE_PAYLOADLENGTH			 	 5
-#define RFM69_PROTOCOL_ETH			 										0x05
-	#define RFM69_PROTOCOL_ETH_PAYLOADLENGTH		 		 		 0 //Muss =0,da TX LargeFrame!
-	#define RFM69_PROTOCOL_ETH_REPEATS								 320
-#define RFM69_PROTOCOL_HomeMatic										0x06
-	#define RFM69_PROTOCOL_HOMEMATIC_PAYLOADLENGTH		  30+1+2 // Standard=30; HAS_FUP=50 (Firmware Update Tool) | +1 (LengthByte) | +2 (CRC16)
+#define RADIO_PROTOCOL_MyProtocol										0x01
+	#define RADIO_PROTOCOL_MYPROTOCOL_PAYLOADLENGTH		  66 //max length --> RF69_MAX_DATA_LEN=61
+#define RADIO_PROTOCOL_HX2262 											0x02 //ID must match to ProtocolInfo Struct id/line
+	#define RADIO_PROTOCOL_HX2262_PAYLOADLENGTH		 			12+4 //+4 for sync in TX mode
+#define RADIO_PROTOCOL_FS20													0x03
+	#define RADIO_PROTOCOL_FS20_PAYLOADLENGTH 					30
+#define RADIO_PROTOCOL_LaCrosse 										0x04
+	#define RADIO_PROTOCOL_LACROSSE_PAYLOADLENGTH			 	 5
+#define RADIO_PROTOCOL_ETH			 										0x05
+	#define RADIO_PROTOCOL_ETH_PAYLOADLENGTH		 		 		 0 //Muss =0,da TX LargeFrame!
+	#define RADIO_PROTOCOL_ETH_REPEATS								 320
+#define RADIO_PROTOCOL_HomeMatic										0x06
+	#define RADIO_PROTOCOL_HOMEMATIC_PAYLOADLENGTH		  30+1+2 // Standard=30; HAS_FUP=50 (Firmware Update Tool) | +1 (LengthByte) | +2 (CRC16)
 //ACHTUNG Maximale Anzahl an Protokolle durch Datengröße von RF69_Config.Protokoll:3 begrenzt!
 
 
 // derzeit darf es maximal 7 protocolle geben aufgrund der variablen Speicher größe
 
-#if !defined(RFM69_NO_OTHER_PROTOCOLS)
+#if !defined(RADIO_NO_OTHER_PROTOCOLS)
 /***********************************************************************/
 /************************** OOK 868MHz - FS20 **************************/
 /***********************************************************************/
@@ -100,7 +100,7 @@ int parity(unsigned char x);
 
 		TX: derzeit nicht unterstützt
 */
-  const byte RFM69_CONFIG_FS20[][2] =
+  const byte RADIO_CONFIG_FS20[][2] =
   {
   	//* 0x00 */ Fifo
 		/* 0x01 */ { REG_OPMODE, RF_OPMODE_SEQUENCER_ON | RF_OPMODE_LISTEN_OFF | RF_OPMODE_STANDBY }, //Sequencer on | Standby Mode
@@ -168,7 +168,7 @@ int parity(unsigned char x);
     /* 0x37 */ { REG_PACKETCONFIG1, RF_PACKET1_FORMAT_FIXED | RF_PACKET1_DCFREE_OFF |
     						 RF_PACKET1_CRC_OFF | RF_PACKET1_CRCAUTOCLEAR_OFF |
     						 RF_PACKET1_ADRSFILTERING_OFF },
-    /* 0x38 */ { REG_PAYLOADLENGTH, RFM69_PROTOCOL_FS20_PAYLOADLENGTH }, //max0x40 in variable length mode: the max frame size, not used in TX
+    /* 0x38 */ { REG_PAYLOADLENGTH, RADIO_PROTOCOL_FS20_PAYLOADLENGTH }, //max0x40 in variable length mode: the max frame size, not used in TX
     //* 0x39 */ { REG_NODEADRS, nodeID }, //turned off because we're not using address filtering
   	//* 0x3A */ { REG_BROADCASTADRS, 0 }, //0 is the broadcast address
   	//* 0x3B */ {  REG_AUTOMODES, 0 }, // Automatic Modes, currently not needed
@@ -208,7 +208,7 @@ int parity(unsigned char x);
 				NoSnyc
 				NoContinues
 */
-  const byte RFM69_CONFIG_HX2262[][2] =
+  const byte RADIO_CONFIG_HX2262[][2] =
   {
   	//* 0x00 */ Fifo
 		/* 0x01 */ { REG_OPMODE, RF_OPMODE_SEQUENCER_ON | RF_OPMODE_LISTEN_OFF | RF_OPMODE_STANDBY }, //Sequencer on | Standby Mode
@@ -278,7 +278,7 @@ int parity(unsigned char x);
     /* 0x37 */ { REG_PACKETCONFIG1, RF_PACKET1_FORMAT_FIXED | RF_PACKET1_DCFREE_OFF |
     						 RF_PACKET1_CRC_OFF | RF_PACKET1_CRCAUTOCLEAR_OFF |
     						 RF_PACKET1_ADRSFILTERING_OFF },
-		/* 0x38 */ { REG_PAYLOADLENGTH, RFM69_PROTOCOL_HX2262_PAYLOADLENGTH }, //max0x40 in variable length mode: the max frame size, not used in TX
+		/* 0x38 */ { REG_PAYLOADLENGTH, RADIO_PROTOCOL_HX2262_PAYLOADLENGTH }, //max0x40 in variable length mode: the max frame size, not used in TX
     //* 0x39 */ { REG_NODEADRS, nodeID }, //turned off because we're not using address filtering
   	//* 0x3A */ { REG_BROADCASTADRS, 0 }, //0 is the broadcast address
   	//* 0x3B */ {  REG_AUTOMODES, 0 }, // Automatic Modes, currently not needed
@@ -302,7 +302,7 @@ int parity(unsigned char x);
 /************************** FSK 868MHz - LaCrosse **************************/
 /***************************************************************************/
 
-  const byte RFM69_CONFIG_LaCrosse[][2] =
+  const byte RADIO_CONFIG_LaCrosse[][2] =
   {
   	//* 0x00 */ Fifo
 		/* 0x01 */ { REG_OPMODE, RF_OPMODE_SEQUENCER_ON | RF_OPMODE_LISTEN_OFF | RF_OPMODE_STANDBY }, //Sequencer on | Standby Mode
@@ -366,7 +366,7 @@ int parity(unsigned char x);
     /* 0x37 */ { REG_PACKETCONFIG1, RF_PACKET1_FORMAT_FIXED | RF_PACKET1_DCFREE_OFF |
     						 RF_PACKET1_CRC_OFF | RF_PACKET1_CRCAUTOCLEAR_OFF |
     						 RF_PACKET1_ADRSFILTERING_OFF },
-    /* 0x38 */ { REG_PAYLOADLENGTH, RFM69_PROTOCOL_LACROSSE_PAYLOADLENGTH}, //max0x40 in variable length mode: the max frame size, not used in TX
+    /* 0x38 */ { REG_PAYLOADLENGTH, RADIO_PROTOCOL_LACROSSE_PAYLOADLENGTH}, //max0x40 in variable length mode: the max frame size, not used in TX
     //* 0x39 */ { REG_NODEADRS, nodeID }, //turned off because we're not using address filtering
   	//* 0x3A */ { REG_BROADCASTADRS, 0 }, //0 is the broadcast address
   	//* 0x3B */ {  REG_AUTOMODES, 0 }, // Automatic Modes, currently not needed
@@ -405,7 +405,7 @@ int parity(unsigned char x);
 	Channel: 199.951172 kHz, Channel Number: 0
 	RX filterbandwidth: 101.562500 kHz
 */
-  const byte RFM69_CONFIG_HomeMatic[][2] =
+  const byte RADIO_CONFIG_HomeMatic[][2] =
   {
   	//* 0x00 */ Fifo
 		/* 0x01 */ { REG_OPMODE, RF_OPMODE_SEQUENCER_ON | RF_OPMODE_LISTEN_OFF | RF_OPMODE_STANDBY }, //Sequencer on | Standby Mode
@@ -471,7 +471,7 @@ int parity(unsigned char x);
     /* 0x37 */ { REG_PACKETCONFIG1, RF_PACKET1_FORMAT_FIXED | RF_PACKET1_DCFREE_OFF |
     						 RF_PACKET1_CRC_OFF | RF_PACKET1_CRCAUTOCLEAR_OFF |
     						 RF_PACKET1_ADRSFILTERING_OFF },
-    /* 0x38 */ { REG_PAYLOADLENGTH, RFM69_PROTOCOL_HOMEMATIC_PAYLOADLENGTH},
+    /* 0x38 */ { REG_PAYLOADLENGTH, RADIO_PROTOCOL_HOMEMATIC_PAYLOADLENGTH},
     //* 0x39 */ { REG_NODEADRS, nodeID }, //turned off because we're not using address filtering
   	//* 0x3A */ { REG_BROADCASTADRS, 0 }, //0 is the broadcast address
   	//* 0x3B */ {  REG_AUTOMODES, 0 }, // Automatic Modes, currently not needed
@@ -495,7 +495,7 @@ int parity(unsigned char x);
 /************************** FSK 868MHz - ETH200 ****************************/
 /***************************************************************************/
 
-  const byte RFM69_CONFIG_ETH[][2] =
+  const byte RADIO_CONFIG_ETH[][2] =
   {
   	//* 0x00 */ Fifo
 		/* 0x01 */ { REG_OPMODE, RF_OPMODE_SEQUENCER_ON | RF_OPMODE_LISTEN_OFF | RF_OPMODE_STANDBY }, //Sequencer on | Standby Mode
@@ -556,7 +556,7 @@ int parity(unsigned char x);
     /* 0x37 */ { REG_PACKETCONFIG1, RF_PACKET1_FORMAT_FIXED | RF_PACKET1_DCFREE_OFF |
     						 RF_PACKET1_CRC_OFF | RF_PACKET1_CRCAUTOCLEAR_OFF |
     						 RF_PACKET1_ADRSFILTERING_OFF },
-    /* 0x38 */ { REG_PAYLOADLENGTH, RFM69_PROTOCOL_ETH_PAYLOADLENGTH }, //max0x40 in variable length mode: the max frame size, not used in TX
+    /* 0x38 */ { REG_PAYLOADLENGTH, RADIO_PROTOCOL_ETH_PAYLOADLENGTH }, //max0x40 in variable length mode: the max frame size, not used in TX
     //* 0x39 */ { REG_NODEADRS, nodeID }, //turned off because we're not using address filtering
   	//* 0x3A */ { REG_BROADCASTADRS, 0 }, //0 is the broadcast address
   	//* 0x3B */ {  REG_AUTOMODES, 0 }, // Automatic Modes, currently not needed
@@ -580,7 +580,7 @@ int parity(unsigned char x);
 /***************************************************************************/
 /************************** FSK 868MHz - MyProtocol ************************/
 /***************************************************************************/
-  const byte RFM69_CONFIG_MyProtocol[][2] =
+  const byte RADIO_CONFIG_MyProtocol[][2] =
   {
   	//* 0x00 */ Fifo
 		/* 0x01 */ { REG_OPMODE, RF_OPMODE_SEQUENCER_ON | RF_OPMODE_LISTEN_OFF | RF_OPMODE_STANDBY }, //Sequencer on | Standby Mode
@@ -636,7 +636,7 @@ int parity(unsigned char x);
 		//* 0x27 */ RegIrqFlags1 read only
 		/* 0x28 */ { REG_IRQFLAGS2, RF_IRQFLAGS2_FIFOOVERRUN }, // Writing to this bit ensures the FIFO & status flags are reset
     //* 0x29 */ { REG_RSSITHRESH, 0xE4 /*MAX*/ }, //(97*2) rfm -91dBm //must be set to dBm = (-Sensitivity / 2) - default is 0xE4=228 so -114dBm
-#if HAS_RFM69_LISTENMODE 	//Reduce RSSIThreshold for ListenMode Clients to reduce wake ups due to phantom packages or other clients
+#if HAS_RADIO_LISTENMODE 	//Reduce RSSIThreshold for ListenMode Clients to reduce wake ups due to phantom packages or other clients
 		/* 0x29 */ { REG_RSSITHRESH, 160 /*-90=180(0xB4); -100=200(0xC8) 0xE4=MAX*/ }, //changed for ListenMode
 #else
     /* 0x29 */ { REG_RSSITHRESH, 220 /*-90=180; 0xE4=MAX*/ }, //changed for ListenMode
@@ -656,14 +656,14 @@ int parity(unsigned char x);
     //* 0x31 - 0x36 */ possible SyncValues
     /* 0x37 */ { REG_PACKETCONFIG1, RF_PACKET1_FORMAT_VARIABLE | RF_PACKET1_DCFREE_WHITENING /*RF_PACKET1_DCFREE_OFF*/ |
     						 RF_PACKET1_CRC_ON | RF_PACKET1_CRCAUTOCLEAR_ON
-#if not defined(RFM69_NO_BROADCASTS) && not defined(HAS_RFM69_SNIFF)
+#if not defined(RADIO_NO_BROADCASTS) && not defined(HAS_RADIO_SNIFF)
     						 | RF_PACKET1_ADRSFILTERING_NODEBROADCAST
-#elif not defined(HAS_RFM69_SNIFF)
+#elif not defined(HAS_RADIO_SNIFF)
 								 | RF_PACKET1_ADRSFILTERING_NODE
 #endif
     					 },
-    /* 0x38 */ { REG_PAYLOADLENGTH, RFM69_PROTOCOL_MYPROTOCOL_PAYLOADLENGTH }, //max0x40 in variable length mode: the max frame size, not used in TX
-#ifndef HAS_RFM69_SNIFF
+    /* 0x38 */ { REG_PAYLOADLENGTH, RADIO_PROTOCOL_MYPROTOCOL_PAYLOADLENGTH }, //max0x40 in variable length mode: the max frame size, not used in TX
+#ifndef HAS_RADIO_SNIFF
     /* 0x39 */ { REG_NODEADRS, DEVICE_ID }, //using address filtering
 #endif
   	/* 0x3A */ { REG_BROADCASTADRS, DEVICE_ID_BROADCAST}, //0 is the broadcast address
@@ -690,13 +690,13 @@ int parity(unsigned char x);
 #define ProtocolInfoLines ((uint8_t)(sizeof(ProtocolInfo)/sizeof(ProtocolInfo[0])))
 ProtocolInfos ProtocolInfo[] = {  // Index must match to the protocol number -1
 //{  CONFIG ARRAY						, DATA LENGTH															, Receive Transform Fkt					, Transfer Transform Fkt },
-	{ RFM69_CONFIG_MyProtocol	, RFM69_PROTOCOL_MYPROTOCOL_PAYLOADLENGTH	,	&(transformRxData_MyProtocol)	, &(transformTxData_MyProtocol)	},
-#if !defined(RFM69_NO_OTHER_PROTOCOLS)
-	{ RFM69_CONFIG_HX2262			, RFM69_PROTOCOL_HX2262_PAYLOADLENGTH			, &(transformRxData_HX2262)			, &(transformTxData_HX2262)			},
-	{ RFM69_CONFIG_FS20 			, RFM69_PROTOCOL_FS20_PAYLOADLENGTH				, &(transformRxData_FS20) 			, NULL													},
-	{ RFM69_CONFIG_LaCrosse		, RFM69_PROTOCOL_LACROSSE_PAYLOADLENGTH		, &(transformRxData_LaCrosse)		, NULL													},
-	{ RFM69_CONFIG_ETH				, RFM69_PROTOCOL_ETH_PAYLOADLENGTH				, NULL													, &(transformTxData_ETH)				},
-	{ RFM69_CONFIG_HomeMatic	, RFM69_PROTOCOL_HOMEMATIC_PAYLOADLENGTH	, &(transformRxData_HomeMatic)	, &(transformTxData_HomeMatic)	},
+	{ RADIO_CONFIG_MyProtocol	, RADIO_PROTOCOL_MYPROTOCOL_PAYLOADLENGTH	,	&(transformRxData_MyProtocol)	, &(transformTxData_MyProtocol)	},
+#if !defined(RADIO_NO_OTHER_PROTOCOLS)
+	{ RADIO_CONFIG_HX2262			, RADIO_PROTOCOL_HX2262_PAYLOADLENGTH			, &(transformRxData_HX2262)			, &(transformTxData_HX2262)			},
+	{ RADIO_CONFIG_FS20 			, RADIO_PROTOCOL_FS20_PAYLOADLENGTH				, &(transformRxData_FS20) 			, NULL													},
+	{ RADIO_CONFIG_LaCrosse		, RADIO_PROTOCOL_LACROSSE_PAYLOADLENGTH		, &(transformRxData_LaCrosse)		, NULL													},
+	{ RADIO_CONFIG_ETH				, RADIO_PROTOCOL_ETH_PAYLOADLENGTH				, NULL													, &(transformTxData_ETH)				},
+	{ RADIO_CONFIG_HomeMatic	, RADIO_PROTOCOL_HOMEMATIC_PAYLOADLENGTH	, &(transformRxData_HomeMatic)	, &(transformTxData_HomeMatic)	},
 #endif
 };
 
