@@ -47,21 +47,20 @@
 
 #define MODULE_TYP(m) 						(uint8_t)(m & 0x0F)
 #define MODULE_PROTOCOL(m)				(m > 0x0F ? ( (m >> 4) -1) : 0)
+
 #define MODULE_COMMAND_CHAR(m,c)  ( {\
 	 																		char b='-';\
 																			const typeModuleInfo* pmt = ModuleTab;\
 																			while(pmt->typecode >= 0) {\
 																				if(pmt->typecode==(m)) {\
-																					b=( ((uint8_t)strlen(pmt->name) >= (uint8_t)((c)>>4)) ?\
-																										( pmt->name[((c)>>4)-1] ) :\
-																										( (strlen(pmt->name)) ? pmt->name[0] : '-' )\
-																						);\
+																					b=getFunctionChar(pmt->getFunctionCharacter(),MODULE_PROTOCOL(c));\
 																					break;\
 																				}\
 																				pmt++;\
 																			}\
 																			b;\
 																		} )
+
 
 
 #if defined(__arm__) && !defined(PROGMEM)

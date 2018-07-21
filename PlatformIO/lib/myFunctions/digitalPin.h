@@ -26,11 +26,6 @@ template <uint8_t Mode=PinMode_SIMPLE, uint8_t Pin1=0xFF, uint8_t Pin2=0xFF, uin
 class digitalPin : public myBaseModule {
 
 private:
-	// void interrupt() {
-  //
-  // }
-
-private:
 	uint8_t _DigitalIOEvent:8;
 
 	// Pulse functions
@@ -213,6 +208,8 @@ public:
 		_DigitalIOEvent = DIGITAL_PIN_EVENT;
   }
 
+	const char* getFunctionCharacter() { return "SSN"; };
+	
   void initialize() {
     if(Mode & PinMode_SR_RELAY) {
       pinMode(Pin1, OUTPUT);

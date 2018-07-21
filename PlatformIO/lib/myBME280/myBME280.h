@@ -10,7 +10,7 @@
 /*=========================================================================
     I2C ADDRESS/BITS
     -----------------------------------------------------------------------*/
-	#define BME280_ADDRESS                (0x76)  
+	#define BME280_ADDRESS                (0x76)
     //SDO  to  GND  results  in  slave address 1110110 (0x76)
     //SDO to VDDIO results in slave address 1110111 (0x77)
 
@@ -56,8 +56,8 @@
 			BME280_REGISTER_CONTROLHUMID_OVERSAMPLING_2		=	0x2,
 			BME280_REGISTER_CONTROLHUMID_OVERSAMPLING_4		=	0x3,
 			BME280_REGISTER_CONTROLHUMID_OVERSAMPLING_8		=	0x4,
-			BME280_REGISTER_CONTROLHUMID_OVERSAMPLING_16	=	0x5, 
-			     
+			BME280_REGISTER_CONTROLHUMID_OVERSAMPLING_16	=	0x5,
+
       BME280_REGISTER_STATUS						 						= 0xF3,
       BME280_REGISTER_STATUS_MEASURING							= 0x8,
 
@@ -78,7 +78,7 @@
       BME280_REGISTER_CONTROL_SLEEP_MODE						= 0x0,
       BME280_REGISTER_CONTROL_FORCED_MODE						= 0x1,
       BME280_REGISTER_CONTROL_NORMAL_MODE						= 0x3,
-      
+
       BME280_REGISTER_CONFIG             						= 0xF5,
       BME280_REGISTER_CONFIG_STANDBY_05							= 0x0,
       BME280_REGISTER_CONFIG_STANDBY_62							= (0x1 << 5),
@@ -93,9 +93,9 @@
 			BME280_REGISTER_CONFIG_FILTER_4								= (0x2 << 2),
 			BME280_REGISTER_CONFIG_FILTER_8								= (0x3 << 2),
 			BME280_REGISTER_CONFIG_FILTER_16							= (0x4 << 2),
-			
-			
-			
+
+
+
       BME280_REGISTER_PRESSUREDATA       = 0xF7,
       BME280_REGISTER_TEMPDATA           = 0xFA,
       BME280_REGISTER_HUMIDDATA          = 0xFD,
@@ -129,12 +129,13 @@
       int16_t  dig_H5;
       int8_t   dig_H6;
     } bme280_calib_data;
-    
+
 class myBME280 : public myBaseModule {
-  
+
 public:
   myBME280(uint8_t I2C_Address=BME280_ADDRESS);
 	//~myBME280() {};
+	const char* getFunctionCharacter() { return "E"; };
 
 	void initialize();
 	void displayData(RecvData *DataBuffer);
@@ -144,7 +145,7 @@ public:
 	void send(char *cmd, uint8_t typecode);
 
 	float readTemperature(void);
-#ifdef HAS_BME280_PRESSURE	
+#ifdef HAS_BME280_PRESSURE
 	float readPressure(void);
 #endif
 	float readHumidity(void);
@@ -152,24 +153,22 @@ public:
 //	float readAltitude(void);
 
 private:
-	bme280_calib_data bme280_calib; 
+	bme280_calib_data bme280_calib;
 	uint8_t _I2Caddr;
   int32_t _sensorID;
-  int32_t t_fine;	
+  int32_t t_fine;
   uint8_t _forceModeActive;
-	
+
 	void I2C_write8(uint8_t reg, uint8_t value);
 	uint8_t I2C_read8(uint8_t reg);
 	uint16_t I2C_read16(byte reg);
 	uint16_t I2C_read16_LE(byte reg);
 	int16_t I2C_readS16(byte reg);
 	int16_t I2C_readS16_LE(byte reg);
-	
+
 	void readBMEreadHTP();
 	void forceBMEmeasureHTP();
 	void normalBMEmeasureHTP();
 };
 
 #endif
-
-

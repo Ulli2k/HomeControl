@@ -177,8 +177,9 @@ bool myDataProcessing::poll() {
 						return 1;
 
 					default:
-						char c = pmt->name[MODULE_PROTOCOL(RecvDataBuffer.ModuleID)];
-						if(!( (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))) c=pmt->name[0];
+						// char c = pmt->name[MODULE_PROTOCOL(RecvDataBuffer.ModuleID)];
+						char c = getFunctionChar(pmt->module->getFunctionCharacter(),MODULE_PROTOCOL(RecvDataBuffer.ModuleID));
+						// if(!( (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))) c=pmt->name[0];
 						if(c==' ') break;
 
 						if(!(pmt->module->validdisplayData(&RecvDataBuffer)))
@@ -245,10 +246,15 @@ void myDataProcessing::callSendFkt(char *cmd) {
 
 		const typeModuleInfo* pmt = ModuleTab;
 		while(pmt->typecode >= 0) {
-			for(uint8_t i=0; i<=strlen(pmt->name); i++) {
-			  if(pmt->name[i] == cmd[0]) {
-			  	pmt->module->send(cmd+1, (uint8_t) (strlen(pmt->name)>=1 ? ((i+1)<<4) | pmt->typecode : pmt->typecode));
+			const char *funcChar = pmt->module->getFunctionCharacter();
+			for(uint8_t i=0; i<=strlen(funcChar); i++) {
+			  if(funcChar[i] == cmd[0]) {
+			  	pmt->module->send(cmd+1, (uint8_t) (strlen(funcChar)>=1 ? ((i+1)<<4) | pmt->typecode : pmt->typecode));
 			  }
+			// for(uint8_t i=0; i<=strlen(pmt->name); i++) {
+			//   if(pmt->name[i] == cmd[0]) {
+			//   	pmt->module->send(cmd+1, (uint8_t) (strlen(pmt->name)>=1 ? ((i+1)<<4) | pmt->typecode : pmt->typecode));
+			//   }
 			}
 		  pmt++;
 		}

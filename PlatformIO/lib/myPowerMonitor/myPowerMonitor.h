@@ -35,7 +35,8 @@ protected:
 
 public:
 	myPOWERMONITOR();
-
+	const char* getFunctionCharacter() { return "P"; };
+	
 	void initialize();
 	bool poll();
 	void infoPoll(byte prescaler);

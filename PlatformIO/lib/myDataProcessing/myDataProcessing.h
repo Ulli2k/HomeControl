@@ -31,6 +31,7 @@ public:
 	void send(char *cmd, uint8_t typecode=0);
 	void printHelp();
 	void displayData(RecvData *DataBuffer);
+	const char* getFunctionCharacter() { return "qhwW"; };	
 
 	static void printPROGMEM(const char * s); //PGM_P
 };

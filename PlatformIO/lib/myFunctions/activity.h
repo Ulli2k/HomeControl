@@ -62,6 +62,8 @@ public:
 
     Activity() { }
 
+		const char* getFunctionCharacter() { return "modp"; };
+
 		void trigger() {
 			#if defined(LED_ACTIVITY)
 			cLED.activityLed(1);

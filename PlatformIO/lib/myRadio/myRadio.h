@@ -46,6 +46,8 @@ private:
 
     myRadio()  : _tDebCmd(0), _tDebCRC(0), _bDebMsgCnt(0), _RADIOTXMsgCounter(0), _minDebounceTime(RADIO_Default_MSG_DebounceTime) { };
 
+    const char* getFunctionCharacter() { return "RfT"; };
+
 		void initialize() {
 
         radio.initialize(intPin);

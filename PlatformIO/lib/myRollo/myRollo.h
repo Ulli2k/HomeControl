@@ -28,6 +28,7 @@ public:
 
 	myROLLO() { };
 
+	const char* getFunctionCharacter() { return "J"; };
 	void initialize();
 	bool poll();
 	//void infoPoll(byte prescaler);

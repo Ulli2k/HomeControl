@@ -20,6 +20,7 @@ public:
 public:
 
     analogPin() { }
+	   const char* getFunctionCharacter() { return "AC"; };    
     void initialize() {
       // if(!firstInitializedAnalogPinID) {
       //   DS("first is");DU(id,0);DNL();

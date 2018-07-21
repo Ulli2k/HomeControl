@@ -30,6 +30,8 @@ class LED : public myBaseModule {
   public:
     LED() { }
 
+		const char* getFunctionCharacter() { return "la"; };
+
     void initialize() {
       	timeActivity = 0;
       	activityLed(1);
