@@ -60,6 +60,7 @@ ActivityType activity;
   // typedef analogPin<1> Analog2PinType;
   // Analog2PinType ana2Pin;
 #endif
+
 // #if HAS_ROLLO
 // 	#include <myRollo.h>
 // 	myROLLO myRollo;
@@ -70,11 +71,12 @@ ActivityType activity;
 //   myIRMP myIrmp;
 // #endif
 
-// #if HAS_BME280
-//   #include <Wire.h>
-//   #include <myBME280.h>
-//   myBME280 myBME;
-// #endif
+#if HAS_BME280
+  #include <myBME280.h>
+  typedef libI2C<0x76> I2CType;
+  typedef myBME280<I2CType> BMEType;
+  BMEType myBME;
+#endif
 //
 // #if HAS_POWER_MONITOR_CT || HAS_POWER_MONITOR_PULSE
 // 	#include <myPowerMonitor.h>
@@ -83,17 +85,13 @@ ActivityType activity;
 
 /*********************** Modules Table *****************************/
 const typeModuleInfo ModuleTab[] = {
+
   { MODULE_DATAPROCESSING   , &DataProc }, //immer am Anfang
 
   { MODULE_ACTIVITY         , &activity },
 
 #if HAS_UART
   { MODULE_SERIAL      			, &Remote   },
-#endif
-
-#if HAS_RADIO
-// RADIO immer am Schluss für Tunneling
-  { MODULE_RADIO            , &cRadio    },
 #endif
 
 #if HAS_DIGITAL_PIN
@@ -116,13 +114,18 @@ const typeModuleInfo ModuleTab[] = {
 //   { MODULE_IRMP         , &myIrmp   },
 // #endif
 
-// #if HAS_BME280
-//   { MODULE_BME280       , &myBME   },
-// #endif
+#if HAS_BME280
+  { MODULE_BME280       , &myBME   },
+#endif
 
 // #if HAS_POWER_MONITOR_CT || HAS_POWER_MONITOR_PULSE
 // 	{ MODULE_POWERMONITOR	 , &myPowerMonitor	},
 // #endif
+
+#if HAS_RADIO
+// RADIO immer am Schluss für Tunneling
+  { MODULE_RADIO            , &cRadio    },
+#endif
 
   { -1, NULL }
 };

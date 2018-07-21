@@ -57,7 +57,7 @@ public:
   static void _interrupt();
 #endif
 
-  void cfgInterrupt(myBaseModule *module, uint8_t irqPin, byte state);
+  void cfgInterrupt(myBaseModule *module, uint8_t irqPin, uint8_t state);
 };
 
 #endif

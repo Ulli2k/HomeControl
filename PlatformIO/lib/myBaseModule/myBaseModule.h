@@ -3,7 +3,7 @@
 #define _MY_BASE_MODULE_
 
 // #include <avr/pgmspace.h> //PSTR() und phm_read_byte
-#include <../myFunctions/RingBuffer.h>
+#include <../myFunctions/libRingBuffer.h>
 
 /*********************** Declare Module Commands ***********************/
 #include <myBaseModuleDefines.h>
@@ -16,7 +16,7 @@
 
 /*********************** Power Saving Functions *******************************/
 #define REDUCED_FUNCTION_OPTIMIZATION		__attribute__((optimize("-O1")))
-#include <TurnOffFunctions.h>
+#include <libTurnOffFunctions.h>
 
 /*********************** Global Helper Functions *******************************/
 #define	ULONG_MAX	4294967295UL 	/* max value of "unsigned long int" */

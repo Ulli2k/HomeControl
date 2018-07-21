@@ -2,6 +2,8 @@
 #ifndef _MY_BASE_MODULE_DEFINES_h
 #define _MY_BASE_MODULE_DEFINES_h
 
+typedef uint8_t byte; //workarround because byte is defined in Arduino.h
+
 #define MODULE_DATAPROCESSING    									0x00
 	#define MODULE_DATAPROCESSING_QUIET	 								0x10
 	#define MODULE_DATAPROCESSING_HELP									0x20
