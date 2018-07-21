@@ -5,15 +5,14 @@
 #define byte uint8_t
 
 #include <Arduino.h>
-#include <RingBuffer.h> //MAX_RING_DATA_SIZE
-
-extern Print* pSerial;
+#include <../myFunctions/libRingBuffer.h> //MAX_RING_DATA_SIZE
 
 #if defined(__AVR_ATmega328P__)
 	#define PRINT_TO_SERIAL     Serial
  #else
 	#define PRINT_TO_SERIAL     Serial1
 #endif
+extern Print* pSerial;
 
 #define DC 								myDisplay::display_char
 #define DS 								myDisplay::display_string
