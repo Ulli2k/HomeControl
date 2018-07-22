@@ -34,7 +34,7 @@
 	#if defined (__SAMD21G18A__)
 
 	#define PowerOpti_TurnAllOff
-	#define PowerOpti_AllPins_OFF { for(uint8_t i=0; i<=10) {FKT_PIN_OFF(i)} }
+	#define PowerOpti_AllPins_OFF { for(uint8_t i=0; i<=NUM_DIGITAL_PINS;i++) {FKT_PIN_OFF(i)} /*Digital Pins*/ }
 	#define PowerOpti_BOD_OFF
 	#define PowerOpti_AIN_OFF
 	#define PowerOpti_AIN_ON
@@ -52,7 +52,7 @@
 	#define PowerOpti_TIMER2_ON
 	#define PowerOpti_SPI_OFF
 	#define PowerOpti_SPI_ON
-	#define PowerOpti_USART0_OFF
+	#define PowerOpti_USART0_OFF		//Serial1.end();
 	#define PowerOpti_USART0_ON
 	#define PowerOpti_USB_OFF				FKT_USB_OFF
 	#define PowerOpti_USB_ON				FKT_USB_ON
@@ -61,14 +61,20 @@
 	#define PowerOpti_WDT_OFF
 	#define PowerOpti_WDT_ON
 
-	#define FKT_PIN_OFF(x) 			{pinMode((x), INPUT_PULLUP);}
-	#define FKT_USB_OFF					{USBDevice.detach();}
-	#define FKT_USB_ON					{USBDevice.init();USBDevice.attach();}
+	#define FKT_PIN_OFF(x) 					{pinMode((x), INPUT_PULLUP);}
+	#define FKT_USB_OFF							{USBDevice.detach();}
+	#define FKT_USB_ON							{USBDevice.init();USBDevice.attach();}
 
 	#define FKT_WDT_WAKEUP_EVENT 					(true) //check ob WDT oder Interrupt
 	#define FKT_WDT_POWERDOWN(periode)		{for(uint16_t i=0; i<=1000;i++) delay(1);}
-	#define	FKT_POWERDOWN_FOREVER					(DS("sleep forever\n"))
-
+	#define	FKT_POWERDOWN_FOREVER					{\
+				FKT_USB_OFF;\
+				rtc.begin(); rtc.setEpoch(0); rtc.setAlarmEpoch(rtc.getEpoch() + 5); rtc.enableAlarm(rtc.MATCH_YYMMDDHHMMSS);\
+				GCLK->CLKCTRL.reg = uint16_t(GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK2 | GCLK_CLKCTRL_ID(GCLK_CLKCTRL_ID_EIC_Val) );\
+		    while (GCLK->STATUS.bit.SYNCBUSY) {}\
+				rtc.standbyMode();\
+			}
+				/* The RTCZero library will setup generic clock 2 to XOSC32K/32 and we'll use that for the EIC. */
 	enum idle_t {	IDLE_0, IDLE_1,	IDLE_2 };
 	// void	idle(idle_t idleMode) { }
 	// void	standby() { }

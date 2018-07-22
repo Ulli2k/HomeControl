@@ -8,8 +8,13 @@
 #include <myBaseModule.h>
 
 #ifndef DIGITAL_PIN_EVENT
-	#define DIGITAL_PIN_EVENT	MODULE_DIGITAL_PIN_EVENT
+	#define DIGITAL_PIN_EVENT			MODULE_DIGITAL_PIN_EVENT
 #endif
+
+#define DIGITAL_PIN_DEBOUNCE								 20		// in HAS_POWER_OPTIMIZATIONS Debounce time need to be smaller than IDLE Time!
+																									// number of millisec that have to pass by before a click is assumed as safe.
+#define DIGITAL_PIN_PULSE_DEBOUNCE 					600		// number of millisec that have to pass by before a click is detected.
+#define DIGITAL_PIN_LONG_PULSE_DEBOUNCE 	 1000 	// number of millisec that have to pass by before a long button press is detected.
 
 #define PinMode_SIMPLE						(0)
 #define PinMode_SR_RELAY					(1<<1)
@@ -22,7 +27,7 @@
 
 #define PinMode_ALL_EVENTS				(PinMode_PULSE | PinMode_PULSE_LOW | PinMode_CLICK | PinMode_DOUBLE_CLICK | PinMode_LONG_CLICK_HOLD | PinMode_LONG_CLICK)
 
-template <uint8_t Mode=PinMode_SIMPLE, uint8_t Pin1=0xFF, uint8_t Pin2=0xFF, uint8_t id=Pin1, bool activeLow=false>
+template <uint8_t Mode=PinMode_SIMPLE, uint8_t Pin1=0xFF, bool activeLow=false, uint8_t id=Pin1, uint8_t Pin2=0xFF>
 class digitalPin : public myBaseModule {
 
 private:
@@ -45,9 +50,9 @@ private:
 
 	void initPulseDetection()	{
 
-	  _debounceTicks = 50;      // number of millisec that have to pass by before a click is assumed as safe.
-	  _clickTicks = 600;        // number of millisec that have to pass by before a click is detected.
-	  _pressTicks = 1000;       // number of millisec that have to pass by before a long button press is detected.
+	  _debounceTicks = DIGITAL_PIN_DEBOUNCE;      		// number of millisec that have to pass by before a click is assumed as safe.
+	  _clickTicks = DIGITAL_PIN_PULSE_DEBOUNCE;       // number of millisec that have to pass by before a click is detected.
+	  _pressTicks = DIGITAL_PIN_LONG_PULSE_DEBOUNCE;  // number of millisec that have to pass by before a long button press is detected.
 
 	  _state = 0; // starting with state 0: waiting for button to be pressed
 	  // _isLongPressed = false;  // Keep track of long press state
@@ -209,7 +214,7 @@ public:
   }
 
 	const char* getFunctionCharacter() { return "SSN"; };
-	
+
   void initialize() {
     if(Mode & PinMode_SR_RELAY) {
       pinMode(Pin1, OUTPUT);
@@ -220,8 +225,13 @@ public:
 
 		} else if(Mode & PinMode_ALL_EVENTS) {
 			initPulseDetection();
+			cfgInterrupt(this, Pin1, Interrupt_Change);
 		}
   }
+
+	// void interrupt() {
+	// 	poll();
+	// }
 
   bool poll() {
 

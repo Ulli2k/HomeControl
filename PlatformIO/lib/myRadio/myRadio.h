@@ -66,7 +66,6 @@ private:
       //if(!validdisplayData(DataBuffer))
       //	return; //not right spi id --> other rfm module
 
-      //DC(mySpi.getIdent(RF69_Config.spi_id)); //add Module-ID to recv packet
       DC(radio.getRadioIndex());
 
       switch(DataBuffer->ModuleID) {
@@ -84,7 +83,7 @@ private:
     #if HAS_RADIO_POWER_ADJUSTABLE
         case MODULE_RADIO_OPTION_POWER:
           DC('p'); //print command
-          DU(RF69_Config.powerLevel(),2);
+          DU(radio.powerLevel(),2);
           break;
     #endif
 
@@ -106,18 +105,18 @@ private:
             }
 
             int rssi = ((-DataBuffer->Data[DataBuffer->DataSize-1]) >> 1);
-            DS_P(" [RSSI:");DC(radio.getRadioIndex());/*DC(mySpi.getIdent(RF69_Config.spi_id));*/DS_P(":");DI(rssi,0);DS_P("]");
+            DS_P(" [RSSI:");DC(radio.getRadioIndex());DS_P(":");DI(rssi,0);DS_P("]");
           break;
       }
     };
 		bool validdisplayData(RecvData *DataBuffer) {
-      if((char)DataBuffer->DataTypeCode!=radio.getRadioIndex() /*mySpi.getIdent(RF69_Config.spi_id)*/ && (char)DataBuffer->DataTypeCode!='0')
+      if((char)DataBuffer->DataTypeCode!=radio.getRadioIndex() && (char)DataBuffer->DataTypeCode!='0')
     		return 0; //not right spi id --> other rfm module
     	return 1;
     };
 
 		void printHelp(){
-      DS_P("\n ## RADIO - ID:");	DC(radio.getRadioIndex());/*DC(mySpi.getIdent(RF69_Config.spi_id));*/	DS_P(" ##\n");
+      DS_P("\n ## RADIO - ID:");	DC(radio.getRadioIndex());DS_P(" ##\n");
     #if defined(RADIO_NO_OTHER_PROTOCOLS)
     	DS_P(" Protocols:<1:myProtocol>\n");
     #else
@@ -229,7 +228,7 @@ private:
       						DC((char)data[i]);
       				}
       				//rssi = ((-DATA[PAYLOADLEN-1]) >> 1);
-      				DS_P(" [RSSI:");DC(radio.getRadioIndex());/*DC(mySpi.getIdent(RF69_Config.spi_id));*/DS_P(":");DI(radio.getRSSI(),0);DS_P("]");
+      				DS_P(" [RSSI:");DC(radio.getRadioIndex());DS_P(":");DI(radio.getRSSI(),0);DS_P("]");
       				DNL();
 
       		} else if(radio.isPayloadFlag_ACK_RECV()) {
@@ -237,7 +236,7 @@ private:
       		} else if(!(radio.isPayloadFlagSet())) {
       #endif
       		  //print received command to Uart
-        		addToRingBuffer(MODULE_RADIO, radio.getRadioIndex()/*mySpi.getIdent(RF69_Config.spi_id)*/, radio.getPayloadDATA(), radio.getPayloadLen());
+        		addToRingBuffer(MODULE_RADIO, radio.getRadioIndex(), radio.getPayloadDATA(), radio.getPayloadLen());
       #ifndef HAS_RADIO_SNIFF
       		}
       #endif
@@ -261,9 +260,9 @@ private:
 
       	cmd++; //Jump over ModuleID [1]
       	p++;
-        if(spiId != radio.getRadioIndex()/*mySpi.getIdent(RF69_Config.spi_id)*/ && spiId != '0') //valid SPI Module Number
+        if(spiId != radio.getRadioIndex() && spiId != '0') //valid SPI Module Number
 	         return;
-        spiId=radio.getRadioIndex(); //mySpi.getIdent(RF69_Config.spi_id); //in case of requested spiID=0
+        spiId=radio.getRadioIndex(); //in case of requested spiID=0
       	// D_DS_P("valid SPI-ID <");D_DC(spiId);D_DS_P(">\n");
 
       	//DS("<<");DS(cmd-1);DS(">>\n");
@@ -353,24 +352,14 @@ private:
 
       #if HAS_RADIO_LISTENMODE
       				case 'l':
-      					RF69_Config.ListenModeActive=(cmd[1]=='0'?0:1);
-      //					frequenceShift(RF69_Config.ListenModeActive);
-      					setMode(RF69_MODE_SLEEP);
+                radio.setListenMode((cmd[1]=='0'?0:1));
+
       					break;
       #endif
 
       #if HAS_RADIO_TXonly
       				case 'x':
-      					if(cmd[1]=='0') {
-      						RF69_Config.TXonly = false;
-      						setMode(RF69_MODE_STANDBY);
-      					} else {
-      						RF69_Config.TXonly = true;
-      						setMode(RF69_MODE_SLEEP);
-      					}
-      				#if defined(STORE_CONFIGURATION)
-      					StoreValue((void*)&RF69_Config.TXonly,(void*)&eeTXonly,1);
-      				#endif
+                radio.setTXOnly((cmd[1]=='0'?0:1));
       					break;
       #endif
 
@@ -403,9 +392,6 @@ private:
 
       				case 'c': //activate Tunneling function
       					radio.setTunneling((cmd[1]=='0')?false:true);
-      				#if defined(STORE_CONFIGURATION)
-      					StoreValue((void*)&RF69_Config.TunnelingCMDQuery,(void*)&eeTunnelingCMDQuery,1);
-      				#endif
 
       			#if HAS_RADIO_CMD_TUNNELING==2 //Satellite
       					if(strlen(cmd)>2) { //safe Host ID
@@ -423,7 +409,7 @@ private:
 
       			#if HAS_RADIO_CMD_TUNNELING==1 //Host
       				case 'b': //activate TX Bursts
-      					RF69_Config.TunnelingSendBurst=((cmd[1]=='0')?false:true); //send burst on
+                radio.setTXBurst((cmd[1]=='0')?false:true);//send burst on
       					break;
       			#endif
 
@@ -431,7 +417,7 @@ private:
       					if(!radio.isTunnelingActive()) { D_DS_P("Satellite CMD request not active.\n"); return; } // off
 
       			#if HAS_RADIO_CMD_TUNNELING==1 // HOST
-      					if(RF69_Config.TunnelingSendBurst) {
+      					if(radio.isTXBurstActive()) {
       						lDataStruct.XData_Config = XDATA_BURST;
       //						frequenceShift(1);
       					}

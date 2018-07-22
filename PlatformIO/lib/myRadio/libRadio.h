@@ -66,6 +66,16 @@
 #ifndef RADIO_POWER_DEFAULT_VALUE
 	#define RADIO_POWER_DEFAULT_VALUE		(RF69_Config.setHighPower ? 32 : 0)
 #endif
+
+#ifdef HAS_RADIO_LISTENMODE
+	#define RF69_MODE_IDLE 							RF69_MODE_SLEEP
+#endif
+#ifdef HAS_RADIO_TXonly
+	#define RF69_MODE_IDLE 							(RF69_Config.TXonly ? RF69_MODE_SLEEP : RF69_MODE_STANDBY)
+#endif
+#ifndef RF69_MODE_IDLE
+	#define RF69_MODE_IDLE							RF69_MODE_STANDBY
+#endif
 /* -------------------- */
 
 template <uint8_t RadioIndex, class SPIType, uint8_t rstPin, bool isHighPower=true>
@@ -345,11 +355,7 @@ private:
   			return false;
   		}
 
-  	 #if HAS_RADIO_LISTENMODE || HAS_RADIO_TXonly
-  	 	setMode(RF69_MODE_SLEEP);
-  	 #else
-  		setMode(RF69_MODE_STANDBY);
-  	 #endif
+  	 	setMode(RF69_MODE_IDLE);
 
      // DS_P("CanSend: ");DI(RF69_Config.oldRSSI,0); DS(" ");DI(rssi,0);DS("\n");
       RF69_Config.oldRSSI=0;
@@ -544,11 +550,7 @@ private:
   	lastRadioFrame = millis();
    #endif
 
-   #if HAS_RADIO_LISTENMODE || HAS_RADIO_TXonly
-   	setMode(RF69_MODE_SLEEP);
-   #else
-    setMode(RF69_MODE_STANDBY);
-   #endif
+   	setMode(RF69_MODE_IDLE);
 
    //Turn back on Sync Words if requested
     if(!(lDataStruct->XData_Config & XDATA_SYNC)) spi.writeReg(REG_SYNCCONFIG,spi.readReg(REG_SYNCCONFIG) | RF_SYNC_ON);
@@ -576,9 +578,6 @@ public:
 
 		#if HAS_RADIO_TXonly
 			RF69_Config.TXonly=RADIO_TXonly_DEFAULT_VALUE;
-		#if defined(STORE_CONFIGURATION)
-			getStoredValue((void*)&RF69_Config.TXonly, (const void*)&eeTXonly,1);
-		#endif
 		#endif
 
 		#if HAS_RADIO_TX_FORCED_DELAY
@@ -587,9 +586,6 @@ public:
 
 		#if HAS_RADIO_CMD_TUNNELING
 			RF69_Config.TunnelingCMDQuery=RADIO_CMD_TUNNELING_DEFAULT_VALUE;
-		#if defined(STORE_CONFIGURATION)
-			getStoredValue((void*)&RF69_Config.TunnelingCMDQuery, (const void*)&eeTunnelingCMDQuery,1);
-		#endif
 		#endif
 
 		#if HAS_RADIO_CMD_TUNNELING==1 //Host
@@ -598,9 +594,6 @@ public:
 
 		#if HAS_RADIO_CMD_TUNNELING==2 //Satellite
 			safeHostID4Tunneling=RADIO_CMD_TUNNELING_HOSTID_DEFAULT_VALUE;
-		#if defined(STORE_CONFIGURATION)
-			getStoredValue((void*)&safeHostID4Tunneling, (const void*)&eesafeHostID4Tunneling,1);
-		#endif
 		#endif
 
 			RF69_Config.mode = RF69_MODE_STANDBY;
@@ -646,6 +639,20 @@ public:
 		#if HAS_RADIO_CMD_TUNNELING==2 //Satellite
 		safeHostID4Tunneling = hostID;
 		#endif
+	}
+	void setTXBurst(bool on) {
+		RF69_Config.TunnelingSendBurst=on;
+	}
+	bool isTXBurstActive() {
+		return RF69_Config.TunnelingSendBurst;
+	}
+	void setListenMode(bool on) {
+		RF69_Config.ListenModeActive=on;
+		setMode((on ? RF69_MODE_SLEEP : RF69_MODE_STANDBY));
+	}
+	void setTXOnly(bool on) {
+		RF69_Config.TXonly = on;
+		setMode((on ? RF69_MODE_SLEEP : RF69_MODE_STANDBY));
 	}
 	void resetForcedDelayTimer() {
 		#ifdef HAS_RADIO_TX_FORCED_DELAY
@@ -762,11 +769,7 @@ public:
 
     	RF69_Config.PacketFormatVariableLength = (spi.readReg(REG_PACKETCONFIG1) & RF_PACKET1_FORMAT_VARIABLE) ? true : false;
 
-     #if HAS_RADIO_LISTENMODE || HAS_RADIO_TXonly
-     	setMode(RF69_MODE_SLEEP);
-     #else
-      setMode(RF69_MODE_STANDBY);
-     #endif
+			setMode(RF69_MODE_IDLE);
     	while ((spi.readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00); // Wait for ModeReady
   }
 
@@ -841,7 +844,7 @@ public:
 
   bool receiveDone() {
     #ifdef HAS_RADIO_TXonly
-      if(RF69_Config.TXonly) return;
+      if(RF69_Config.TXonly) return false;
     #endif
 
   // ATOMIC_BLOCK(ATOMIC_FORCEON)
@@ -851,11 +854,7 @@ public:
 
     if (RF69_Config.mode == RF69_MODE_RX && DataStruct.PAYLOADLEN>0 ) {
      	//enables interrupts
-  	 #if HAS_RADIO_LISTENMODE || HAS_RADIO_TXonly
-  	 	setMode(RF69_MODE_SLEEP);
-  	 #else
-  		setMode(RF69_MODE_STANDBY);
-  	 #endif
+			setMode(RF69_MODE_IDLE);
   //	 	cfgInterrupt(this, mySpi.getIntPin(RF69_Config.spi_id), Interrupt_Release); //im SPI Module enthalten
   		return true;
     } else if (RF69_Config.mode == RF69_MODE_RX) { //already in RX no payload yet
@@ -903,11 +902,7 @@ public:
   		if(!RF69_Config.ListenModeActive)
   		#endif
   		{
-  		 #if HAS_RADIO_LISTENMODE || HAS_RADIO_TXonly
-  		 	setMode(RF69_MODE_SLEEP);
-  		 #else
-  			setMode(RF69_MODE_STANDBY);
-  		 #endif
+				setMode(RF69_MODE_IDLE);
   		}
   		#if HAS_RADIO_LISTENMODE
   		 else {

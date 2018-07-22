@@ -5,6 +5,11 @@
 
 #include <myBaseModule.h>
 
+#if defined (__SAMD21G18A__)
+#include <RTCZero.h>
+RTCZero rtc;
+#endif
+
 #define LIBCALL_TurnOffFunctions	1 //needed to use WDT Interrupt Service Routine
 // #include <TurnOffFunktions.h>
 
@@ -33,31 +38,28 @@ public:
 	bool isAwakeReasonWD() {
 		return FKT_WDT_WAKEUP_EVENT;
 	}
-	void setLowPower() REDUCED_FUNCTION_OPTIMIZATION {
+	void setLowPower() REDUCED_FUNCTION_OPTIMIZATION { //Shutsoff not needed Functions
 		//CPU MHz vs Voltage: (--> 8MHz min.2.4Volt)
 		//From 1.8V to 2.7V: M = 4 + ((V - 1.8) / 0.15)
 		//From 2.7V to 4.5V: M = 10 + ((V - 2.7) / 0.18)
-	//http://www.rocketscream.com/blog/2011/07/04/lightweight-low-power-arduino-library/
+		//http://www.rocketscream.com/blog/2011/07/04/lightweight-low-power-arduino-library/
 		/*
-		 * Brown Out Detector	- Bei Unterspannung spielt der AVR ggf. verrückt. Detector schaltet vorher ab. - derzeit nicht notwendig
-		 * ADC								- Batteriespannung + VCC + IR-RX
-		 * SPI								- RFM Modul Kommunikation
-		 * TWI								- Two wire interface - nie notwendig
-		 * UART								- FHEM Interface (Arduino interrupt gesteuert)
-		 * Timer0							- Für TX Infrarot Funktion
-		 * Timer1							- Für RX & TX Infrarot poll Funktion
-		 * Timer2							- Für Zeitmessung notwendig. z.B. millis() (löst ständig interrupts aus!)
-		 */
+		* Brown Out Detector	- Bei Unterspannung spielt der AVR ggf. verrückt. Detector schaltet vorher ab. - derzeit nicht notwendig
+		* ADC								- Batteriespannung + VCC + IR-RX
+		* SPI								- RFM Modul Kommunikation
+		* TWI								- Two wire interface - nie notwendig
+		* UART								- FHEM Interface (Arduino interrupt gesteuert)
+		* Timer0							- Für TX Infrarot Funktion
+		* Timer1							- Für RX & TX Infrarot poll Funktion
+		* Timer2							- Für Zeitmessung notwendig. z.B. millis() (löst ständig interrupts aus!)
+		*/
 		#if !HAS_IR_TX && !HAS_IR_RX
-		//TurnOffFunktions(BOD_, ADC_, AIN_, TIMER2_ /*millis*/ ,TIMER1_OFF /* IRMP */, TIMER0_OFF, SPI_, USART0_, TWI_, WDT_);
 		PowerOpti_TIMER1_OFF;
 		PowerOpti_TIMER0_OFF;
 		#endif
 		#if !HAS_IR_TX
-		//TurnOffFunktions(BOD_, ADC_, AIN_, TIMER2_, TIMER1_, TIMER0_OFF, SPI_, USART0_, TWI_, WDT_);
 		PowerOpti_TIMER0_OFF;
 		#endif
-		//TurnOffFunktions(BOD_OFF, ADC_OFF, AIN_OFF, TIMER2_ /*millis*/ ,TIMER1_ /* IRMP */, TIMER0_ /* IRSND */, SPI_OFF /* RFM69 */, USART0_ /* auto on/off tunneling */, TWI_OFF, WDT_OFF);
 		PowerOpti_BOD_OFF;
 		PowerOpti_ADC0_OFF;
 		PowerOpti_AIN_OFF;
@@ -65,7 +67,9 @@ public:
 		PowerOpti_TWI_OFF;
 		PowerOpti_WDT_OFF;
 
+		// PowerOpti_AllPins_OFF;
 		PowerOpti_USB_OFF;
+		// PowerOpti_USART0_OFF
 	}
 
 	void setPowerDownAuto(bool on) {

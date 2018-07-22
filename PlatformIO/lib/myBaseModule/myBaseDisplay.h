@@ -9,10 +9,15 @@
 
 #if defined(__AVR_ATmega328P__)
 	#define PRINT_TO_SERIAL     Serial
+	#define isUartTxActive  		(UCSR0B & (1<<TXEN0))
+	#define UART_RX							PIN_SERIAL_RX
+	#define UART_TX							PIN_SERIAL_TX
  #else
 	#define PRINT_TO_SERIAL     Serial1
+	#define isUartTxActive			1
+	#define UART_RX							PIN_SERIAL1_RX
+	#define UART_TX							PIN_SERIAL1_TX
 #endif
-extern Print* pSerial;
 
 #define DC 								myDisplay::display_char
 #define DS 								myDisplay::display_string
@@ -43,12 +48,6 @@ extern Print* pSerial;
 #define D_DU(a,b) 				{ if(DEBUG) { DU(a,b); } }
 
 #define ASSERT(cond)			{ if(!(cond)) myDisplay::hal_failed(__FILE__, __LINE__); }
-
-#if defined(__AVR_ATmega328P__)
-	#define isUartTxActive  	(UCSR0B & (1<<TXEN0))
-#else
-	#define isUartTxActive		1
-#endif
 
 class myDisplay {
 
@@ -113,8 +112,8 @@ public:
   		#endif
   			{
   				if(lastPrintChar!='\r' && s=='\n')
-  					pSerial->print('\r');
-  				pSerial->print(s);
+  					PRINT_TO_SERIAL.print('\r');
+  				PRINT_TO_SERIAL.print(s);
   				lastPrintChar=s;
   			}
   	#endif

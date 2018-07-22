@@ -12,8 +12,6 @@
 	#define PRINT_TO_SERIAL     Serial
 #endif
 
-Print* pSerial;
-
 class myUart : public myBaseModule {
 
 public:
@@ -25,8 +23,11 @@ public:
   }
 
 	void initialize() {
+		//needed for PowerOpti_AllPins_OFF
+		pinMode(UART_RX, INPUT);
+		pinMode(UART_TX, OUTPUT);
+
     PRINT_TO_SERIAL.begin(BaudRate);
-  	pSerial = &PRINT_TO_SERIAL;
   	while(!PRINT_TO_SERIAL); // wait till connection is established
   	PRINT_TO_SERIAL.flush();
 
@@ -90,7 +91,7 @@ public:
 	   PRINT_TO_SERIAL.flush();
   }
 
-	size_t print(char c) { return pSerial->print(c); }
+	size_t print(char c) { return PRINT_TO_SERIAL.print(c); }
 	static void flush() { PRINT_TO_SERIAL.flush(); }
 
 private:

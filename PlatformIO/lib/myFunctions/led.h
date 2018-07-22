@@ -8,12 +8,11 @@
 	#ifndef LED1_PIN
 		#define LED1_PIN	9
 	#endif
-	#ifndef DELAY_ACTIVITY_LED
-		#define DELAY_ACTIVITY_LED	200
-	#endif
-
 #endif
 
+#ifndef DELAY_ACTIVITY_LED
+	#define DELAY_ACTIVITY_LED	200
+#endif
 #ifdef LED_PIN_INVERSE
 	#define bLED_PIN_INVERSE	true
 #else
