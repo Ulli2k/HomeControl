@@ -9,6 +9,7 @@
 	HAS_INFO_POLL: polls the info function of each module
 		INFO_POLL_CYCLE_TIME:	[s] for next infoPoll cycle
 	LED_ACTIVITY: LED class for signalling activity
+	INCLUDE_DEBUG_OUTPUT: for ZeroRegs Dump Function
 ************************************/
 
 
@@ -32,6 +33,10 @@
 	#elif not defined(INFO_POLL_CYCLE_TIME)
 		#error Please define HAS_INFO_POLL and INFO_POLL_CYCLE_TIME
 	#endif
+#endif
+
+#ifdef INCLUDE_DEBUG_OUTPUT
+	#include <ZeroRegs.h>
 #endif
 
 //################# getAvailableRam #######################
@@ -86,7 +91,7 @@ public:
     Activity() : Alarm(0) {	}
 #endif
 
-		const char* getFunctionCharacter() { return "modp"; }
+		const char* getFunctionCharacter() { return "modpD"; }
 
 		void initialize() {
 			#if HAS_POWER_OPTIMIZATIONS
@@ -99,6 +104,7 @@ public:
 				rtc.add(*this);
 				execInfoPoll(); //run infoPoll on startup
 			#endif
+
 		}
 
 		void trigger() {
@@ -169,6 +175,14 @@ public:
 					safePower::setLowPower();
 					break;
 				#endif
+
+				#ifdef INCLUDE_DEBUG_OUTPUT
+				case MODULE_ACTIVITY_DUMP_REGS:
+					ZeroRegOptions opts = { PRINT_TO_SERIAL	, false };
+					printZeroRegs(opts);
+					break;
+				#endif
+
     	}
     }
 
@@ -218,6 +232,9 @@ public:
 
     void printHelp() {
     	DS_P(" * [RAM]     m\n");
+			#ifdef INCLUDE_DEBUG_OUTPUT
+			DS_P(" * [DumpReg]  D\n");
+			#endif
     	DS_P(" * [Reboot]  o\n");
 			#if HAS_POWER_OPTIMIZATIONS
 			// DS_P("\n ## SAFE POWER ##\n");

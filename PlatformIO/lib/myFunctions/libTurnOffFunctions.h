@@ -36,8 +36,8 @@
 	#if defined (__SAMD21G18A__)
 
 	#define PowerOpti_TurnAllOff
-	#define PowerOpti_AllPins_OFF { for(uint8_t i=0; i<=NUM_DIGITAL_PINS;i++) {FKT_PIN_OFF(i)} /*Digital Pins*/ }
-	#define PowerOpti_BOD_OFF
+	#define PowerOpti_AllPins_OFF { for(uint8_t i=0; i<NUM_DIGITAL_PINS;i++) {FKT_PIN_OFF(i)} /*Digital Pins*/ }
+	#define PowerOpti_BOD_OFF { SYSCTRL->BOD33.reg = 0; }
 	#define PowerOpti_AIN_OFF
 	#define PowerOpti_AIN_ON
 	#define PowerOpti_ADC_OFF

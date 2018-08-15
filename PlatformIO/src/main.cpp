@@ -3,6 +3,8 @@
 avrdude -b 115200 -p m328p -c arduino -P net:beagle:4000 -Uflash:w:HomeControl.cpp.hex  #433MHz
 avrdude -b 115200 -p m328p -c arduino -P net:beagle:5000 -Uflash:w:HomeControl.cpp.hex  #868MHz
 nc beagle 4001
+
+Arduino Libraries: ./.platformio/packages/framework-arduinosam/cores/samd/
 */
 //TODO: Atomic Funktionen in Interrupts einbauen
 //TODO: BUZZER is missing! --> pwmPin.h

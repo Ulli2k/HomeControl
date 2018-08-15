@@ -16,6 +16,7 @@ typedef uint8_t byte; //workarround because byte is defined in Arduino.h
 	#define MODULE_ACTIVITY_REBOOT												0x21
 	#define MODULE_ACTIVITY_POWERDOWN											0x31
 	#define MODULE_ACTIVITY_LOWPOWER											0x41
+	#define MODULE_ACTIVITY_DUMP_REGS											0x51
 // 	#define MODULE_AVR_BUZZER														0x71
 #define MODULE_SERIAL           	 								0x02
 #define MODULE_IRMP             									0x03
