@@ -1,8 +1,28 @@
 
 //TODO: RF69_Config.setHighPower wird manchmal überschrieben, eigentlich sollte aber isHighPower genutzt werden (Module ändert sich nicht!)
+//TODO: Data struct independant of protocol (union? anstat struct?)
 
 #ifndef _MY_LIB_RADIO_h
 #define _MY_LIB_RADIO_h
+
+/******** DEFINE dependencies ******
+	HAS_RADIO_LISTENMODE: makes listening mode available
+	HAS_RADIO_TXonly: makes TX only mode available
+	HAS_RADIO_POWER_ADJUSTABLE: activate functions to adjust TX power
+	HAS_RADIO_TEMPERATURE_READ: activates possiblity to read RFM Module temperature
+	HAS_RADIO_TX_FORCED_DELAY: forces delay between TX messages (also respect RX)
+	HAS_RADIO_CMD_TUNNELING: activates Satellite (2) and Host(1) functions
+	HAS_RADIO_ADC_NOISE_REDUCTION: turns ADC off during TX
+	INCLUDE_DEBUG_OUTPUT: adds RFM Register Read/Write funcionality
+
+	RADIO_Default_MSG_DebounceTime: debounce time before message will be printed again
+	RADIO_CMD_TUNNELING_DEFAULT_VALUE: activates tunneling at startup
+	RADIO_CMD_TUNNELING_HOSTID_DEFAULT_VALUE: default Satellite ID to which the message will be forwareded
+	RADIO_TXonly_DEFAULT_VALUE:  implements only TX functions at startup. no RX
+	RADIO_LISTENMODE_DEFAULT_VALUE: activates listening mode at startup
+	RADIO_POWER_DEFAULT_VALUE: default radio power level
+************************************/
+
 
 #include <myBaseModule.h>
 
@@ -43,7 +63,7 @@
 /* -------------------- */
 
 //#define HAS_RADIO_POWER_ADJUSTABLE		0 //activate functions to adjust TX power
-#define HAS_RADIO_TEMPERATURE_READ		0 //activates possiblity to read RFM Module temperature
+// #define HAS_RADIO_TEMPERATURE_READ		0 //activates possiblity to read RFM Module temperature
 #if HAS_RADIO_TEMPERATURE_READ
 	#define COURSE_TEMP_COEF     			-90 // puts the temperature reading in the ballpark, user can fine tune the returned value
 #endif

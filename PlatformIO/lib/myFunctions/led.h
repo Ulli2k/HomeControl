@@ -4,11 +4,10 @@
 
 #include <myBaseModule.h>
 
-#if HAS_LEDs
-	#ifndef LED1_PIN
-		#define LED1_PIN	9
-	#endif
-#endif
+/******** DEFINE dependencies ******
+  DELAY_ACTIVITY_LED: delay between activity led goes off/on
+	LED_PIN_INVERSE: switch between active low or high
+************************************/
 
 #ifndef DELAY_ACTIVITY_LED
 	#define DELAY_ACTIVITY_LED	200
@@ -19,7 +18,7 @@
 	#define bLED_PIN_INVERSE	false
 #endif
 
-template <uint8_t LEDpin=9, bool LEDinverse=bLED_PIN_INVERSE, bool Activity=true, uint8_t ActivityDelay=DELAY_ACTIVITY_LED>
+template <uint8_t LEDpin, bool LEDinverse=bLED_PIN_INVERSE, bool Activity=LED_ACTIVITY, uint8_t ActivityDelay=DELAY_ACTIVITY_LED>
 class LED : public myBaseModule {
 
   private:

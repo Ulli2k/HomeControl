@@ -1,5 +1,4 @@
 
-//#include <myInterrupt.h>
 #include <myBaseModule.h> // class myBaseModule für cfgInterrupt
 
 #if defined(__AVR_ATmega328P__)
@@ -159,6 +158,11 @@
 			_irqPin = irqPin;
 			_irqPinMask = EXINT_PIN_2_REG_MASK(irqPin);
 			attachInterrupt(irqPin, _interrupt, (state==Interrupt_Low ? LOW : state==Interrupt_High ? HIGH : state==Interrupt_Falling ? FALLING : state==Interrupt_Rising ? RISING : CHANGE));
+
+			//Enable Interrupt during Sleep/StandbyMode
+				// The RTCZero library will setup generic clock 2 to XOSC32K/32 and we'll use that for the EIC.
+	    GCLK->CLKCTRL.reg = uint16_t(GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK2 | GCLK_CLKCTRL_ID(GCLK_CLKCTRL_ID_EIC_Val) );
+	    while (GCLK->STATUS.bit.SYNCBUSY) {}
 		}
 	}
 

@@ -2,6 +2,12 @@
 #ifndef MY_UART_h
 #define MY_UART_h
 
+/******** DEFINE dependencies ******
+	MAX_UART_BUFFER: max uart buffer size (RX & TX)
+	PRINT_TO_SERIAL: used serial port (Serial, Serial1, SerialUSB)
+	UART_HEX_INTERPRETER: interpreter for HEX values
+************************************/
+
 #include <myBaseModule.h>
 #include <Print.h>
 

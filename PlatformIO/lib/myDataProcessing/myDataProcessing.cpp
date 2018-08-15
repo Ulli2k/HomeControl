@@ -1,21 +1,21 @@
 
 #include <myDataProcessing.h>
 
-#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING
+#if HAS_RADIO && HAS_DISPLAY_TUNNELING
 	#include <myRadioGlobals.h> //needed for Tunneling Function
 #endif
 
 // extern const char helpText[] PROGMEM;
 extern void printPROGMEM (const char * s);
 
-#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
+#ifdef HAS_DISPLAY_TUNNELING
 byte myDataProcessing::OutputTunnel	=	0;
 #endif
 
 
 myDataProcessing::myDataProcessing() {
 	WelcomeMSG=0;
-#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
+#ifdef HAS_DISPLAY_TUNNELING
 	OutputTunnel=0;
 #endif
 }
@@ -33,7 +33,7 @@ void myDataProcessing::send(char *cmd, uint8_t typecode) {
 				p=cmd+2; //jump over DeviceID
 			} else {
 				D_DS_P("Wrong DeviceID.");
-			#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==1 //Host
+			#ifdef HAS_FORWARD_MESSAGES
 				uint8_t len=strlen(cmd);
 				if(len+3 <= MAX_RING_DATA_SIZE) {
 					//transform send msg in forward msg (<devID>... -> T<devID>....)
@@ -53,7 +53,7 @@ void myDataProcessing::send(char *cmd, uint8_t typecode) {
 			if(p) callSendFkt(p);
 			break;
 
-#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
+#ifdef HAS_DISPLAY_TUNNELING
 		case MODULE_DATAPROCESSING_OUTPUTTUNNEL:
 			DFL();
 			if(cmd[0]=='0') {
@@ -72,7 +72,7 @@ void myDataProcessing::send(char *cmd, uint8_t typecode) {
 
 		case MODULE_DATAPROCESSING_QUIET:
 			DEBUG_ONOFF((cmd[0]=='1') ? 1:0);
-#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
+#ifdef HAS_DISPLAY_TUNNELING
 			if(cmd[0]=='0' && !isUartTxActive) {
 				PowerOpti_USART0_ON;
 			} else if(cmd[0]=='0' && OutputTunnel) {
@@ -185,7 +185,7 @@ bool myDataProcessing::poll() {
 						if(!(pmt->module->validdisplayData(&RecvDataBuffer)))
 							break;
 
-						#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
+						#ifdef HAS_DISPLAY_TUNNELING
 						if(OutputTunnel) {
 							setDisplayCopy(1); //reset & clear DisplayCopy Buffer
 							//00F1s500
@@ -200,7 +200,7 @@ bool myDataProcessing::poll() {
 						//Print Module Data
 						pmt->module->displayData(&RecvDataBuffer);
 
-						#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
+						#ifdef HAS_DISPLAY_TUNNELING
 						if(OutputTunnel) {
 							setDisplayCopy(0);
 							DS_P(" >> tunneled"); if(DEBUG) { DS_P(" with <");DS(getDisplayCopy());DS_P(">"); }
@@ -208,7 +208,7 @@ bool myDataProcessing::poll() {
 						#endif
 						DNL();
 
-					#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
+					#ifdef HAS_DISPLAY_TUNNELING
 						if(OutputTunnel) {
 							uint8_t len=strlen(getDisplayCopy());
 							if((getDisplayCopy())[len-1] == '\n') len--;

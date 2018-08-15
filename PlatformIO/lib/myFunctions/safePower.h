@@ -3,15 +3,25 @@
 #ifndef _MY_SAFE_POWER_h
 #define _MY_SAFE_POWER_h
 
+//TODO: Timer0 & 1 dependancy with setLowPower
+
+/******** DEFINE dependencies ******
+	SAFE_POWER_AUTO_DEFAULT_VALUE: go into sleep after startup
+
+	HAS_RTC: in case of not availability of RTC, sleep mode will be looped for intervalls
+	INCLUDE_DEBUG_OUTPUT_ prints awake time
+	HAS_IR_TX & HAS_IR_RX: do not turn of Timer0 & 1
+************************************/
+
 #include <myBaseModule.h>
 
-#if defined (__SAMD21G18A__)
-#include <RTCZero.h>
-RTCZero rtc;
+#include <AlarmClock.h>
+#ifdef __AVR_ATmega328P__
+	ISR (WDT_vect) {
+		// WDIE & WDIF is cleared in hardware upon entering this ISR
+		wdt_disable();
+	}
 #endif
-
-#define LIBCALL_TurnOffFunctions	1 //needed to use WDT Interrupt Service Routine
-// #include <TurnOffFunktions.h>
 
 #ifndef SAFE_POWER_AUTO_DEFAULT_VALUE
 	#define SAFE_POWER_AUTO_DEFAULT_VALUE	false
@@ -21,7 +31,9 @@ class safePower : public myBaseModule {
 
 private:
   static bool safePower_auto;
+	#ifndef HAS_RTC
   static uint8_t safePower_Multiplier_Counter;
+	#endif
   #if INCLUDE_DEBUG_OUTPUT
 	static unsigned long awakeTime;
 	#endif
@@ -75,23 +87,34 @@ public:
 	void setPowerDownAuto(bool on) {
 		safePower_auto = on;
 	}
-	bool setPowerDown(bool forever=true, uint16_t cycleTime=0) REDUCED_FUNCTION_OPTIMIZATION {
+
+	bool setPowerDown(bool forever=true, uint16_t cycleTime=0 /*s*/) REDUCED_FUNCTION_OPTIMIZATION {
+
 		bool INTwakeUp=false; //return 0 if wake up due to infoPoll
 
 		if(forever) {
 			FKT_POWERDOWN_FOREVER;
 			INTwakeUp=true;
+
 		} else {
-			for(; (safePower_Multiplier_Counter*8)<cycleTime; safePower_Multiplier_Counter++) { //needed for multiplier of 8s
-				FKT_WDT_POWERDOWN(SLEEP_8S); //if sleep time is not forever
-				if(!isAwakeReasonWD()) { //wake up due to Interrupt
-					INTwakeUp=true;
-					break;
+			#ifndef HAS_RTC
+				for(; (safePower_Multiplier_Counter*8)<cycleTime; safePower_Multiplier_Counter++) { //needed for multiplier of 8s
+			#endif
+					FKT_USB_OFF;
+					FKT_WDT_POWERDOWN(SLEEP_8S); //if sleep time is not forever
+					if(!isAwakeReasonWD()) { //wake up due to Interrupt
+						INTwakeUp=true;
+						#ifndef HAS_RTC
+						break;
+						#endif
+					}
+			#ifndef HAS_RTC
 				}
-			}
-			if( isAwakeReasonWD() && (safePower_Multiplier_Counter*8 >= cycleTime)) {
-				safePower_Multiplier_Counter=0;
-			}
+				if( isAwakeReasonWD() && (safePower_Multiplier_Counter*8 >= cycleTime)) {
+					safePower_Multiplier_Counter=0;
+				}
+			#endif
+			// myTiming::configure(); //reset timing functionality millis,delay...
 		}
 		#if INCLUDE_DEBUG_OUTPUT
 		awakeTime = millis();
@@ -103,7 +126,9 @@ public:
 };
 
 bool safePower::safePower_auto = SAFE_POWER_AUTO_DEFAULT_VALUE;
-uint8_t safePower::safePower_Multiplier_Counter = 0;
+#ifndef HAS_RTC
+	uint8_t safePower::safePower_Multiplier_Counter = 0;
+#endif
 #if INCLUDE_DEBUG_OUTPUT
 	unsigned long safePower::awakeTime = 0;
 #endif

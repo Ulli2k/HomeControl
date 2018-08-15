@@ -1,7 +1,16 @@
 #ifndef _MY_ACTIVITY_h
 #define _MY_ACTIVITY_h
 
-//TODO: infoPollCylces auf RTC umstellen, Sleep auf InfoPoll umstellen
+//TODO Offset integrieren um RTC und Timing nach Sleep zu korrigieren
+
+/******** DEFINE dependencies ******
+	HAS_POWER_OPTIMIZATIONS: sleep functions
+		SAFE_POWER_MAX_IDLETIME: min idle time between two sleep modes
+	HAS_INFO_POLL: polls the info function of each module
+		INFO_POLL_CYCLE_TIME:	[s] for next infoPoll cycle
+	LED_ACTIVITY: LED class for signalling activity
+************************************/
+
 
 #include <myBaseModule.h>
 #include <led.h>
@@ -13,8 +22,16 @@
 	#endif
 #endif
 
-#if defined(INFO_POLL_CYCLE_TIME) && ((INFO_POLL_CYCLE_TIME > 2040) || (INFO_POLL_CYCLE_TIME < 8)) //uint8_t *8 Sekunden -> 2040 Sek -> 34 Min
-	#error Max INFO_POLL_CYCLE_TIME is 2040 due to uint8_t limitation and can not be smaller than 8.
+#ifdef HAS_INFO_POLL
+	#include <AlarmClock.h>
+
+	#if defined(INFO_POLL_CYCLE_TIME)
+		#if ((INFO_POLL_CYCLE_TIME > 2040) || (INFO_POLL_CYCLE_TIME < 8)) //uint8_t *8 Sekunden -> 2040 Sek -> 34 Min
+			#error Max INFO_POLL_CYCLE_TIME is 2040 due to uint8_t limitation and can not be smaller than 8.
+		#endif
+	#elif not defined(INFO_POLL_CYCLE_TIME)
+		#error Please define HAS_INFO_POLL and INFO_POLL_CYCLE_TIME
+	#endif
 #endif
 
 //################# getAvailableRam #######################
@@ -35,10 +52,14 @@ extern char *__brkval;
 #endif
 //##########################################################
 
-#if defined(LED_ACTIVITY)
+
+#ifdef LED_ACTIVITY
 template<class LED>
 #endif
 class Activity :
+#ifdef HAS_INFO_POLL
+public Alarm,
+#endif
 #if defined(HAS_POWER_OPTIMIZATIONS)
 public safePower {
 #else
@@ -51,25 +72,32 @@ private:
 	#endif
 
   #if HAS_INFO_POLL
-  	static unsigned long tInfoPoll; //static default value defined in .cpp
   	#define	INFO_POLL_PRESCALER_MAX		0xFF
   	static byte preScaler;
   #endif
 
 	#if HAS_POWER_OPTIMIZATIONS
 		static unsigned long tIdleCycles;
-		// static bool isPowerDownPrepared;
 	#endif
 
 public:
 
-    Activity() {	}
+#ifdef HAS_INFO_POLL
+    Activity() : Alarm(0) {	}
+#endif
 
 		const char* getFunctionCharacter() { return "modp"; }
 
 		void initialize() {
 			#if HAS_POWER_OPTIMIZATIONS
 				PowerOpti_AllPins_OFF;
+			#endif
+
+			#ifdef HAS_INFO_POLL
+				rtc.initialize(); //initialize RealTimeClock
+				tickLoop = 1;
+				rtc.add(*this);
+				execInfoPoll(); //run infoPoll on startup
 			#endif
 		}
 
@@ -82,38 +110,39 @@ public:
 			#endif
 		}
 
-  #if HAS_INFO_POLL && INFO_POLL_CYCLE_TIME
-  	static bool infoPollCycles(bool force=false/*, byte *ppreScaler=NULL*/) {
-  		const typeModuleInfo* pmt = ModuleTab;
-  		if(force || (millis_since(tInfoPoll) >= (unsigned long)(INFO_POLL_CYCLE_TIME*1000UL))) {
-   			// if(!ppreScaler) {
-  	 			while(pmt->typecode >= 0) {
-  					pmt->module->infoPoll(preScaler);
-  					pmt++;
-  				}
-  			// }
-  			// *ppreScaler = preScaler;
-  			preScaler = (preScaler<INFO_POLL_PRESCALER_MAX ? preScaler+1 : 0);
-  			tInfoPoll=millis();
-  			return true;
-  		}
-  		return false;
-  	}
+  #if HAS_INFO_POLL
+		// infoPoll by RTC Class Interrupt
+		virtual void trigger (__attribute__((unused)) AlarmClock& clock) {
+      execInfoPoll();
+    }
+
+		// exec infoPoll Function of all Modules
+		static void execInfoPoll() {
+			const typeModuleInfo* pmt = ModuleTab;
+
+			ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) {
+				while(pmt->typecode >= 0) {
+					pmt->module->infoPoll(preScaler);
+					pmt++;
+				}
+				preScaler = (preScaler<INFO_POLL_PRESCALER_MAX ? preScaler+1 : 0);
+			}
+
+		}
   #endif
 
     bool poll() {
   		bool ret=0;
 
     #if HAS_INFO_POLL
-      ret = infoPollCycles();
-    #endif
+				ret = rtc.runready();
+		#endif
 
 		#if HAS_POWER_OPTIMIZATIONS
-			if((safePower::is_safePower() && Activity::idleCycles(0,SAFE_POWER_MAX_IDLETIME)) /*|| isPowerDownPrepared*/) {
+			// Ultra Low Power after idle time
+			if((safePower::is_safePower() && Activity::idleCycles(0,SAFE_POWER_MAX_IDLETIME))) {
 	  		//send((char*)"",MODULE_ACTIVITY_POWERDOWN);
-				#if INCLUDE_DEBUG_OUTPUT
-	  		if(DEBUG) { /*if(isPowerDownPrepared)*/ { DS_P("awake: ");DU(millis_since(getLastAwakeTime()),0);DS_P("ms\n"); } }
-				#endif
+	  		if(DEBUG) { DS_P("awake: ");DU(millis_since(getLastAwakeTime()),0);DS_P("ms\n"); }
 	  		// addToRingBuffer(MODULE_DATAPROCESSING, MODULE_ACTIVITY_POWERDOWN, NULL, 0); //execute PowerDown command with RingBuffer because Debug Messages have to be flushed!
 				enablePowerDown();
 	  		ret = true;
@@ -133,7 +162,6 @@ public:
     			break;
 				#if HAS_POWER_OPTIMIZATIONS
 				case MODULE_ACTIVITY_POWERDOWN:
-					// isPowerDownPrepared=false;
 					safePower::setLowPower();
 					safePower::setPowerDownAuto((cmd[0]!='0'));
 					break;
@@ -160,33 +188,21 @@ public:
 
 		void enablePowerDown() REDUCED_FUNCTION_OPTIMIZATION {
 
-			//DS_P("PowerDown\n");
-
-			// if(!isPowerDownPrepared) {
-			// 	addToRingBuffer(MODULE_DATAPROCESSING, MODULE_SERIAL); //flush UARTs
-			// 	isPowerDownPrepared=true;
-			// 	return; //PowerDown after one additional run of poll cycle because Debug Messages have to be flushed!
-			// }
-
-			// isPowerDownPrepared=false;
 			#if defined(LED_ACTIVITY)
 			cLED.LedOnOff(0);
 			#endif
 
-			DFL();DFL();
+			DFL();DFL(); //flash Display Buffer
 
 		#ifdef INFO_POLL_CYCLE_TIME
-			if(!safePower::setPowerDown( ((INFO_POLL_CYCLE_TIME) ? false : true),INFO_POLL_CYCLE_TIME)) { //return 0 if wake up due to InfoPoll
-		#else
-			if(!safePower::setPowerDown()) { //sleep forever
-		#endif
-				//Functions for InfoPoll`s
-				#if HAS_INFO_POLL && INFO_POLL_CYCLE_TIME
-				infoPollCycles(1); //force InfoPoll Functions
-				#endif
+			if(!safePower::setPowerDown(false,INFO_POLL_CYCLE_TIME)) { //return 0 if wake up due to InfoPoll
+				// execInfoPoll(); //NOT needed: will be called by RTC function
 			}
-			// idleCycles(1); //reset idle cylces
-			trigger();
+		#else
+			safePower::setPowerDown(); //sleep forever, no InfoPoll
+		#endif
+
+			trigger(); //reset idle cylces and activityLED
 		}
 
 		#endif
@@ -224,12 +240,9 @@ public:
 
 #if HAS_INFO_POLL
 	#if defined(LED_ACTIVITY)
-		template<class LED>
-	  unsigned long   Activity<LED>::tInfoPoll   	= 0xFFFF;	//default value max due to forcing InfoPoll on Startup before e.g. going to sleep.
 	  template<class LED>
 		byte            Activity<LED>::preScaler		= 0;
 	#else
-		unsigned long   Activity::tInfoPoll   	= 0xFFFF;	//default value max due to forcing InfoPoll on Startup before e.g. going to sleep.
 		byte            Activity::preScaler		= 0;
 	#endif
 #endif
@@ -241,8 +254,6 @@ public:
 	#else
 		unsigned long Activity::tIdleCycles		=	0;
 	#endif
-	// template<class LED>
-	// bool Activity<LED>::isPowerDownPrepared			=	false;
 #endif
 
 #endif

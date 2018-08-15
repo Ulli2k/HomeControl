@@ -2,7 +2,6 @@
 #ifndef _MY_INTERRUPT_
 #define _MY_INTERRUPT_
 
-
 #include <stdint.h>
 
 //https://github.com/GreyGnome/PinChangeInt
@@ -18,9 +17,10 @@
    #include <PinChangeInt.h>
   #endif
 #else
-  #define EXINT_PIN_2_REG_MASK(pin)    ((uint32_t)(1<<(EExt_Interrupts)digitalPinToInterrupt(pin)))
+  #define EXINT_PIN_2_REG_MASK(pin)     ((uint32_t)(1<<(EExt_Interrupts)digitalPinToInterrupt(pin)))
 #endif
 
+#define ATOMIC_COPY_VALUE(out, in)      { ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) { out = in; } } //needed to read values from interrupt routines
 
 /* Interrupt Functions */
 #define INTZero							2	//Pin of Int0 (Atmega328p)

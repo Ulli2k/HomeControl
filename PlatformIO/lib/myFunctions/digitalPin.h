@@ -2,10 +2,16 @@
 #ifndef _MY_DIGITALPIN_h
 #define _MY_DIGITALPIN_h
 
-//TODO: Interrupt driven tickPulseDetection for wake up functionality not inplemented!
-
 //Copy and modified of https://github.com/mathertel/OneButton
+
 #include <myBaseModule.h>
+
+/******** DEFINE dependencies ******
+	DIGITAL_PIN_EVENT: redirect pin change event to other modules (e.g. Rollo)
+	DIGITAL_PIN_DEBOUNCE: see below
+	DIGITAL_PIN_PULSE_DEBOUNCE: see below
+	DIGITAL_PIN_LONG_PULSE_DEBOUNCE: see below
+************************************/
 
 #ifndef DIGITAL_PIN_EVENT
 	#define DIGITAL_PIN_EVENT			MODULE_DIGITAL_PIN_EVENT
@@ -15,6 +21,7 @@
 																									// number of millisec that have to pass by before a click is assumed as safe.
 #define DIGITAL_PIN_PULSE_DEBOUNCE 					600		// number of millisec that have to pass by before a click is detected.
 #define DIGITAL_PIN_LONG_PULSE_DEBOUNCE 	 1000 	// number of millisec that have to pass by before a long button press is detected.
+
 
 #define PinMode_SIMPLE						(0)
 #define PinMode_SR_RELAY					(1<<1)
@@ -229,9 +236,9 @@ public:
 		}
   }
 
-	// void interrupt() {
-	// 	poll();
-	// }
+	void interrupt() {
+		poll();
+	}
 
   bool poll() {
 

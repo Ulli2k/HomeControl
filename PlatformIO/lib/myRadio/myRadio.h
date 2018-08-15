@@ -2,6 +2,19 @@
 #ifndef _MY_TEST_MODULE_h
 #define _MY_TEST_MODULE_h
 
+/******** DEFINE dependencies ******
+	HAS_RADIO_CMD_TUNNELING: activates Satellite (2) and Host(1) functions
+    RADIO_CMD_TUNNELING_DEFAULT_VALUE
+  HAS_RADIO_POWER_ADJUSTABLE
+  HAS_RADIO_TEMPERATURE_READ
+  RADIO_NO_OTHER_PROTOCOLS: implements "MyProtocol" only
+  INCLUDE_DEBUG_OUTPUT: adds RFM reset and register read/write functions
+  HAS_RADIO_LISTENMODE: adds listen mode (ulp)
+  HAS_RADIO_TXonly: adds TX only function (no RX)
+  HAS_RADIO_TX_FORCED_DELAY:
+  HAS_RADIO_SNIFF: prints all received messages
+************************************/
+
 #include <myBaseModule.h>
 #include <libSPI.h>
 #include <libRadio.h>

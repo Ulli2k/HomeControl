@@ -1,15 +1,25 @@
 #ifndef _MY_DATAPROCESSING_MODULE_h
 #define _MY_DATAPROCESSING_MODULE_h
 
+/******** DEFINE dependencies ******
+	HAS_DISPLAY_TUNNELING: adds Output/Display tunneling function
+	HAS_FORWARD_MESSAGES: adds messaging forward to Satellites
+	INCLUDE_HELP: adds Module Help function "h"
+************************************/
+
 #include <myBaseModule.h>
 
 extern const typeModuleInfo ModuleTab[];
 extern const char welcomeText[] PROGMEM;
 
+#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==1 //Host
+	#define HAS_FORWARD_MESSAGES
+#endif
+
 class myDataProcessing : public myBaseModule {
 
 private:
-#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
+#ifdef HAS_DISPLAY_TUNNELING
 	static byte OutputTunnel;
 #endif
 
@@ -31,7 +41,7 @@ public:
 	void send(char *cmd, uint8_t typecode=0);
 	void printHelp();
 	void displayData(RecvData *DataBuffer);
-	const char* getFunctionCharacter() { return "qhwW"; };	
+	const char* getFunctionCharacter() { return "qhwW"; };
 
 	static void printPROGMEM(const char * s); //PGM_P
 };

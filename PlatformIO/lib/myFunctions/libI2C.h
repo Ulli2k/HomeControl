@@ -4,6 +4,10 @@
 
 #include <Wire.h> //I2C Driver
 
+/******** DEFINE dependencies ******
+  DEFAULT_I2C_ADDRESS: default i2c address which will be used
+************************************/
+
 #define DEFAULT_I2C_ADDRESS     0x76
 
 template<uint8_t I2C_Address=DEFAULT_I2C_ADDRESS>

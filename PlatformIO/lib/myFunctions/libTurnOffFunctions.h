@@ -1,4 +1,6 @@
 
+//TODO: PowerOpti_AllPins_OFF soll alle Pins einschließen!
+
 #if not defined(HAS_POWER_OPTIMIZATIONS)
 	#define PowerOpti_TurnAllOff
 	#define PowerOpti_AllPins_OFF
@@ -65,16 +67,10 @@
 	#define FKT_USB_OFF							{USBDevice.detach();}
 	#define FKT_USB_ON							{USBDevice.init();USBDevice.attach();}
 
-	#define FKT_WDT_WAKEUP_EVENT 					(true) //check ob WDT oder Interrupt
-	#define FKT_WDT_POWERDOWN(periode)		{for(uint16_t i=0; i<=1000;i++) delay(1);}
-	#define	FKT_POWERDOWN_FOREVER					{\
-				FKT_USB_OFF;\
-				rtc.begin(); rtc.setEpoch(0); rtc.setAlarmEpoch(rtc.getEpoch() + 5); rtc.enableAlarm(rtc.MATCH_YYMMDDHHMMSS);\
-				GCLK->CLKCTRL.reg = uint16_t(GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK2 | GCLK_CLKCTRL_ID(GCLK_CLKCTRL_ID_EIC_Val) );\
-		    while (GCLK->STATUS.bit.SYNCBUSY) {}\
-				rtc.standbyMode();\
-			}
-				/* The RTCZero library will setup generic clock 2 to XOSC32K/32 and we'll use that for the EIC. */
+	#define FKT_WDT_WAKEUP_EVENT 						(true) //check ob WDT oder Interrupt
+	#define FKT_WDT_POWERDOWN(periode) 			{ SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk; __WFI(); } //periode will be set due RTC
+	#define	FKT_POWERDOWN_FOREVER						FKT_WDT_POWERDOWN(0)
+
 	enum idle_t {	IDLE_0, IDLE_1,	IDLE_2 };
 	// void	idle(idle_t idleMode) { }
 	// void	standby() { }
@@ -136,6 +132,7 @@
 	*******************************************************************************/
 
 		#define PowerOpti_TurnAllOff 		FKT_TurnAllOff
+		#define PowerOpti_AllPins_OFF
 		#define PowerOpti_BOD_OFF				FKT_BOD_OFF
 		#define PowerOpti_AIN_OFF				FKT_AIN_OFF
 		#define PowerOpti_AIN_ON				FKT_AIN_ON
@@ -161,6 +158,9 @@
 		#define PowerOpti_TWI_ON				FKT_TWI_ON
 		#define PowerOpti_WDT_OFF				FKT_WDT_OFF
 		#define PowerOpti_WDT_ON				FKT_WDT_ON
+
+		#define FKT_USB_OFF
+		#define FKT_USB_ON
 
 	#define FKT_TurnAllOff			{\
 															FKT_BOD_OFF;\

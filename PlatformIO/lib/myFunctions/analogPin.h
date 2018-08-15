@@ -1,7 +1,13 @@
 #ifndef _MY_ANALOGPIN_h
-#define _MY_AN
+#define _MY_ANALOGPIN_h
 
 //TODO:: Static ist nicht wirklich static
+
+/******** DEFINE dependencies ******
+  READVCC_CALIBRATION_CONST: calibration constant for more precise ADC/VCC measurement
+  INFO_POLL_PRESCALER_ADC: prescaler for infoPoll cycle
+  INFO_POLL_PRESCALER_VCC: prescaler for infoPoll cycle
+************************************/
 
 #include <myBaseModule.h>
 
@@ -19,14 +25,10 @@ public:
 
 public:
 
-    analogPin() { }
-	   const char* getFunctionCharacter() { return "AC"; };    
-    void initialize() {
-      // if(!firstInitializedAnalogPinID) {
-      //   DS("first is");DU(id,0);DNL();
-      //   firstInitializedAnalogPinID = id;
-      // }
-    }
+    analogPin() { } //: Alarm(0)
+
+	  const char* getFunctionCharacter() { return "AC"; };
+    void initialize() { }
 
     bool poll() {
     	bool ret=0;
@@ -132,11 +134,11 @@ public:
       uint8_t low  = ADCL; // must read ADCL first - it then locks ADCH
       uint8_t high = ADCH; // unlocks both
       result = (high<<8) | low;
-    //  #ifdef READVCC_CALIBRATION_CONST
+     #ifdef READVCC_CALIBRATION_CONST
       	result = READVCC_CALIBRATION_CONST / result;
-    //  #else
-    //	  result = 1125300L / result; // Calculate Vcc (in mV); 1125300 = 1.1*1023*1000 (because...= 3300*1023/3 since 1.1 is exactly 1/3 of 3.3V)
-    //	#endif
+     #else
+    	  result = 1125300L / result; // Calculate Vcc (in mV); 1125300 = 1.1*1023*1000 (because...= 3300*1023/3 since 1.1 is exactly 1/3 of 3.3V)
+    	#endif
 
     	ADMUX = saveADMUX;
     	ADCSRA = saveADCSRA;

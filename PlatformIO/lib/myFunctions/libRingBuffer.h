@@ -3,14 +3,19 @@
 
 #include <stdint.h>
 
+/******** DEFINE dependencies ******
+  MAX_RING_BUFFER: size of RingBuffer
+  MAX_RING_DATA_SIZE: size of data within RingBuffer
+************************************/
+
 // Vorsicht der Buffer benötigt viel RAM
 #if defined(__AVR_ATmega328P__)
-  #define MAX_RING_BUFFER 				8  // muss 2^n betragen (4, 8, 16, 32, 64 ...)
-																	   // >8 notwendig für z.B: 4xRFM-Module da Querys wie "00f0" erst einmal alles in den RingBuffer lädt
+  #define MAX_RING_BUFFER 				   8   // muss 2^n betragen (4, 8, 16, 32, 64 ...)
+																	       // >8 notwendig für z.B: 4xRFM-Module da Querys wie "00f0" erst einmal alles in den RingBuffer lädt
 #else
-  #define MAX_RING_BUFFER 				32
+  #define MAX_RING_BUFFER 				  32
 #endif
-#define MAX_RING_DATA_SIZE			30 // IR: irmp_data struct muss reinpassen | Homematic: Payload 30 Bytes
+#define MAX_RING_DATA_SIZE			    30 // IR: irmp_data struct muss reinpassen | Homematic: Payload 30 Bytes
 
 typedef struct {
   uint8_t ModuleID; // Uart, RFM12, IR

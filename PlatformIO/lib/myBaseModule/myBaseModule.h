@@ -2,7 +2,10 @@
 #ifndef _MY_BASE_MODULE_
 #define _MY_BASE_MODULE_
 
-// #include <avr/pgmspace.h> //PSTR() und phm_read_byte
+/******** DEFINE dependencies ******
+  INCLUDE_HELP: includes printHelp function
+************************************/
+
 #include <../myFunctions/libRingBuffer.h>
 
 /*********************** Declare Module Commands ***********************/
@@ -42,12 +45,6 @@ extern const typeModuleInfo ModuleTab[];
 
 /********************************************************************************/
 class myBaseModule : public myTiming, public myInterrupt, public myDisplay {
-
-protected:
-
-#if HAS_POWER_OPTIMIZATIONS
-	static unsigned long tIdleCycles; //static default value defined in .cpp
-#endif
 
 public:
 

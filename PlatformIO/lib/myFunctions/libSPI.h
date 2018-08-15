@@ -6,6 +6,10 @@
 
 #include <SPI.h>
 
+/******** DEFINE dependencies ******
+
+************************************/
+
 #ifdef ARDUINO_ARCH_AVR
   typedef uint8_t BitOrder;
 #endif

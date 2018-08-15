@@ -2,6 +2,14 @@
 #ifndef _MY_DISPLAY_
 #define _MY_DISPLAY_
 
+/******** DEFINE dependencies ******
+	INCLUDE_DEBUG_OUTPUT: add debug commands to built
+	QUIETMODE_DEFAULT_VALUE: activates quite mode after startup
+	HAS_DISPLAY_TUNNELING: Based on HAS_RADIO && HAS_RADIO_CMD_TUNNELING to add DisplayCopy function
+	HAS_UART: activate low level print char function
+	HAS_POWER_OPTIMIZATIONS: allowes to turn of UART (isUartTxActive)
+************************************/
+
 #define byte uint8_t
 
 #include <Arduino.h>
@@ -10,8 +18,8 @@
 #if defined(__AVR_ATmega328P__)
 	#define PRINT_TO_SERIAL     Serial
 	#define isUartTxActive  		(UCSR0B & (1<<TXEN0))
-	#define UART_RX							PIN_SERIAL_RX
-	#define UART_TX							PIN_SERIAL_TX
+	#define UART_RX							0
+	#define UART_TX							1
  #else
 	#define PRINT_TO_SERIAL     Serial1
 	#define isUartTxActive			1
@@ -47,12 +55,20 @@
 #define D_DB(a)						{ if(DEBUG) { DB(a); } }
 #define D_DU(a,b) 				{ if(DEBUG) { DU(a,b); } }
 
+#ifndef QUIETMODE_DEFAULT_VALUE
+	#define QUIETMODE_DEFAULT_VALUE		1
+#endif
+
+#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
+	#define HAS_DISPLAY_TUNNELING
+#endif
+
 #define ASSERT(cond)			{ if(!(cond)) myDisplay::hal_failed(__FILE__, __LINE__); }
 
 class myDisplay {
 
 protected:
-    #if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
+    #ifdef HAS_DISPLAY_TUNNELING
     	static byte DisplayCopy;
     	static char cDisplayCopy[MAX_RING_DATA_SIZE];
     #endif
@@ -65,7 +81,7 @@ public:
 
 	/*********************************************************/
   /******************* Tunneling Functions *******************/
-  #if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
+  #ifdef HAS_DISPLAY_TUNNELING
   	static void setDisplayCopy(byte on, int8_t c = -1) { //string is always terminated
   		if(on) {
   			DisplayCopy=1;
@@ -117,7 +133,7 @@ public:
   				lastPrintChar=s;
   			}
   	#endif
-  #if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
+  #ifdef HAS_DISPLAY_TUNNELING
   		if(DisplayCopy) {
   			setDisplayCopy(1,s);
   		}
@@ -133,16 +149,15 @@ public:
   	}
 
   	static void display_string_P(const char *s) {
-
-#if defined(__AVR_ATmega328P__)
-			char c;
-  		while((c = __LPM(s))) {
-				display_char(c);
-  			s++;
-  		}
-#else
-			display_string(s);
-#endif
+			#if defined(__AVR_ATmega328P__)
+				char c;
+	  		while((c = __LPM(s))) {
+					display_char(c);
+	  			s++;
+	  		}
+			#else
+				display_string(s);
+			#endif
   	}
 
   	static void display_int(int16_t d, int8_t pad, uint8_t padc) {
