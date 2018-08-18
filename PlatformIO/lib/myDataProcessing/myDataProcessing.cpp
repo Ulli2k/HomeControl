@@ -128,9 +128,12 @@ bool myDataProcessing::poll() {
 
   RecvData RecvDataBuffer;
   RecvData *PtrRecvData;
-  //bool valid=0;
+  uint8_t ret = 0;
 
   if(!WelcomeMSG) { printPROGMEM(welcomeText); DNL(); WelcomeMSG++; }
+
+	//poll SysClock for not async functionality
+	ret = sysclock.runready();
 
   /* Check if data is available at RingBuffer and process */
   if( FIFO_ready(DataRing) && FIFO_available(DataRing) ) {
@@ -138,7 +141,7 @@ bool myDataProcessing::poll() {
     // copy RingBuffer data
     FIFO_block(DataRing);
     PtrRecvData = DataFIFO_read(DataRing); // return a pointer to the current available data
-    if(!PtrRecvData) { FIFO_release(DataRing); return 0; }
+    if(!PtrRecvData) { FIFO_release(DataRing); return ret; }
     memcpy(&RecvDataBuffer, PtrRecvData, sizeof(RecvData));
     FIFO_release(DataRing);
 
@@ -230,7 +233,7 @@ bool myDataProcessing::poll() {
 		}
   	return 1;
   }
-  return 0;
+  return ret;
 }
 
 bool myDataProcessing::isRightDeviceID(char *cmd) {

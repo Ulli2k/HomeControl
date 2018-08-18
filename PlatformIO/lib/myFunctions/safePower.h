@@ -72,8 +72,13 @@ public:
 		#if !HAS_IR_TX
 		PowerOpti_TIMER0_OFF;
 		#endif
+		PowerOpti_TIMER_OFF;
 		PowerOpti_BOD_OFF;
-		PowerOpti_ADC0_OFF;
+		// PowerOpti_ADC0_OFF;
+
+		#ifndef HAS_ANALOG_PIN
+		PowerOpti_ADC_OFF;
+		#endif
 		PowerOpti_AIN_OFF;
 		PowerOpti_SPI_OFF;
 		PowerOpti_TWI_OFF;
@@ -81,7 +86,15 @@ public:
 
 		// PowerOpti_AllPins_OFF;
 		PowerOpti_USB_OFF;
-		// PowerOpti_USART0_OFF
+		// PowerOpti_USART0_OFF;
+		FKT_SERCOM_OFF;
+		PowerOpti_DAC_OFF;
+		PowerOpti_DSU_OFF;
+		PowerOpti_DMA_OFF;
+		// PowerOpti_RTC_OFF;
+		#ifndef HAS_DIGITAL_PIN
+		PowerOpti_EIC_OFF;
+		#endif
 	}
 
 	void setPowerDownAuto(bool on) {

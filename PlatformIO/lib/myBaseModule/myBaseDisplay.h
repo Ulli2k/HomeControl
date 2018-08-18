@@ -22,7 +22,7 @@
 	#define UART_TX							1
  #else
 	#define PRINT_TO_SERIAL     Serial1
-	#define isUartTxActive			1
+	#define isUartTxActive			(PM->APBCMASK.reg & PM_APBCMASK_SERCOM0)
 	#define UART_RX							PIN_SERIAL1_RX
 	#define UART_TX							PIN_SERIAL1_TX
 #endif

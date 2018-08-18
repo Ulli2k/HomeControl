@@ -24,8 +24,6 @@
 #endif
 
 #ifdef HAS_INFO_POLL
-	#include <AlarmClock.h>
-
 	#if defined(INFO_POLL_CYCLE_TIME)
 		#if ((INFO_POLL_CYCLE_TIME > 2040) || (INFO_POLL_CYCLE_TIME < 8)) //uint8_t *8 Sekunden -> 2040 Sek -> 34 Min
 			#error Max INFO_POLL_CYCLE_TIME is 2040 due to uint8_t limitation and can not be smaller than 8.
@@ -56,7 +54,6 @@ extern char *__brkval;
 	#define Reset_AVR() { NVIC_SystemReset(); }
 #endif
 //##########################################################
-
 
 #ifdef LED_ACTIVITY
 template<class LED>
@@ -99,9 +96,9 @@ public:
 			#endif
 
 			#ifdef HAS_INFO_POLL
-				rtc.initialize(); //initialize RealTimeClock
-				tickLoop = 1;
-				rtc.add(*this);
+				tickLoop = seconds2ticks(INFO_POLL_CYCLE_TIME);
+				sysclock.add(*this);
+
 				execInfoPoll(); //run infoPoll on startup
 			#endif
 
@@ -140,11 +137,9 @@ public:
     bool poll() {
   		bool ret=0;
 
-    #if HAS_INFO_POLL
-				ret = rtc.runready();
-		#endif
-
 		#if HAS_POWER_OPTIMIZATIONS
+			ret = rtc.runready();
+
 			// Ultra Low Power after idle time
 			if((safePower::is_safePower() && Activity::idleCycles(0,SAFE_POWER_MAX_IDLETIME))) {
 	  		//send((char*)"",MODULE_ACTIVITY_POWERDOWN);

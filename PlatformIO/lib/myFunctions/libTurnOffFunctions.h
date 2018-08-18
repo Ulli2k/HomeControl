@@ -36,16 +36,17 @@
 	#if defined (__SAMD21G18A__)
 
 	#define PowerOpti_TurnAllOff
-	#define PowerOpti_AllPins_OFF { for(uint8_t i=0; i<NUM_DIGITAL_PINS;i++) {FKT_PIN_OFF(i)} /*Digital Pins*/ }
-	#define PowerOpti_BOD_OFF { SYSCTRL->BOD33.reg = 0; }
+	#define PowerOpti_AllPins_OFF 	{ for(uint8_t i=0; i<NUM_DIGITAL_PINS;i++) {FKT_PIN_OFF(i)} /*Digital Pins*/ }
+	#define PowerOpti_BOD_OFF 			{ SYSCTRL->BOD33.reg = 0; }
 	#define PowerOpti_AIN_OFF
 	#define PowerOpti_AIN_ON
-	#define PowerOpti_ADC_OFF
+	#define PowerOpti_ADC_OFF				FKT_ADC_OFF
 	#define PowerOpti_ADC_ON
 	#define PowerOpti_ADC0_OFF
 	#define PowerOpti_ADC0_ON
 	#define PowerOpti_ADC2_OFF
 	#define PowerOpti_ADC2_ON
+	#define PowerOpti_TIMER_OFF			FKT_TIMER_OFF
 	#define PowerOpti_TIMER0_OFF
 	#define PowerOpti_TIMER0_ON
 	#define PowerOpti_TIMER1_OFF
@@ -54,19 +55,67 @@
 	#define PowerOpti_TIMER2_ON
 	#define PowerOpti_SPI_OFF
 	#define PowerOpti_SPI_ON
-	#define PowerOpti_USART0_OFF		//Serial1.end();
-	#define PowerOpti_USART0_ON
+	#define PowerOpti_USART0_OFF		FKT_USART0_OFF
+	#define PowerOpti_USART0_ON			FKT_USART0_ON
 	#define PowerOpti_USB_OFF				FKT_USB_OFF
 	#define PowerOpti_USB_ON				FKT_USB_ON
 	#define PowerOpti_TWI_OFF
 	#define PowerOpti_TWI_ON
-	#define PowerOpti_WDT_OFF
+	#define PowerOpti_WDT_OFF				FKT_WDT_OFF
 	#define PowerOpti_WDT_ON
+	#define PowerOpti_DAC_OFF				FKT_DAC_OFF
+	#define PowerOpti_DSU_OFF				FKT_DSU_OFF
+	#define PowerOpti_DMA_OFF				FKT_DMA_OFF
+	#define PowerOpti_RTC_OFF				FKT_RTC_OFF
+	#define PowerOpti_EIC_OFF				FKT_EIC_OFF
+
 
 	#define FKT_PIN_OFF(x) 					{pinMode((x), INPUT_PULLUP);}
-	#define FKT_USB_OFF							{USBDevice.detach();}
-	#define FKT_USB_ON							{USBDevice.init();USBDevice.attach();}
+	#define FKT_USB_OFF							{ USBDevice.detach(); USB->HOST.CTRLA.bit.ENABLE=0; USB->DEVICE.CTRLA.bit.ENABLE=0; \
+																		PM->AHBMASK.reg &= ~PM_AHBMASK_USB; PM->APBBMASK.reg &= ~PM_APBBMASK_USB; } // usb.CTRLB.bit.DETACH = 1;
+	#define FKT_USB_ON							{ USBDevice.init();USBDevice.attach(); } //usb.CTRLB.bit.DETACH = 0;
+	#define FKT_USART0_ON						{ PM->APBCMASK.reg |= PM_APBCMASK_SERCOM0; }
+	#define FKT_USART0_OFF					{ PM->APBCMASK.reg &= ~PM_APBCMASK_SERCOM0; }
+	#define FKT_WDT_OFF							{ WDT->CTRL.reg = 0; PM->APBAMASK.reg &= ~PM_APBAMASK_WDT; }
+	#define FKT_ADC_OFF							{ PM->APBCMASK.reg &= ~PM_APBCMASK_ADC; }
+	#define FKT_SERCOM_OFF					{ PM->APBCMASK.reg &= ~(/*UART PM_APBCMASK_SERCOM0  | */ PM_APBCMASK_SERCOM1 | PM_APBCMASK_SERCOM2 | PM_APBCMASK_SERCOM3 | PM_APBCMASK_SERCOM4 | PM_APBCMASK_SERCOM5); }
+	#define FKT_TIMER_OFF						{ PM->APBCMASK.reg &= ~(PM_APBCMASK_TCC0 | PM_APBCMASK_TCC1 | PM_APBCMASK_TCC2 | PM_APBCMASK_TC3 | PM_APBCMASK_TC4 | PM_APBCMASK_TC5); }
+	#define FKT_DAC_OFF							{ PM->APBCMASK.reg &= ~PM_APBCMASK_DAC; }
+	#define FKT_DSU_OFF							{ PM->APBBMASK.reg &= ~PM_APBBMASK_DSU; PM->AHBMASK.reg &= ~PM_AHBMASK_DSU;} //needed for Debugger
+	#define FKT_DMA_OFF							{ PM->APBBMASK.reg &= ~PM_APBBMASK_DMAC; PM->AHBMASK.reg &= ~PM_AHBMASK_DMAC; }
+	#define FKT_RTC_OFF							{ PM->APBAMASK.reg &= ~PM_APBAMASK_RTC; }
+	#define FKT_EIC_OFF							{ PM->APBAMASK.reg &= ~PM_APBAMASK_EIC; }
 
+/*
+	#define FKT_WDT_OFF							{ WDT->CTRL.reg = 0; while(WDT->STATUS.bit.SYNCBUSY); }
+	#define FKT_RTC_OFF							{ RTC->MODE0.CTRL.bit.ENABLE=0; while(RTC->MODE0.STATUS.bit.SYNCBUSY); \
+		 																RTC->MODE1.CTRL.bit.ENABLE=0; while(RTC->MODE1.STATUS.bit.SYNCBUSY); \
+																		RTC->MODE2.CTRL.bit.ENABLE=0; while(RTC->MODE2.STATUS.bit.SYNCBUSY); \
+																		PM->APBAMASK.reg &= ~PM_APBAMASK_RTC; \
+																	}
+	#define FKT_TIMER_OFF						{ TCC0->CTRLA.bit.ENABLE=0; TCC1->CTRLA.bit.ENABLE=0; TCC2->CTRLA.bit.ENABLE=0; }
+	#define FKT_AC_OFF							{ AC->CTRLA.bit.ENABLE=0; }
+	#define FKT_DAC_OFF							{ DAC->CTRLA.bit.ENABLE=0; }
+	#define FKT_ADC_OFF							{ ADC->CTRLA.bit.ENABLE=0; }
+	#define FKT_I2C_OFF							{ I2S->CTRLA.bit.ENABLE=0; }
+	#define FKT_UART0_OFF						{ SERCOM0->USART.CTRLA.bit.ENABLE=0; PM->APBCMASK.reg &= ~PM_APBCMASK_SERCOM0; }
+	#define FKT_SERCOM_OFF					{ SERCOM0->USART.CTRLA.bit.ENABLE=0; \
+																		SERCOM1->USART.CTRLA.bit.ENABLE=0; \
+																		SERCOM2->USART.CTRLA.bit.ENABLE=0; \
+																		SERCOM3->USART.CTRLA.bit.ENABLE=0; \
+																		SERCOM4->USART.CTRLA.bit.ENABLE=0; \
+																		SERCOM5->USART.CTRLA.bit.ENABLE=0; \
+																		PM->APBCMASK.reg &= ~(PM_APBCMASK_SERCOM0 | PM_APBCMASK_SERCOM1 | PM_APBCMASK_SERCOM2 | PM_APBCMASK_SERCOM3 | PM_APBCMASK_SERCOM4 | PM_APBCMASK_SERCOM5); \
+																	}
+*/
+#warning turn off clocks in PM not needed in idle mode?
+//https://github.com/nebs/arduino-zero-timer-demo/blob/master/.pioenvs/zero/FrameworkDeviceInc/samd21/include/component/pm.h
+//or Turnoff Clocks
+	// PM->APBBMASK.reg &= ~PM_APBBMASK_PORT;
+	// PM->APBBMASK.reg &= ~PM_APBBMASK_DMAC;
+	// PM->APBCMASK.reg &= ~PM_APBCMASK_SERCOM0;
+	// PM->APBCMASK.reg &= ~PM_APBCMASK_SERCOM1;
+	//
 	#define FKT_WDT_WAKEUP_EVENT 						(true) //check ob WDT oder Interrupt
 	#define FKT_WDT_POWERDOWN(periode) 			{ SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk; __WFI(); } //periode will be set due RTC
 	#define	FKT_POWERDOWN_FOREVER						FKT_WDT_POWERDOWN(0)

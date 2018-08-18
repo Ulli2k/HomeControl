@@ -12,7 +12,8 @@
 #include <myBaseModuleDefines.h>
 
 /*********************** Declare Timing Functions for all Modules ***********************/
-#include <myBaseTiming.h>
+#include <myBaseTiming.h> //noch notwenddig?
+#include <AlarmClock.h>
 
 /*********************** Declare Interrupt Functions for all Modules ***********************/
 #include <myBaseInterrupt.h>
@@ -50,6 +51,7 @@ public:
 
   myBaseModule() : myTiming(), myInterrupt(), myDisplay() {
   	FIFO_init(DataRing);
+    sysclock.initialize(); // initialize the system timer
   };
   //~BaseModule() { };
 
