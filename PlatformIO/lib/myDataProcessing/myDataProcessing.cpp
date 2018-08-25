@@ -1,9 +1,7 @@
 
-#include <myDataProcessing.h>
+//TODO:  sysclock.runready()wirklich hier?
 
-#if HAS_RADIO && HAS_DISPLAY_TUNNELING
-	#include <myRadioGlobals.h> //needed for Tunneling Function
-#endif
+#include <myDataProcessing.h>
 
 // extern const char helpText[] PROGMEM;
 extern void printPROGMEM (const char * s);
@@ -11,7 +9,6 @@ extern void printPROGMEM (const char * s);
 #ifdef HAS_DISPLAY_TUNNELING
 byte myDataProcessing::OutputTunnel	=	0;
 #endif
-
 
 myDataProcessing::myDataProcessing() {
 	WelcomeMSG=0;
@@ -37,11 +34,9 @@ void myDataProcessing::send(char *cmd, uint8_t typecode) {
 				uint8_t len=strlen(cmd);
 				if(len+3 <= MAX_RING_DATA_SIZE) {
 					//transform send msg in forward msg (<devID>... -> T<devID>....)
-					shiftCharRight((byte*)cmd,len+1,3);
-					cmd[0] = MODULE_COMMAND_CHAR(MODULE_RADIO, MODULE_RADIO_TUNNELING);
-					cmd[1] = '0'; //dummy SPI-ID, will be replaced by RFM Module if Tunneling function is active
-					cmd[2] = XDATA_ACK_REQUEST;
-					if(DEBUG) { DS_P("..forward with <");DS(cmd);DS_P(">\n"); }
+					shiftCharRight((byte*)cmd,len+1,1);
+					cmd[0] = MODULE_COMMAND_CHAR(MODULE_DATAPROCESSING_TUNNELING_MODULE);
+					if(DEBUG) { DS_P("..forwarded with <");DS(cmd);DS_P(">\n"); }
 					p=cmd;
 				} else {
 					DS_P("Data too long for tunneling.\n");
@@ -189,13 +184,7 @@ bool myDataProcessing::poll() {
 							break;
 
 						#ifdef HAS_DISPLAY_TUNNELING
-						if(OutputTunnel) {
-							setDisplayCopy(1); //reset & clear DisplayCopy Buffer
-							//00F1s500
-							setDisplayCopy(1,'0'/*dummy Module SPI ID*/);
-							//setDisplayCopy(1,RF69_getModeDataOptionChar(RF69_DataOption_sendCMD));
-							setDisplayCopy(1,(char)XDATA_CMD_RECEIVED); //(char) nachträglich ergänzt wegen warning!!
-						}
+						if(OutputTunnel) setDisplayCopy(1); //reset & clear DisplayCopy Buffer
 						#endif
 
 						DU(DEVICE_ID,2); //Print DeviceID
@@ -206,7 +195,7 @@ bool myDataProcessing::poll() {
 						#ifdef HAS_DISPLAY_TUNNELING
 						if(OutputTunnel) {
 							setDisplayCopy(0);
-							DS_P(" >> tunneled"); if(DEBUG) { DS_P(" with <");DS(getDisplayCopy());DS_P(">"); }
+							DS_P(" >> tunneled"); //if(DEBUG) { DS_P(" with <");DS(getDisplayCopy());DS_P(">"); }
 						}
 						#endif
 						DNL();
@@ -215,7 +204,7 @@ bool myDataProcessing::poll() {
 						if(OutputTunnel) {
 							uint8_t len=strlen(getDisplayCopy());
 							if((getDisplayCopy())[len-1] == '\n') len--;
-							addToRingBuffer(MODULE_DATAPROCESSING, MODULE_RADIO_TUNNELING, (const byte*)getDisplayCopy(), len);
+							addToRingBuffer(MODULE_DATAPROCESSING, MODULE_DATAPROCESSING_TUNNELING_MODULE, (const byte*)getDisplayCopy(), len);
 							poll(); //directly push Message through Ringbuffer
 						}
 					#endif
