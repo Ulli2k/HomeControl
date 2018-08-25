@@ -918,53 +918,55 @@ public:
   }
 
   void fetchData() {
-    myRADIO_DATA *data = &DataStruct;
+		ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) {
+	    myRADIO_DATA *data = &DataStruct;
 
-  	if(RF69_Config.mode != RF69_MODE_RX) return;
+	  	if(RF69_Config.mode != RF69_MODE_RX) return;
 
-  //	byte irq2 = readReg(REG_IRQFLAGS2);
-  //	D_DS_P("Int ");D_DH2(irq2);D_DS_P("\n");
+	  //	byte irq2 = readReg(REG_IRQFLAGS2);
+	  //	D_DS_P("Int ");D_DH2(irq2);D_DS_P("\n");
 
-  	//INFO PinChange: im PinChg Interrupt gibt es kurz hintereinander ein PayloadReady interrupt und danach ein FifoNotEmpty interrupt. Der zweite löscht den Dateninhalt wieder -> 00000 Daten
-  #ifdef HAS_RADIO_LISTENMODE
-    if (spi.readReg(REG_IRQFLAGS2) /*irq2*/ & (RF_IRQFLAGS2_PAYLOADREADY | RF_IRQFLAGS2_FIFONOTEMPTY) ) {
-  #else
-  	if (spi.readReg(REG_IRQFLAGS2) /*irq2*/ & RF_IRQFLAGS2_PAYLOADREADY ) {
-  #endif
+	  	//INFO PinChange: im PinChg Interrupt gibt es kurz hintereinander ein PayloadReady interrupt und danach ein FifoNotEmpty interrupt. Der zweite löscht den Dateninhalt wieder -> 00000 Daten
+	  #ifdef HAS_RADIO_LISTENMODE
+	    if (spi.readReg(REG_IRQFLAGS2) /*irq2*/ & (RF_IRQFLAGS2_PAYLOADREADY | RF_IRQFLAGS2_FIFONOTEMPTY) ) {
+	  #else
+	  	if (spi.readReg(REG_IRQFLAGS2) /*irq2*/ & RF_IRQFLAGS2_PAYLOADREADY ) {
+	  #endif
 
-  //  if (irq2 & (RF_IRQFLAGS2_PAYLOADREADY | RF_IRQFLAGS2_FIFONOTEMPTY) ) {
-  		data->RSSI = readRSSI();
+	  //  if (irq2 & (RF_IRQFLAGS2_PAYLOADREADY | RF_IRQFLAGS2_FIFONOTEMPTY) ) {
+	  		data->RSSI = readRSSI();
 
-  		#ifdef HAS_RADIO_LISTENMODE
-  		if(!RF69_Config.ListenModeActive)
-  		#endif
-  		{
-				setMode(RF69_MODE_IDLE);
-  		}
-  		#ifdef HAS_RADIO_LISTENMODE
-  		 else {
-  			setMode(RF69_MODE_SLEEP,true,false); //set RFM to sleep without changing current global mode. Necessary for ReceiveDone
-  		}
-  		#endif
+	  		#ifdef HAS_RADIO_LISTENMODE
+	  		if(!RF69_Config.ListenModeActive)
+	  		#endif
+	  		{
+					setMode(RF69_MODE_IDLE);
+	  		}
+	  		#ifdef HAS_RADIO_LISTENMODE
+	  		 else {
+	  			setMode(RF69_MODE_SLEEP,true,false); //set RFM to sleep without changing current global mode. Necessary for ReceiveDone
+	  		}
+	  		#endif
 
-  		//DS("Standby\n");TIMING::delay(5000);
+	  		//DS("Standby\n");TIMING::delay(5000);
 
-			spi.readReg(REG_FIFO,true,false,true,false);
-      data->PAYLOADLEN = (RF69_Config.PacketFormatVariableLength ? spi.readReg(0,false,false,false,true) : ProtocolInfo[RF69_Config.Protocol-1].PayloadLength ); //ProtocolInfo[Protocol-1].PayloadLength == 0xFF
-  		data->PAYLOADLEN = data->PAYLOADLEN > RF69_MAX_DATA_LEN ? RF69_MAX_DATA_LEN : data->PAYLOADLEN; //precaution
+				spi.readReg(REG_FIFO,true,false,true,false);
+	      data->PAYLOADLEN = (RF69_Config.PacketFormatVariableLength ? spi.readReg(0,false,false,false,true) : ProtocolInfo[RF69_Config.Protocol-1].PayloadLength ); //ProtocolInfo[Protocol-1].PayloadLength == 0xFF
+	  		data->PAYLOADLEN = data->PAYLOADLEN > RF69_MAX_DATA_LEN ? RF69_MAX_DATA_LEN : data->PAYLOADLEN; //precaution
 
-			spi.readBurst(0,(uint8_t*)data->DATA,data->PAYLOADLEN,false,true,false);
+				spi.readBurst(0,(uint8_t*)data->DATA,data->PAYLOADLEN,false,true,false);
 
-      #ifdef HAS_RADIO_LISTENMODE
-  		if(!RF69_Config.ListenModeActive)
-  		#endif
-  		{
-  			setMode(RF69_MODE_RX);
-  		}
+	      #ifdef HAS_RADIO_LISTENMODE
+	  		if(!RF69_Config.ListenModeActive)
+	  		#endif
+	  		{
+	  			setMode(RF69_MODE_RX);
+	  		}
 
-  		//data->RSSI = readRSSI();
-  		//DS("END - ");DS_P("Int ");DU(RF69_Config.mode,0);DS_P(" ");DU(data->PAYLOADLEN,0);DS_P("\n");//TIMING::delay(5000);
-    }
+	  		//data->RSSI = readRSSI();
+	  		//DS("END - ");DS_P("Int ");DU(RF69_Config.mode,0);DS_P(" ");DU(data->PAYLOADLEN,0);DS_P("\n");//TIMING::delay(5000);
+	    }
+		}
   }
 
 	#ifdef INCLUDE_DEBUG_OUTPUT

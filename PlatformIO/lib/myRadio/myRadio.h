@@ -463,7 +463,8 @@ private:
       }
 
       void interrupt() {
-        radio.fetchData(); };
+        radio.fetchData(); 
+      };
     }; //CLASS
 
 

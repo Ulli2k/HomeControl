@@ -4,8 +4,10 @@
 volatile byte myROLLO::waiting4stop = 0;
 
 void myROLLO_Interrupt_Function() {
-	myROLLO::waiting4stop=2;
-	TIMING::detachTimeInterrupt(&myROLLO_Interrupt_Function);
+	ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) {
+		myROLLO::waiting4stop=2;
+		TIMING::detachTimeInterrupt(&myROLLO_Interrupt_Function);
+	}
 }
 
 void myROLLO::initialize() {

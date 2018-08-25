@@ -3,7 +3,10 @@
 
 #include <myBaseModule.h>
 #include <libI2C.h>
-//#define HAS_BME280_PRESSURE
+
+/******** DEFINE dependencies ******
+	HAS_BME280_PRESSURE: Adds Pressure Sensor Values
+************************************/
 
 /*=========================================================================
     I2C ADDRESS/BITS
@@ -158,6 +161,9 @@ public:
 	  //sleep mode
 		i2c.write8(BME280_REGISTER_CONTROL, BME280_REGISTER_CONTROL_SLEEP_MODE);
 	}
+
+	// bool poll();
+
 	void displayData(RecvData *DataBuffer) {
 		float data[3];
 		memcpy(data,DataBuffer->Data,sizeof(float)*3);
@@ -171,26 +177,25 @@ public:
 	#endif
 
 	}
+
 	void printHelp() {
 		DS_P("\n ## BME280 ##\n");
 		DS_P(" * [Mode] E<n:normal,f:force>\n");
 		DS_P(" * [Read] E<(degC)t(%H)h(bar)p>\n");
 	}
-	// bool poll();
+
 	void infoPoll(byte prescaler) {
 		#ifdef INFO_POLL_PRESCALER_BME
 			if(!(prescaler % INFO_POLL_PRESCALER_BME))
 		#endif
 			{
-				char buf[] = "f";
 				if(_forceModeActive) {
-					buf[0] = 'f';
-					send(buf,MODULE_BME280_ENVIRONMENT);
+					forceBMEmeasureHTP();
 				}
-				buf[0] = 'r';
-				send(buf,MODULE_BME280_ENVIRONMENT); //just print the current available results
+				readBMEreadHTP();
 			}
 	}
+
 	void send(char *cmd, uint8_t typecode) {
 
 			switch(typecode) {
@@ -230,6 +235,7 @@ public:
 	  float T  = (t_fine * 5 + 128) >> 8;
 	  return T/100;
 	}
+
 #ifdef HAS_BME280_PRESSURE
 	float readPressure(void) {
 		int64_t var1, var2, p;
@@ -260,6 +266,7 @@ public:
 	  return (float)(p>>8);
 	}
 #endif
+
 	float readHumidity(void) {
 
 		  int32_t adc_H = i2c.read16(BME280_REGISTER_HUMIDDATA);
@@ -283,6 +290,7 @@ public:
 		  //return  h / 1024.0;
 		  return (float)((v_x1_u32r>>12) >> 10);
 	}
+
 	void readCoefficients(void) {
 		bme280_calib.dig_T1 = ((uint16_t)i2c.read16_LE(BME280_REGISTER_DIG_T1));
     bme280_calib.dig_T2 = ((int16_t)i2c.readS16_LE(BME280_REGISTER_DIG_T2));
