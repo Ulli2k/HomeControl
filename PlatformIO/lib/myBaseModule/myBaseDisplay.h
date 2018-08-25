@@ -39,7 +39,7 @@
 #define DNL 							myDisplay::display_nl
 #define DFL								myDisplay::display_flush
 
-#if INCLUDE_DEBUG_OUTPUT
+#ifdef INCLUDE_DEBUG_OUTPUT
 	#define DEBUG						(!myDisplay::QuietMode)
 #else
 	#define DEBUG						0
@@ -53,10 +53,6 @@
 #define D_DH2(a) 					{ if(DEBUG) { DH2(a); } }
 #define D_DB(a)						{ if(DEBUG) { DB(a); } }
 #define D_DU(a,b) 				{ if(DEBUG) { DU(a,b); } }
-
-#ifndef QUIETMODE_DEFAULT_VALUE
-	#define QUIETMODE_DEFAULT_VALUE		1
-#endif
 
 #define ASSERT(cond)			{ if(!(cond)) myDisplay::hal_failed(__FILE__, __LINE__); }
 

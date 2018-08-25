@@ -1,7 +1,11 @@
 
 #include <myBaseModule.h>
 
-byte myDisplay::QuietMode	=	QUIETMODE_DEFAULT_VALUE;
+#ifdef QUIETMODE_ACTIVE
+byte myDisplay::QuietMode	=	true;
+#else
+byte myDisplay::QuietMode	=	false;
+#endif
 char myDisplay::lastPrintChar = '\0';
 
 #ifdef HAS_DISPLAY_TUNNELING

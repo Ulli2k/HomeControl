@@ -125,23 +125,31 @@
 	}
 
 	void myInterrupt::INT1_interrupt() {
+		ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) {
 		if(INT1Module!=NULL)
 				INT1Module->interrupt();
+		}
 	}
 
 	void myInterrupt::INT0_interrupt() {
+		ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) {
 		if(INT0Module!=NULL)
 				INT0Module->interrupt();
+		}
 	}
 
 	void myInterrupt::PinChg_interrupt() {
+		ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) {
 		if(PinChgModule!=NULL)
 				PinChgModule->interrupt();
+		}
 	}
 
 	void myInterrupt::PinChg_interrupt1() {
+		ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) {
 		if(PinChgModule1!=NULL)
 				PinChgModule1->interrupt();
+		}
 	}
 
 #else
@@ -167,14 +175,15 @@
 	}
 
 	void myInterrupt::_interrupt() {
-
-		const typeModuleInfo* pmt = ModuleTab;
-		while(pmt->typecode >= 0) {
-			if(pmt->module->_irqPinMask != 0xFFFFFFFF &&
-					pmt->module->_irqPinMask == EIC->INTFLAG.reg) {
-				pmt->module->interrupt();
+		ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) {
+			const typeModuleInfo* pmt = ModuleTab;
+			while(pmt->typecode >= 0) {
+				if(pmt->module->_irqPinMask != 0xFFFFFFFF &&
+						pmt->module->_irqPinMask == EIC->INTFLAG.reg) {
+					pmt->module->interrupt();
+				}
+				pmt++;
 			}
-			pmt++;
 		}
 	}
 
