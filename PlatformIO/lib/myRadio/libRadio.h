@@ -7,22 +7,28 @@
 
 /******** DEFINE dependencies ******
 	HAS_RADIO_LISTENMODE: makes listening mode available
-	HAS_RADIO_TXonly: makes TX only mode available
+			RADIO_LISTENMODE_ACTIVE: activates listening mode at startup
+	HAS_RADIO_TX_ONLY: makes TX only mode available
+			RADIO_TX_ONLY_ACTIVE: implements only TX functions at startup. no RX
 	HAS_RADIO_POWER_ADJUSTABLE: activate functions to adjust TX power
+			RADIO_POWER_ADJUSTABLE_DEFAULT: default radio power level
 	HAS_RADIO_TEMPERATURE_READ: activates possiblity to read RFM Module temperature
-	HAS_RADIO_TX_FORCED_DELAY: forces delay between TX messages (also respect RX)
-	HAS_RADIO_CMD_TUNNELING: activates Satellite (2) and Host(1) functions
+
+	HAS_RADIO_TUNNELING: activates Tunneling Messages to Host
+			RADIO_TUNNELING_ACTIVE: activates tunneling at startup
+			RADIO_TUNNELING_HOSTID: default Satellite ID to which the message will be forwareded
+			HAS_RADIO_TX_FORCED_DELAY: forces delay between TX messages (also respect RX)
+
+	HAS_RADIO_FORWARDING: Forewards Messages to Devices with other DEVICE_ID
+
 	HAS_RADIO_ADC_NOISE_REDUCTION: turns ADC off during TX
 	INCLUDE_DEBUG_OUTPUT: adds RFM Register Read/Write funcionality
 
-	RADIO_Default_MSG_DebounceTime: debounce time before message will be printed again
-	RADIO_CMD_TUNNELING_DEFAULT_VALUE: activates tunneling at startup
-	RADIO_CMD_TUNNELING_HOSTID_DEFAULT_VALUE: default Satellite ID to which the message will be forwareded
-	RADIO_TXonly_DEFAULT_VALUE:  implements only TX functions at startup. no RX
-	RADIO_LISTENMODE_DEFAULT_VALUE: activates listening mode at startup
-	RADIO_POWER_DEFAULT_VALUE: default radio power level
-************************************/
+	RADIO_MSG_DebounceTime: debounce time before message will be printed again
 
+	RADIO_DEFAULT_PROTOCOL: nur myProtokol
+
+************************************/
 
 #include <myBaseModule.h>
 
@@ -64,37 +70,31 @@
 
 //#define HAS_RADIO_POWER_ADJUSTABLE		0 //activate functions to adjust TX power
 // #define HAS_RADIO_TEMPERATURE_READ		0 //activates possiblity to read RFM Module temperature
-#if HAS_RADIO_TEMPERATURE_READ
+#ifdef HAS_RADIO_TEMPERATURE_READ
 	#define COURSE_TEMP_COEF     			-90 // puts the temperature reading in the ballpark, user can fine tune the returned value
 #endif
 
 /* DEFAULT VALUES */
-#define RADIO_Default_MSG_DebounceTime		 200
+#define RADIO_MSG_DebounceTime		 	200
 
-#ifndef RADIO_CMD_TUNNELING_DEFAULT_VALUE
-	#define RADIO_CMD_TUNNELING_DEFAULT_VALUE						false
+#ifndef RADIO_TUNNELING_HOSTID
+	#define RADIO_TUNNELING_HOSTID						DEVICE_ID_BROADCAST
 #endif
-#ifndef RADIO_CMD_TUNNELING_HOSTID_DEFAULT_VALUE
-	#define RADIO_CMD_TUNNELING_HOSTID_DEFAULT_VALUE		DEVICE_ID_BROADCAST
-#endif
-#ifndef RADIO_TXonly_DEFAULT_VALUE
-	#define RADIO_TXonly_DEFAULT_VALUE									false
-#endif
-#ifndef RADIO_LISTENMODE_DEFAULT_VALUE
-	#define RADIO_LISTENMODE_DEFAULT_VALUE							false
-#endif
-#ifndef RADIO_POWER_DEFAULT_VALUE
-	#define RADIO_POWER_DEFAULT_VALUE		(RF69_Config.setHighPower ? 32 : 0)
+#ifndef RADIO_POWER_ADJUSTABLE_DEFAULT
+	#define RADIO_POWER_ADJUSTABLE_DEFAULT					(RF69_Config.setHighPower ? 32 : 0)
 #endif
 
 #ifdef HAS_RADIO_LISTENMODE
-	#define RF69_MODE_IDLE 							RF69_MODE_SLEEP
+	#define RF69_MODE_IDLE 										RF69_MODE_SLEEP
 #endif
-#ifdef HAS_RADIO_TXonly
-	#define RF69_MODE_IDLE 							(RF69_Config.TXonly ? RF69_MODE_SLEEP : RF69_MODE_STANDBY)
+#ifdef HAS_RADIO_TX_ONLY
+	#define RF69_MODE_IDLE 										(RF69_Config.TXonly ? RF69_MODE_SLEEP : RF69_MODE_STANDBY)
 #endif
 #ifndef RF69_MODE_IDLE
-	#define RF69_MODE_IDLE							RF69_MODE_STANDBY
+	#define RF69_MODE_IDLE										RF69_MODE_STANDBY
+#endif
+#ifdef HAS_RADIO_TUNNELING
+		#define HAS_RADIO_TX_FORCED_DELAY				5	// [ms] Delay between TX Frames, needed to safely receiving commands from the host
 #endif
 /* -------------------- */
 
@@ -106,12 +106,11 @@ private:
   uint8_t intPin;
   myRADIO_DATA DataStruct;
 
-	#if HAS_RADIO_CMD_TUNNELING==2 //Satellite
-	    #define HAS_RADIO_TX_FORCED_DELAY		5	// [ms] Delay between TX Frames, needed to safely receiving commands from the host
+	#ifdef HAS_RADIO_TUNNELING
 	    byte safeHostID4Tunneling;					// ID which is used by Tunneling Command results back to Host
 	#endif
 
-	#if HAS_RADIO_TX_FORCED_DELAY
+	#ifdef HAS_RADIO_TX_FORCED_DELAY
 			unsigned long lastRadioFrame;					// Time of last TX/RX-Frame. (delay of TX after RX, or between two TX
 	#endif
 
@@ -123,25 +122,25 @@ private:
 		volatile byte mode:3;								// Value-Range: 0-5 || RFM Mode (TX,RX,Sleep,Standby)
 		uint8_t Protocol:3;									// Value-Range: 0-6 || safe current active Protocol
 		bool PacketFormatVariableLength:1;  // Value-Range: 0-1 || safe info if protocol works in Variable/Fix PackageLength
-	#if HAS_RADIO_LISTENMODE
+	#ifdef HAS_RADIO_LISTENMODE
 		bool ListenModeActive:1; 						// Value-Range: 0-1 || is RFM in ListenMode or not
 	#endif
-	#if HAS_RADIO_TXonly
+	#ifdef HAS_RADIO_TX_ONLY
 		bool TXonly:1;											// Value-Range: 0-1 || with RX or not
 	#endif
 
 	//Cmd/Msg Tunnelling for myProtocol with Satellites
-	#if HAS_RADIO_CMD_TUNNELING
+	#if defined(HAS_RADIO_TUNNELING) || defined(HAS_RADIO_FORWARDING)
 		bool TunnelingCMDQuery:1; 						// Value-Range: 0-1 || Satellite: CMD Tunnel activate and select RFM Module to send back Querys.
 																				//									|| Host: Select RFM Module to foreward other DeviceIDs
 	#endif
-	#if HAS_RADIO_CMD_TUNNELING==1 //Host
+	#ifdef HAS_RADIO_FORWARDING
 		bool TunnelingSendBurst:1; 					// Value-Range: 0-1
 	#endif
 
 		//TX-Power config
 		bool setHighPower:1;								// Value-Range: 0-1 || selection of Module type
-	#if HAS_RADIO_POWER_ADJUSTABLE
+	#ifdef HAS_RADIO_POWER_ADJUSTABLE
 		byte powerLevel;										// Value-Range: 0-51 || this contains just the linear control part of the power level
 		bool powerBoost:1;									// Value-Range: 0-1 || this controls whether we need to turn on the highpower regs based on the setPowerLevel input
 		byte PA_Reg;												// Value-Range: 0-255 || saved and derived PA control bits so we don't have to spend time reading back from SPI port
@@ -165,7 +164,7 @@ private:
   	}
   }
 
-  #if HAS_RADIO_POWER_ADJUSTABLE
+  #ifdef HAS_RADIO_POWER_ADJUSTABLE
 	// set output power: 0=min, 31=max (for RFM69W or RFM69CW), 0-31 or 32->51 for RFM69HW (see below)
 	// this results in a "weaker" transmitted signal, and directly results in a lower RSSI at the receiver
 	void setPowerLevel(byte powerLevel) {
@@ -225,7 +224,7 @@ private:
   #endif
 
   void setHighPowerRegs(bool onOff) {
-  #if HAS_RADIO_POWER_ADJUSTABLE
+  #ifdef HAS_RADIO_POWER_ADJUSTABLE
   	if ((0x60 != (spi.readReg(REG_PALEVEL) & 0xe0)) || !RF69_Config.powerBoost)		// TWS, only set to high power if we are using both PAs... and boost range is requested.
   		onOff = false;
   #endif
@@ -233,7 +232,7 @@ private:
     spi.writeReg(REG_TESTPA2, onOff ? 0x7C : 0x70);
   }
 
-	#if HAS_RADIO_TEMPERATURE_READ
+	#ifdef HAS_RADIO_TEMPERATURE_READ
 	byte readTemperature(byte calFactor)  //returns centigrade
 	{
 	  setMode(RF69_MODE_STANDBY);
@@ -249,7 +248,7 @@ private:
 
   	if (newMode == RF69_Config.mode && !forceReset) return; //TODO: can remove this?
 
-  #if HAS_RADIO_LISTENMODE
+  #ifdef HAS_RADIO_LISTENMODE
   	//ListenMode deaktivieren wenn ListenModeActive an ist und aber ein anderer Modus als RX gewünscht wird
   	//ListeMode deaktivieren wenn ListeModeActive abgeschalten wurde aber ListenMode noch aktiv ist.
   	if( (RF69_Config.ListenModeActive && newMode!=RF69_MODE_RX) || (!RF69_Config.ListenModeActive && ((spi.readReg(REG_OPMODE) & 0x40) != 0x0)) ) {
@@ -268,14 +267,14 @@ private:
   			break;
 
   		case RF69_MODE_RX:
-  		#if HAS_RADIO_LISTENMODE
+  		#ifdef HAS_RADIO_LISTENMODE
   			if(!RF69_Config.ListenModeActive)
   		#endif
   			{
   				spi.writeReg(REG_OPMODE, (spi.readReg(REG_OPMODE) & 0xE3) | RF_OPMODE_RECEIVER); //DS("RX\n");
   			}
         if (RF69_Config.setHighPower) setHighPowerRegs(false);
-  	  #if HAS_RADIO_LISTENMODE
+  	  #ifdef HAS_RADIO_LISTENMODE
   			if(RF69_Config.ListenModeActive) {
   				spi.writeReg(REG_OPMODE, (spi.readReg(REG_OPMODE) & 0xE3) | RF_OPMODE_STANDBY);
   				spi.writeReg(REG_OPMODE, (spi.readReg(REG_OPMODE) & 0x83) | RF_OPMODE_SLEEP | RF_OPMODE_LISTEN_ON);
@@ -334,7 +333,7 @@ private:
   //canSend Erkennung ist besser bei hohen REG_RSSITHRESH
   bool canSend() {
 
-  	#if HAS_RADIO_TX_FORCED_DELAY
+  	#ifdef HAS_RADIO_TX_FORCED_DELAY
   		if(millis_since(lastRadioFrame) < HAS_RADIO_TX_FORCED_DELAY) {
   			//Auskommentiert um ggf. keinen laufenden Empfang abzubrechen.
   			//#if HAS_RADIO_LISTENMODE //Satellite --> delay between TX needed
@@ -417,7 +416,7 @@ public:
   		DS_P(" <");DU(((lDataStruct->XDATA_Repeats==0)?lDataStruct->XDATA_BurstTime:lDataStruct->XDATA_Repeats),0);DC(lDataStruct->XData_Config & XDATA_BURST ? 'b' : 's');DS_P(">\n");
   	}
 
-  #if HAS_RADIO_LISTENMODE
+  #ifdef HAS_RADIO_LISTENMODE
   	bool _ListenMode=0;
   	_ListenMode = RF69_Config.ListenModeActive;
   	RF69_Config.ListenModeActive=0;
@@ -427,7 +426,7 @@ public:
   	//prepare to send and wait till RSSI is just noise, no other transmissions active
     spi.writeReg(REG_PACKETCONFIG2, (spi.readReg(REG_PACKETCONFIG2) & 0xFB) | RF_PACKET2_RXRESTART); // avoid RX deadlocks
 
-  #if HAS_RADIO_LISTENMODE
+  #ifdef HAS_RADIO_LISTENMODE
     //increase RSSIThreshold for better noise detection
     byte rssiThreshold = readReg(REG_RSSITHRESH);
     spi.writeReg(REG_RSSITHRESH,RF69_RX_MAX_RSSITHRESH);
@@ -437,18 +436,18 @@ public:
     while (!canSend() && millis_since(startTime) < RF69_CSMA_LIMIT_MS) receiveDone(); //receiveBegin(); //??Begin führt zu einem kleineren Delay als receiveDone(); besonders ohne ListenMode//
   	if(DEBUG & (millis_since(startTime) >= RF69_CSMA_LIMIT_MS_DEBUG)) { DS_P("CSMA ");DU(millis_since(startTime),0);DS("ms\n"); }
 
-  #if HAS_RADIO_LISTENMODE
+  #ifdef HAS_RADIO_LISTENMODE
   	spi.writeReg(REG_RSSITHRESH,rssiThreshold); //reset Threshold value
   #endif
 
   	bool gotACK=false;
     for (uint8_t i = 0; i <= RF69_SEND_RETRIES; i++) {
 
-  #if HAS_RADIO_ADC_NOISE_REDUCTION
+  #ifdef HAS_RADIO_ADC_NOISE_REDUCTION
   	  FKT_ADC_OFF;
   #endif
   		sendFrame(lDataStruct); //sent a BURST or SINGLE Message
-  #if HAS_RADIO_ADC_NOISE_REDUCTION
+  #ifdef HAS_RADIO_ADC_NOISE_REDUCTION
   		FKT_ADC_ON;
   #endif
 
@@ -480,7 +479,7 @@ public:
   		DS("]\n");
   	}
 
-  #if HAS_RADIO_LISTENMODE
+  #ifdef HAS_RADIO_LISTENMODE
   	RF69_Config.ListenModeActive=_ListenMode;
   #endif
   }
@@ -566,8 +565,8 @@ private:
   		cycles++;
   	}
 
-   #if HAS_RADIO_TX_FORCED_DELAY
-  	lastRadioFrame = millis();
+   #ifdef HAS_RADIO_TX_FORCED_DELAY
+  	resetForcedDelayTimer();
    #endif
 
    	setMode(RF69_MODE_IDLE);
@@ -587,33 +586,45 @@ public:
     RF69_Config.mode = RF69_MODE_STANDBY;
     RF69_Config.setHighPower = isHighPower;
 
-		#if HAS_RADIO_POWER_ADJUSTABLE
-		  RF69_Config.powerLevel = RADIO_POWER_DEFAULT_VALUE; //min power level
+		#ifdef HAS_RADIO_POWER_ADJUSTABLE
+		  RF69_Config.powerLevel = RADIO_POWER_ADJUSTABLE_DEFAULT; //min power level
 		  RF69_Config.powerBoost = false;   // require someone to explicitly turn boost on!
 		#endif
 
-		#if HAS_RADIO_LISTENMODE
-		  RF69_Config.ListenModeActive=RADIO_LISTENMODE_DEFAULT_VALUE;
+		#ifdef HAS_RADIO_LISTENMODE
+			#ifdef RADIO_LISTENMODE_ACTIVE
+		  	RF69_Config.ListenModeActive=true;
+			#else
+				RF69_Config.ListenModeActive=false;
+			#endif
 		#endif
 
-		#if HAS_RADIO_TXonly
-			RF69_Config.TXonly=RADIO_TXonly_DEFAULT_VALUE;
+		#ifdef HAS_RADIO_TX_ONLY
+			#ifdef RADIO_TX_ONLY_ACTIVE
+				RF69_Config.TXonly=true;
+			#else
+				RF69_Config.TXonly=false;
+			#endif
 		#endif
 
-		#if HAS_RADIO_TX_FORCED_DELAY
+		#ifdef HAS_RADIO_TX_FORCED_DELAY
 			lastRadioFrame=0; //delay between TX & RX->TX needed
 		#endif
 
-		#if HAS_RADIO_CMD_TUNNELING
-			RF69_Config.TunnelingCMDQuery=RADIO_CMD_TUNNELING_DEFAULT_VALUE;
+		#if defined(HAS_RADIO_TUNNELING) || defined(HAS_RADIO_FORWARDING)
+			#ifdef RADIO_TUNNELING_ACTIVE
+				RF69_Config.TunnelingCMDQuery=true;
+			#else
+				RF69_Config.TunnelingCMDQuery=false;
+			#endif
 		#endif
 
-		#if HAS_RADIO_CMD_TUNNELING==1 //Host
+		#ifdef HAS_RADIO_FORWARDING
 		  RF69_Config.TunnelingSendBurst=false;
 		#endif
 
-		#if HAS_RADIO_CMD_TUNNELING==2 //Satellite
-			safeHostID4Tunneling=RADIO_CMD_TUNNELING_HOSTID_DEFAULT_VALUE;
+		#ifdef HAS_RADIO_TUNNELING
+			safeHostID4Tunneling=RADIO_TUNNELING_HOSTID;
 		#endif
 
 			RF69_Config.mode = RF69_MODE_STANDBY;
@@ -621,13 +632,14 @@ public:
 
 	//Reset Radio
   void resetRadio() {
-  	// pinMode(rstPin, OUTPUT);
-		pinMode(rstPin, INPUT_PULLUP);
-
+  	pinMode(rstPin, OUTPUT);
+		// pinMode(rstPin, INPUT_PULLUP); //geht beim ATSAMD21 nicht
   	digitalWrite(rstPin, HIGH);
-  	delayMicroseconds(100);
+		delayMicroseconds(100);
 		digitalWrite(rstPin, LOW);
-  	delay(100);
+		// wait until chip ready
+		delay(5);
+
   	pinMode(rstPin, INPUT); //set to input for reducing power consumption
   }
 
@@ -650,13 +662,13 @@ public:
 		RF69_Config.TunnelingCMDQuery = active;
 	}
 	byte getTunnelingHostID(void) {
-		#if HAS_RADIO_CMD_TUNNELING==2 //Satellite
+		#ifdef HAS_RADIO_TUNNELING
 		return safeHostID4Tunneling;
 		#endif
 		return DEVICE_ID_BROADCAST;
 	}
 	void setTunnelingHostID(byte hostID) {
-		#if HAS_RADIO_CMD_TUNNELING==2 //Satellite
+		#ifdef HAS_RADIO_TUNNELING
 		safeHostID4Tunneling = hostID;
 		#endif
 	}
@@ -725,7 +737,7 @@ public:
 
   void waitBurstTime() {  //wait till burst is over
   	if(DataStruct.XDATA_BurstTime) {
-  	#if HAS_RADIO_LISTENMODE
+  	#ifdef HAS_RADIO_LISTENMODE
   		if(RF69_Config.ListenModeActive) {
   			DFL();
   			FKT_POWERDOWN(SLEEP_15Ms,(DataStruct.XDATA_BurstTime/15)+1); //+1 safety
@@ -751,6 +763,11 @@ public:
 
   void initialize(uint8_t _intPin) {
     intPin = _intPin;
+
+		//Pull ResetPin to low
+		pinMode(rstPin, OUTPUT);
+		digitalWrite(rstPin, LOW);
+
     spi.initialize();
     configure(RF69_Config.Protocol);
   }
@@ -777,7 +794,7 @@ public:
 
     encrypt(0); // Encryption deactivated because no continues TX Mode (Burst) for Satellites(ListenMode) is possible.
 
-    #if HAS_RADIO_POWER_ADJUSTABLE
+    #ifdef HAS_RADIO_POWER_ADJUSTABLE
     	uint8_t power = RF69_Config.powerLevel;
     	setHighPower(RF69_Config.setHighPower); //called regardless if it's a RFM69W or RFM69HW
     	RF69_Config.powerLevel = power;
@@ -805,13 +822,13 @@ public:
 
   	if(!(*config)) { //save
   		*config = (RF69_Config.Protocol << 8) ;
-  #if HAS_RADIO_LISTENMODE
+  #ifdef HAS_RADIO_LISTENMODE
   		*config |= (RF69_Config.ListenModeActive ? (1<<7): 0) ;
   #endif
-  #if HAS_RADIO_CMD_TUNNELING
+  #if defined(HAS_RADIO_TUNNELING) || defined(HAS_RADIO_FORWARDING)
   		*config |= (RF69_Config.TunnelingCMDQuery ? (1<<5):0);
   #endif
-  #if HAS_RADIO_CMD_TUNNELING==1 //Host
+  #ifdef HAS_RADIO_FORWARDING
   		*config |= (RF69_Config.TunnelingSendBurst ? (1<<6): 0);
   #endif
 
@@ -821,7 +838,7 @@ public:
   		protocol = ((*config) >> 8);
   		configure(protocol);
 
-  #if HAS_RADIO_CMD_TUNNELING
+  #if defined(HAS_RADIO_TUNNELING) || defined(HAS_RADIO_FORWARDING)
   		RF69_Config.TunnelingCMDQuery = (((*config) & (1<<5)) ? true : false);
   #endif
 	// in Radio Module verschoben wegen addtoRingBuffer
@@ -830,13 +847,13 @@ public:
   // 			addToRingBuffer(MODULE_DATAPROCESSING,MODULE_DATAPROCESSING_OUTPUTTUNNEL,(const byte*)"1",1);
   // #endif
   //		DU(protocol,0);DS_P(" Tunnel:");DU(RF69_Config.TunnelingCMDQuery,0);
-  #if HAS_RADIO_CMD_TUNNELING==1 //Host
+  #ifdef HAS_RADIO_FORWARDING
   		RF69_Config.TunnelingSendBurst = (((*config) & (1<<6)) ? true : false);
   //		DS_P(" burst:");DS((RF69_Config.TunnelingSendBurst?"1":"0"));
   #endif
 
 
-  #if HAS_RADIO_LISTENMODE
+  #ifdef HAS_RADIO_LISTENMODE
   		RF69_Config.ListenModeActive = (((*config) & (1<<7)) ? true : false);
   //		DS_P(" listen:");DS((RF69_Config.ListenModeActive?"1":"0"));
   #endif
@@ -863,7 +880,7 @@ public:
   }
 
   bool receiveDone() {
-    #ifdef HAS_RADIO_TXonly
+    #ifdef HAS_RADIO_TX_ONLY
       if(RF69_Config.TXonly) return false;
     #endif
 
@@ -909,7 +926,7 @@ public:
   //	D_DS_P("Int ");D_DH2(irq2);D_DS_P("\n");
 
   	//INFO PinChange: im PinChg Interrupt gibt es kurz hintereinander ein PayloadReady interrupt und danach ein FifoNotEmpty interrupt. Der zweite löscht den Dateninhalt wieder -> 00000 Daten
-  #if HAS_RADIO_LISTENMODE
+  #ifdef HAS_RADIO_LISTENMODE
     if (spi.readReg(REG_IRQFLAGS2) /*irq2*/ & (RF_IRQFLAGS2_PAYLOADREADY | RF_IRQFLAGS2_FIFONOTEMPTY) ) {
   #else
   	if (spi.readReg(REG_IRQFLAGS2) /*irq2*/ & RF_IRQFLAGS2_PAYLOADREADY ) {
@@ -918,13 +935,13 @@ public:
   //  if (irq2 & (RF_IRQFLAGS2_PAYLOADREADY | RF_IRQFLAGS2_FIFONOTEMPTY) ) {
   		data->RSSI = readRSSI();
 
-  		#if HAS_RADIO_LISTENMODE
+  		#ifdef HAS_RADIO_LISTENMODE
   		if(!RF69_Config.ListenModeActive)
   		#endif
   		{
 				setMode(RF69_MODE_IDLE);
   		}
-  		#if HAS_RADIO_LISTENMODE
+  		#ifdef HAS_RADIO_LISTENMODE
   		 else {
   			setMode(RF69_MODE_SLEEP,true,false); //set RFM to sleep without changing current global mode. Necessary for ReceiveDone
   		}
@@ -938,7 +955,7 @@ public:
 
 			spi.readBurst(0,(uint8_t*)data->DATA,data->PAYLOADLEN,false,true,false);
 
-      #if HAS_RADIO_LISTENMODE
+      #ifdef HAS_RADIO_LISTENMODE
   		if(!RF69_Config.ListenModeActive)
   		#endif
   		{
@@ -950,7 +967,7 @@ public:
     }
   }
 
-	#if INCLUDE_DEBUG_OUTPUT
+	#ifdef INCLUDE_DEBUG_OUTPUT
 	void readAllRegs(byte addr=0) {
 	  byte regVal;
 
