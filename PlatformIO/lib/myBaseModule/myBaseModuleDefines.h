@@ -63,21 +63,6 @@ typedef uint8_t byte; //workarround because byte is defined in Arduino.h
 																			}\
 																			b;\
 																		} )
-/*
-#define MODULE_COMMAND_CHAR(m,c)  ( {\
-	 																		char b='-';\
-																			const typeModuleInfo* pmt = ModuleTab;\
-																			while(pmt->typecode >= 0) {\
-																				if(pmt->typecode==(m)) {\
-																					b=getFunctionChar(pmt->getFunctionCharacter(),MODULE_PROTOCOL(c));\
-																					break;\
-																				}\
-																				pmt++;\
-																			}\
-																			b;\
-																		} )
-*/
-
 
 #if defined(__arm__) && !defined(PROGMEM)
 	#define PROGMEM	//not needed for ARM, const is enough
@@ -93,9 +78,6 @@ const char welcomeText[] PROGMEM =
 		"0"
 	#endif
 	  STR(DEVICE_ID)
-	#if defined(STORE_CONFIGURATION)
-		"s"
-	#endif
 	#ifdef HAS_ANALOG_PIN
 		",C"
 	#endif

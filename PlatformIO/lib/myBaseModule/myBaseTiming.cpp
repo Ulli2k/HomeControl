@@ -1,6 +1,5 @@
 
 #include <myBaseModule.h>
-// #include <myBaseTiming.h>
 
 #if defined(__AVR_ATmega328P__)
 
@@ -35,30 +34,32 @@ ISR(TIM2_OVF_vect)
 ISR(TIMER2_OVF_vect)
 #endif
 {
-	// copy these to local variables so they can be stored in registers
-	// (volatile variables must be read from memory on every access)
-	unsigned long m = timer2_millis;
-	unsigned char f = timer2_fract;
+	ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) {
+		// copy these to local variables so they can be stored in registers
+		// (volatile variables must be read from memory on every access)
+		unsigned long m = timer2_millis;
+		unsigned char f = timer2_fract;
 
-	m += MILLIS_TIMER2_INC;
-	f += FRACT_TIMER2_INC;
-	if (f >= FRACT_TIMER2_MAX) {
-		f -= FRACT_TIMER2_MAX;
-		m += 1;
-	}
-
-	for(uint8_t c=0; c<cTimeCallbacks; c++) {
-		if( (m - timer2_millis) <= TimeCallbacks[c].ms) {
-			 TimeCallbacks[c].ms -= (m - timer2_millis);
-		} else {
-			TimeCallbacks[c].ms = TimeCallbacks[c].init_ms;
-			TimeCallbacks[c].isrCallback();
+		m += MILLIS_TIMER2_INC;
+		f += FRACT_TIMER2_INC;
+		if (f >= FRACT_TIMER2_MAX) {
+			f -= FRACT_TIMER2_MAX;
+			m += 1;
 		}
-	}
 
-	timer2_fract = f;
-	timer2_millis = m;
-	timer2_overflow_count++;
+		for(uint8_t c=0; c<cTimeCallbacks; c++) {
+			if( (m - timer2_millis) <= TimeCallbacks[c].ms) {
+				 TimeCallbacks[c].ms -= (m - timer2_millis);
+			} else {
+				TimeCallbacks[c].ms = TimeCallbacks[c].init_ms;
+				TimeCallbacks[c].isrCallback();
+			}
+		}
+
+		timer2_fract = f;
+		timer2_millis = m;
+		timer2_overflow_count++;
+	}
 }
 
 unsigned long myTiming::millis() {
@@ -71,7 +72,6 @@ unsigned long myTiming::millis() {
 	m = timer2_millis;
 	//sei();
 	SREG = oldSREG;
-
 
 	return m;
 }

@@ -93,7 +93,9 @@ static void addToRingBuffer (byte module, byte code, const byte* buf = NULL, byt
 	rBuf.DataSize = len;
 	rBuf.Data[len] = 0x0; //Terminierung; +1 ist sicher gestellt durch len check
 
-	DataFIFO_write(DataRing,rBuf);
+  ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) {
+	   DataFIFO_write(DataRing,rBuf);
+  }
 }
 
 };
