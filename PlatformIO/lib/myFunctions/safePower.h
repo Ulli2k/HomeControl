@@ -5,7 +5,7 @@
 
 //TODO: Timer0 & 1 dependancy with setLowPower
 //TODO: async notwendif?
-//TODO: ohne RTC -> ATMEGA328 -> max sleep 8S danach IDLE Time abwarten und wieder 8S Sleep
+//TODO: ATMEGA328 --> ohne RTC -> max sleep 8S danach IDLE Time abwarten und wieder 8S Sleep
 //TODO: DeepSleep
 				//WDT (6µA) maximal 2 Sekunden sleep, dafür in ms Raster  (https://github.com/adafruit/Adafruit_SleepyDog/blob/master/examples/Sleep/Sleep.ino)
 				//RTC (7µA) lange sleep Zeiten, dafür im sec Raster
@@ -47,7 +47,7 @@ private:
 	#endif
 
 public:
-	safePower() : Alarm(0) { async(true); }
+	safePower() : Alarm(0) { }
 
 	void initialize() {
 		PowerOpti_AllPins_OFF;
@@ -127,9 +127,8 @@ public:
 	        uint32_t offset = doSleep(ticks); //return ticks
 	        sysclock.correct(offset);
 	        sysclock.enable();
-					DS("sysclock cor: ");DU(offset,0);DNL();
+					if(DEBUG) { DS("sysclock cor: ");DU(offset,0);DNL(); }
 	    } else {
-				DS("Power Down skipped.\n");
 	      sysclock.enable();
 	    }
 
