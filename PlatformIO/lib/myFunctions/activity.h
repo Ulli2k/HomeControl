@@ -1,8 +1,6 @@
 #ifndef _MY_ACTIVITY_h
 #define _MY_ACTIVITY_h
 
-//TODO Offset integrieren um RTC und Timing nach Sleep zu korrigieren
-
 /******** DEFINE dependencies ******
 	HAS_POWER_OPTIMIZATIONS: sleep functions
 		SAFE_POWER_MAX_IDLETIME: min idle time between two sleep modes
@@ -128,7 +126,6 @@ public:
 				}
 				preScaler = (preScaler<INFO_POLL_PRESCALER_MAX ? preScaler+1 : 0);
 			}
-
 		}
   #endif
 
@@ -179,7 +176,7 @@ public:
     	}
     }
 
-		#if HAS_POWER_OPTIMIZATIONS
+	#if HAS_POWER_OPTIMIZATIONS
 		//check if idle time is over and FIFO is empty
 		static uint8_t idleCycles(int8_t plus=0, unsigned long timeLimit=0) {
 			if(plus==1) {
@@ -194,28 +191,14 @@ public:
 		}
 
 		void enablePowerDown() REDUCED_FUNCTION_OPTIMIZATION {
-
 			#if defined(LED_ACTIVITY)
 			cLED.LedOnOff(0);
 			#endif
-
-			DS("Servus..");
 			DFL();DFL(); //flash Display Buffer
-
-		// #ifdef INFO_POLL_CYCLE_TIME
-		// 	if(!safePower::setPowerDown(false,INFO_POLL_CYCLE_TIME)) { //return 0 if wake up due to InfoPoll
-		// 		// execInfoPoll(); //NOT needed: will be called by RTC function
-		// 	}
-		// #else
-		// 	safePower::setPowerDown(); //sleep forever, no InfoPoll
-		// #endif
-
 			cSafePower.setPowerDown();
-			DS("done\n");
 			trigger(); //reset idle cylces and activityLED
 		}
-
-		#endif
+	#endif
 
     void displayData(RecvData *DataBuffer) {
 
@@ -228,7 +211,7 @@ public:
 
     void printHelp() {
     	DS_P(" * [RAM]     m\n");
-			#ifdef INCLUDE_DEBUG_OUTPUT
+			#if defined(INCLUDE_DEBUG_OUTPUT) && defined (__SAMD21G18A__)
 			DS_P(" * [DumpReg] D\n");
 			#endif
     	DS_P(" * [Reboot]  o\n");
