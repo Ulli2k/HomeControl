@@ -32,6 +32,20 @@
 
 #else
 
+	enum period_t
+	{
+		SLEEP_15MS,
+		SLEEP_30MS,
+		SLEEP_60MS,
+		SLEEP_120MS,
+		SLEEP_250MS,
+		SLEEP_500MS,
+		SLEEP_1S,
+		SLEEP_2S,
+		SLEEP_4S,
+		SLEEP_8S,
+		SLEEP_FOREVER
+	};
 
 	#if defined (__SAMD21G18A__)
 
@@ -117,7 +131,7 @@
 	// PM->APBCMASK.reg &= ~PM_APBCMASK_SERCOM1;
 	//
 	#define FKT_WDT_WAKEUP_EVENT 						(true) //check ob WDT oder Interrupt
-	#define FKT_WDT_POWERDOWN(periode) 			{ SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk; __WFI(); } //periode will be set due RTC
+	#define FKT_WDT_POWERDOWN(periode) 			{ SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk; __DSB(); __WFI(); } //periode will be set due RTC
 	#define	FKT_POWERDOWN_FOREVER						FKT_WDT_POWERDOWN(0)
 
 	enum idle_t {	IDLE_0, IDLE_1,	IDLE_2 };
@@ -129,21 +143,6 @@
 	#include <avr/power.h>
 	#include <avr/wdt.h>
 	#include <avr/sleep.h>
-
-	enum period_t
-	{
-		SLEEP_15Ms,
-		SLEEP_30MS,
-		SLEEP_60MS,
-		SLEEP_120MS,
-		SLEEP_250MS,
-		SLEEP_500MS,
-		SLEEP_1S,
-		SLEEP_2S,
-		SLEEP_4S,
-		SLEEP_8S,
-		SLEEP_FOREVER
-	};
 
 	/*******************************************************************************
 	*
@@ -207,10 +206,16 @@
 		#define PowerOpti_TWI_ON				FKT_TWI_ON
 		#define PowerOpti_WDT_OFF				FKT_WDT_OFF
 		#define PowerOpti_WDT_ON				FKT_WDT_ON
+		#define PowerOpti_TIMER_OFF
+		#define PowerOpti_DAC_OFF
+		#define PowerOpti_DSU_OFF
+		#define PowerOpti_DMA_OFF
+		#define PowerOpti_EIC_OFF
 
 		#define FKT_USB_OFF
 		#define FKT_USB_ON
-
+		#define FKT_SERCOM_OFF
+		
 	#define FKT_TurnAllOff			{\
 															FKT_BOD_OFF;\
 															FKT_AIN_OFF;\

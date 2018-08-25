@@ -25,15 +25,15 @@
 
 #ifdef HAS_INFO_POLL
 	#if defined(INFO_POLL_CYCLE_TIME)
-		#if ((INFO_POLL_CYCLE_TIME > 2040) || (INFO_POLL_CYCLE_TIME < 8)) //uint8_t *8 Sekunden -> 2040 Sek -> 34 Min
-			#error Max INFO_POLL_CYCLE_TIME is 2040 due to uint8_t limitation and can not be smaller than 8.
-		#endif
+		// #if ((INFO_POLL_CYCLE_TIME > 2040) || (INFO_POLL_CYCLE_TIME < 8)) //uint8_t *8 Sekunden -> 2040 Sek -> 34 Min
+		// 	#error Max INFO_POLL_CYCLE_TIME is 2040 due to uint8_t limitation and can not be smaller than 8.
+		// #endif
 	#elif not defined(INFO_POLL_CYCLE_TIME)
 		#error Please define HAS_INFO_POLL and INFO_POLL_CYCLE_TIME
 	#endif
 #endif
 
-#ifdef INCLUDE_DEBUG_OUTPUT
+#if defined(INCLUDE_DEBUG_OUTPUT) && defined (__SAMD21G18A__)
 	#include <ZeroRegs.h>
 #endif
 
@@ -49,6 +49,7 @@ extern char *__brkval;
 //################# Reset #######################
 //#define PwrDown_AVR() { TIMING::delay(10); cli(); set_sleep_mode(SLEEP_MODE_PWR_DOWN); sleep_mode(); } // in den Schlafmodus wechseln
 #if defined(__AVR_ATmega328P__)
+	#include <avr/wdt.h>
 	#define Reset_AVR() { wdt_enable(WDTO_15MS); while(1) {} }
 #else
 	#define Reset_AVR() { NVIC_SystemReset(); }
@@ -58,15 +59,11 @@ extern char *__brkval;
 #ifdef LED_ACTIVITY
 template<class LED>
 #endif
-class Activity :
+class Activity : public myBaseModule
 #ifdef HAS_INFO_POLL
-public Alarm,
+, public Alarm
 #endif
-#if defined(HAS_POWER_OPTIMIZATIONS)
-public safePower {
-#else
-public myBaseModule {
-#endif
+{
 
 private:
 	#if defined(LED_ACTIVITY)
@@ -79,20 +76,22 @@ private:
   #endif
 
 	#if HAS_POWER_OPTIMIZATIONS
+		safePower cSafePower;
 		static unsigned long tIdleCycles;
 	#endif
 
 public:
 
 #ifdef HAS_INFO_POLL
-    Activity() : Alarm(0) {	}
+    Activity() : Alarm(0) { async(false);	}
 #endif
 
 		const char* getFunctionCharacter() { return "modpD"; }
 
 		void initialize() {
+
 			#if HAS_POWER_OPTIMIZATIONS
-				PowerOpti_AllPins_OFF;
+				cSafePower.initialize();
 			#endif
 
 			#ifdef HAS_INFO_POLL
@@ -114,7 +113,6 @@ public:
 		}
 
   #if HAS_INFO_POLL
-		// infoPoll by RTC Class Interrupt
 		virtual void trigger (__attribute__((unused)) AlarmClock& clock) {
       execInfoPoll();
     }
@@ -138,12 +136,12 @@ public:
   		bool ret=0;
 
 		#if HAS_POWER_OPTIMIZATIONS
-			ret = rtc.runready();
+			// ret = rtc.runready();
 
 			// Ultra Low Power after idle time
-			if((safePower::is_safePower() && Activity::idleCycles(0,SAFE_POWER_MAX_IDLETIME))) {
+			if((cSafePower.is_safePower() && Activity::idleCycles(0,SAFE_POWER_MAX_IDLETIME))) {
 	  		//send((char*)"",MODULE_ACTIVITY_POWERDOWN);
-	  		if(DEBUG) { DS_P("awake: ");DU(millis_since(getLastAwakeTime()),0);DS_P("ms\n"); }
+	  		if(DEBUG) { DS_P("awake: ");DU(millis_since(cSafePower.getLastAwakeTime()),0);DS_P("ms\n"); }
 	  		// addToRingBuffer(MODULE_DATAPROCESSING, MODULE_ACTIVITY_POWERDOWN, NULL, 0); //execute PowerDown command with RingBuffer because Debug Messages have to be flushed!
 				enablePowerDown();
 	  		ret = true;
@@ -163,15 +161,15 @@ public:
     			break;
 				#if HAS_POWER_OPTIMIZATIONS
 				case MODULE_ACTIVITY_POWERDOWN:
-					safePower::setLowPower();
-					safePower::setPowerDownAuto((cmd[0]!='0'));
+					cSafePower.setLowPower();
+					cSafePower.setPowerDownAuto((cmd[0]!='0'));
 					break;
 				case MODULE_ACTIVITY_LOWPOWER:
-					safePower::setLowPower();
+					cSafePower.setLowPower();
 					break;
 				#endif
 
-				#ifdef INCLUDE_DEBUG_OUTPUT
+				#if defined(INCLUDE_DEBUG_OUTPUT) && defined (__SAMD21G18A__)
 				case MODULE_ACTIVITY_DUMP_REGS:
 					ZeroRegOptions opts = { PRINT_TO_SERIAL	, false };
 					printZeroRegs(opts);
@@ -201,16 +199,19 @@ public:
 			cLED.LedOnOff(0);
 			#endif
 
+			DS("Servus..");
 			DFL();DFL(); //flash Display Buffer
 
-		#ifdef INFO_POLL_CYCLE_TIME
-			if(!safePower::setPowerDown(false,INFO_POLL_CYCLE_TIME)) { //return 0 if wake up due to InfoPoll
-				// execInfoPoll(); //NOT needed: will be called by RTC function
-			}
-		#else
-			safePower::setPowerDown(); //sleep forever, no InfoPoll
-		#endif
+		// #ifdef INFO_POLL_CYCLE_TIME
+		// 	if(!safePower::setPowerDown(false,INFO_POLL_CYCLE_TIME)) { //return 0 if wake up due to InfoPoll
+		// 		// execInfoPoll(); //NOT needed: will be called by RTC function
+		// 	}
+		// #else
+		// 	safePower::setPowerDown(); //sleep forever, no InfoPoll
+		// #endif
 
+			cSafePower.setPowerDown();
+			DS("done\n");
 			trigger(); //reset idle cylces and activityLED
 		}
 
@@ -228,7 +229,7 @@ public:
     void printHelp() {
     	DS_P(" * [RAM]     m\n");
 			#ifdef INCLUDE_DEBUG_OUTPUT
-			DS_P(" * [DumpReg]  D\n");
+			DS_P(" * [DumpReg] D\n");
 			#endif
     	DS_P(" * [Reboot]  o\n");
 			#if HAS_POWER_OPTIMIZATIONS

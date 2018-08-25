@@ -4,6 +4,12 @@
 #define _MY_SAFE_POWER_h
 
 //TODO: Timer0 & 1 dependancy with setLowPower
+//TODO: async notwendif?
+//TODO: ohne RTC -> ATMEGA328 -> max sleep 8S danach IDLE Time abwarten und wieder 8S Sleep
+//TODO: DeepSleep
+				//WDT (6µA) maximal 2 Sekunden sleep, dafür in ms Raster  (https://github.com/adafruit/Adafruit_SleepyDog/blob/master/examples/Sleep/Sleep.ino)
+				//RTC (7µA) lange sleep Zeiten, dafür im sec Raster
+
 
 /******** DEFINE dependencies ******
 	SAFE_POWER_AUTO_DEFAULT_VALUE: go into sleep after startup
@@ -23,22 +29,33 @@
 	}
 #endif
 
+#define SAFE_POWER_MIN_SLEEP_TIME_MS		15	//[ms] prevents safePower from Sleep
+
 #ifndef SAFE_POWER_AUTO_DEFAULT_VALUE
 	#define SAFE_POWER_AUTO_DEFAULT_VALUE	false
 #endif
 
-class safePower : public myBaseModule {
+class safePower : public myBaseModule, public Alarm {
 
 private:
   static bool safePower_auto;
-	#ifndef HAS_RTC
-  static uint8_t safePower_Multiplier_Counter;
-	#endif
+	// #ifndef HAS_RTC
+  // static uint8_t safePower_Multiplier_Counter;
+	// #endif
   #if INCLUDE_DEBUG_OUTPUT
 	static unsigned long awakeTime;
 	#endif
 
 public:
+	safePower() : Alarm(0) { async(true); }
+
+	void initialize() {
+		PowerOpti_AllPins_OFF;
+		rtc.initialize(); // geht nicht über Classen  konstruktor
+	}
+
+	virtual void trigger (__attribute__((unused)) AlarmClock& clock) {}
+
 	bool is_safePower() {
 		return safePower_auto;
 	}
@@ -101,47 +118,99 @@ public:
 		safePower_auto = on;
 	}
 
-	bool setPowerDown(bool forever=true, uint16_t cycleTime=0 /*s*/) REDUCED_FUNCTION_OPTIMIZATION {
+	void setPowerDown() REDUCED_FUNCTION_OPTIMIZATION {
 
-		bool INTwakeUp=false; //return 0 if wake up due to infoPoll
+	    sysclock.disable();
+	    uint32_t ticks = sysclock.next();
+	    if( (sysclock.isready() == false && ticks >= millis2ticks(SAFE_POWER_MIN_SLEEP_TIME_MS)) || ticks == 0) {
+	        // hal.radio.setIdle();
+	        uint32_t offset = doSleep(ticks); //return ticks
+	        sysclock.correct(offset);
+	        sysclock.enable();
+					DS("sysclock cor: ");DU(offset,0);DNL();
+	    } else {
+				DS("Power Down skipped.\n");
+	      sysclock.enable();
+	    }
 
-		if(forever) {
-			FKT_POWERDOWN_FOREVER;
-			INTwakeUp=true;
-
-		} else {
-			#ifndef HAS_RTC
-				for(; (safePower_Multiplier_Counter*8)<cycleTime; safePower_Multiplier_Counter++) { //needed for multiplier of 8s
+			#if INCLUDE_DEBUG_OUTPUT
+			awakeTime = millis();
 			#endif
-					FKT_USB_OFF;
-					FKT_WDT_POWERDOWN(SLEEP_8S); //if sleep time is not forever
-					if(!isAwakeReasonWD()) { //wake up due to Interrupt
-						INTwakeUp=true;
-						#ifndef HAS_RTC
-						break;
-						#endif
-					}
-			#ifndef HAS_RTC
-				}
-				if( isAwakeReasonWD() && (safePower_Multiplier_Counter*8 >= cycleTime)) {
-					safePower_Multiplier_Counter=0;
-				}
-			#endif
-			// myTiming::configure(); //reset timing functionality millis,delay...
-		}
-		#if INCLUDE_DEBUG_OUTPUT
-		awakeTime = millis();
+	}
+
+	// bool setPowerDown(bool forever=true, uint16_t cycleTime=0 /*s*/) REDUCED_FUNCTION_OPTIMIZATION {
+	//
+	// 	bool INTwakeUp=false; //return 0 if wake up due to infoPoll
+	//
+	// 	if(forever) {
+	// 		FKT_POWERDOWN_FOREVER;
+	// 		INTwakeUp=true;
+	//
+	// 	} else {
+	// 		#ifndef HAS_RTC
+	// 			for(; (safePower_Multiplier_Counter*8)<cycleTime; safePower_Multiplier_Counter++) { //needed for multiplier of 8s
+	// 		#endif
+	// 				FKT_USB_OFF;
+	// 				FKT_WDT_POWERDOWN(SLEEP_8S); //if sleep time is not forever
+	// 				if(!isAwakeReasonWD()) { //wake up due to Interrupt
+	// 					INTwakeUp=true;
+	// 					#ifndef HAS_RTC
+	// 					break;
+	// 					#endif
+	// 				}
+	// 		#ifndef HAS_RTC
+	// 			}
+	// 			if( isAwakeReasonWD() && (safePower_Multiplier_Counter*8 >= cycleTime)) {
+	// 				safePower_Multiplier_Counter=0;
+	// 			}
+	// 		#endif
+	// 		// myTiming::configure(); //reset timing functionality millis,delay...
+	// 	}
+	// 	#if INCLUDE_DEBUG_OUTPUT
+	// 	awakeTime = millis();
+	// 	#endif
+	//
+	// 	return INTwakeUp;
+	// }
+
+	uint32_t doSleep (uint32_t ticks) { //return ticks
+    uint32_t offset = 0;
+
+		#ifdef HAS_RTC
+			tick = ticks;
+			if(tick) rtc.setAlarm(tick);
+			// rtc.add(*this);
+
+			uint32_t c1 = rtc.getCounter(true);
+			FKT_WDT_POWERDOWN();
+	    uint32_t c2 = rtc.getCounter(false);
+	 		offset = (c2 - c1);
+
+		#else
+			period_t sleeptime = SLEEP_FOREVER;
+			if( ticks > seconds2ticks(8) ) 			 { offset = seconds2ticks(8); sleeptime = SLEEP_8S; }
+			else if( ticks > seconds2ticks(4) )  { offset = seconds2ticks(4);  sleeptime = SLEEP_4S; }
+			else if( ticks > seconds2ticks(2) )  { offset = seconds2ticks(2);  sleeptime = SLEEP_2S; }
+			else if( ticks > seconds2ticks(1) )  { offset = seconds2ticks(1);  sleeptime = SLEEP_1S; }
+			else if( ticks > millis2ticks(500) ) { offset = millis2ticks(500); sleeptime = SLEEP_500MS; }
+			else if( ticks > millis2ticks(250) ) { offset = millis2ticks(250); sleeptime = SLEEP_250MS; }
+			else if( ticks > millis2ticks(120) ) { offset = millis2ticks(120); sleeptime = SLEEP_120MS; }
+			else if( ticks > millis2ticks(60)  ) { offset = millis2ticks(60);  sleeptime = SLEEP_60MS; }
+			else if( ticks > millis2ticks(30)  ) { offset = millis2ticks(30);  sleeptime = SLEEP_30MS; }
+			else if( ticks > millis2ticks(15)  ) { offset = millis2ticks(15);  sleeptime = SLEEP_15MS; }
+
+			FKT_WDT_POWERDOWN(sleeptime);
 		#endif
 
-		return INTwakeUp;
+    return min(ticks,offset);;
 	}
 
 };
 
 bool safePower::safePower_auto = SAFE_POWER_AUTO_DEFAULT_VALUE;
-#ifndef HAS_RTC
-	uint8_t safePower::safePower_Multiplier_Counter = 0;
-#endif
+// #ifndef HAS_RTC
+// 	uint8_t safePower::safePower_Multiplier_Counter = 0;
+// #endif
 #if INCLUDE_DEBUG_OUTPUT
 	unsigned long safePower::awakeTime = 0;
 #endif
