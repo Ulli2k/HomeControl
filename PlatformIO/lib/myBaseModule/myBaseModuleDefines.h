@@ -51,6 +51,19 @@ typedef uint8_t byte; //workarround because byte is defined in Arduino.h
 #define MODULE_TYP(m) 						(uint8_t)(m & 0x0F)
 #define MODULE_PROTOCOL(m)				(m > 0x0F ? ( (m >> 4) -1) : 0)
 
+#define MODULE_COMMAND_CHAR(c)		( {\
+	 																		char b='-';\
+																			const typeModuleInfo* pmt = ModuleTab;\
+																			while(pmt->typecode >= 0) {\
+																				if(pmt->typecode==MODULE_TYP(c)) {\
+																					b=getFunctionChar(pmt->module->getFunctionCharacter(),MODULE_PROTOCOL(c));\
+																					break;\
+																				}\
+																				pmt++;\
+																			}\
+																			b;\
+																		} )
+/*
 #define MODULE_COMMAND_CHAR(m,c)  ( {\
 	 																		char b='-';\
 																			const typeModuleInfo* pmt = ModuleTab;\
@@ -63,7 +76,7 @@ typedef uint8_t byte; //workarround because byte is defined in Arduino.h
 																			}\
 																			b;\
 																		} )
-
+*/
 
 
 #if defined(__arm__) && !defined(PROGMEM)
@@ -100,14 +113,14 @@ const char welcomeText[] PROGMEM =
 	#endif
 	#ifdef HAS_RADIO
 		",R"
-		#if HAS_RADIO_LISTENMODE && !HAS_RADIO_TXonly
+		#if HAS_RADIO_LISTENMODE && !HAS_RADIO_TX_ONLY
 		"l"
-		#elif !HAS_RADIO_LISTENMODE && HAS_RADIO_TXonly
+		#elif !HAS_RADIO_LISTENMODE && HAS_RADIO_TX_ONLY
 		"t"
 		#endif
-		#if HAS_RADIO_CMD_TUNNELING==1
+		#if defined(HAS_RADIO_FORWARDING)
 		"h"
-		#elif(HAS_RADIO_CMD_TUNNELING==2)
+		#elif defined(HAS_RADIO_TUNNELING)
 		"s"
 		#endif
 	#endif

@@ -49,10 +49,7 @@ class myBaseModule : public myTiming, public myInterrupt, public myDisplay {
 
 public:
 
-  myBaseModule() : myTiming(), myInterrupt(), myDisplay() {
-  	FIFO_init(DataRing);
-    sysclock.initialize(); // initialize the system timer
-  };
+  myBaseModule() : myTiming(), myInterrupt(), myDisplay() { };
   //~BaseModule() { };
 
 /**************************************************************/

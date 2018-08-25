@@ -5,7 +5,6 @@
 /******** DEFINE dependencies ******
 	INCLUDE_DEBUG_OUTPUT: add debug commands to built
 	QUIETMODE_DEFAULT_VALUE: activates quite mode after startup
-	HAS_DISPLAY_TUNNELING: Based on HAS_RADIO && HAS_RADIO_CMD_TUNNELING to add DisplayCopy function
 	HAS_UART: activate low level print char function
 	HAS_POWER_OPTIMIZATIONS: allowes to turn of UART (isUartTxActive)
 ************************************/
@@ -59,17 +58,13 @@
 	#define QUIETMODE_DEFAULT_VALUE		1
 #endif
 
-#if HAS_RADIO && HAS_RADIO_CMD_TUNNELING==2 //Satellite
-	#define HAS_DISPLAY_TUNNELING
-#endif
-
 #define ASSERT(cond)			{ if(!(cond)) myDisplay::hal_failed(__FILE__, __LINE__); }
 
 class myDisplay {
 
 protected:
     #ifdef HAS_DISPLAY_TUNNELING
-    	static byte DisplayCopy;
+    	static bool DisplayCopy;
     	static char cDisplayCopy[MAX_RING_DATA_SIZE];
     #endif
 
