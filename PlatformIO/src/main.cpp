@@ -6,7 +6,6 @@ nc beagle 4001
 
 Arduino Libraries: ./.platformio/packages/framework-arduinosam/cores/samd/
 */
-//TODO: Atomic Funktionen in Interrupts einbauen
 //TODO: BUZZER is missing! --> pwmPin.h
 
 #if defined(__AVR_ATmega328P__)
@@ -23,44 +22,47 @@ DataFIFO_t DataRing;
 #include <myDataProcessing.h>
 myDataProcessing DataProc;
 
-#if HAS_LEDs
+#ifdef HAS_LEDs
   #include <led.h>
   typedef LED<LED1_PIN> LEDType;
   LEDType cLED;
 #endif
 
 #include <activity.h>
-#if defined(LED_ACTIVITY)
+#ifdef LED_ACTIVITY
   typedef Activity<LEDType> ActivityType;
 #else
   typedef Activity ActivityType;
 #endif
 ActivityType activity;
 
-#if HAS_UART
+#ifdef HAS_UART
   #include <myUart.h>
   myUart Remote(SER_BAUD);
 #endif
 
-#if HAS_RADIO
+#ifdef HAS_RADIO
   #include <myRadio.h>
+  #if defined (__SAMD21G18A__)
   typedef LibSPI<10 /* SS */> SPI1;
-  typedef LibRadio<1, SPI1, 6 /* ResetPin */> LibRadio1;
+  typedef LibRadio<1, SPI1, 5 /* ResetPin */> LibRadio1;
   typedef myRadio<LibRadio1, 7/*Interrupt*/> RadioType1;
-  // typedef LibSPI<SS /* SS */> SPI1;
-  // typedef LibRadio<1, SPI1, A0 /* ResetPin */> LibRadio1;
-  // typedef myRadio<LibRadio1, 2/*Interrupt*/> RadioType1;
+  #else
+  typedef LibSPI<SS /* SS */> SPI1;
+  typedef LibRadio<1, SPI1, A0 /* ResetPin */> LibRadio1;
+  typedef myRadio<LibRadio1, 2/*Interrupt*/> RadioType1;
+  #endif
   RadioType1 cRadio;
 #endif
 
-#if HAS_DIGITAL_PIN
+#ifdef HAS_DIGITAL_PIN
   #include <digitalPin.h>
   // typedef digitalPin<Relay_SetReset,8,9> SwitchType;
   typedef digitalPin<PinMode_ALL_EVENTS,9, true> DigitalPinType;
   DigitalPinType digPin;
 #endif
 
-#if HAS_ANALOG_PIN
+#ifdef HAS_ANALOG_PIN
   #include <analogPin.h>
   typedef analogPin<A1> AnalogPinType;
   AnalogPinType anaPin;
@@ -68,17 +70,17 @@ ActivityType activity;
   // Analog2PinType ana2Pin;
 #endif
 
-// #if HAS_ROLLO
+// #ifdef HAS_ROLLO
 // 	#include <myRollo.h>
 // 	myROLLO myRollo;
 // #endif
 
-// #if HAS_IR_TX || HAS_IR_RX
+// #ifdef HAS_IR_TX || HAS_IR_RX
 //   #include <myIRMP.h>
 //   myIRMP myIrmp;
 // #endif
 
-#if HAS_BME280
+#ifdef HAS_BME280
   #include <myBME280.h>
   typedef libI2C<0x76> I2CType;
   typedef myBME280<I2CType> BMEType;
@@ -96,23 +98,24 @@ const typeModuleInfo ModuleTab[] = {
   { MODULE_DATAPROCESSING   , &DataProc }, //immer am Anfang
   { MODULE_ACTIVITY         , &activity }, //immer am Anfang wegen "PowerOpti_AllPins_OFF"
 
-#if HAS_UART
+#ifdef HAS_UART
   { MODULE_SERIAL      			, &Remote   },
 #endif
 
-#if HAS_DIGITAL_PIN
+#ifdef HAS_DIGITAL_PIN
   { MODULE_DIGITAL_PIN      , &digPin     },
 #endif
 
-#if HAS_ANALOG_PIN
+#ifdef HAS_ANALOG_PIN
   { MODULE_ANALOG_PIN       , &anaPin     },
+  // { MODULE_ANALOG_PIN       , &ana2Pin     },
 #endif
 
-#if HAS_LEDs
+#ifdef HAS_LEDs
   { MODULE_LED             , &cLED    },
 #endif
 
-// #if HAS_ROLLO
+// #ifdef HAS_ROLLO
 //   { MODULE_ROLLO        , &myRollo  },
 // #endif
 
@@ -120,7 +123,7 @@ const typeModuleInfo ModuleTab[] = {
 //   { MODULE_IRMP         , &myIrmp   },
 // #endif
 
-#if HAS_BME280
+#ifdef HAS_BME280
   { MODULE_BME280       , &myBME   },
 #endif
 
@@ -128,7 +131,7 @@ const typeModuleInfo ModuleTab[] = {
 // 	{ MODULE_POWERMONITOR	 , &myPowerMonitor	},
 // #endif
 
-#if HAS_RADIO
+#ifdef HAS_RADIO
 // RADIO immer am Schluss für Tunneling
   { MODULE_RADIO            , &cRadio    },
 #endif
@@ -138,6 +141,11 @@ const typeModuleInfo ModuleTab[] = {
 
 /*********************** MAIN Function *****************************/
 void setup() {
+
+  //Basic Setup
+  FIFO_init(DataRing);
+  sysclock.initialize(); // initialize the system timer
+
   //First of all initialize everything
   const typeModuleInfo* pmt = ModuleTab;
   while(pmt->typecode >= 0) {
