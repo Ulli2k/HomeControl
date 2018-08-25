@@ -14,7 +14,7 @@
 ************************************/
 
 #ifndef DIGITAL_PIN_EVENT
-	#define DIGITAL_PIN_EVENT			MODULE_DIGITAL_PIN_EVENT
+	#define DIGITAL_PIN_EVENT									MODULE_DIGITAL_PIN_EVENT
 #endif
 
 #define DIGITAL_PIN_DEBOUNCE								 20		// in HAS_POWER_OPTIMIZATIONS Debounce time need to be smaller than IDLE Time!
@@ -87,86 +87,88 @@ private:
 		//Zustandsmaschine http://www.mathertel.de/Arduino/OneButtonLibrary.aspx
 		bool ret = 0;
 
-	  // Detect the input information
-	  int pulseLevel = digitalRead(Pin1); // current button signal.
-	  unsigned long now = millis(); // current (relative) time in msecs.
+		ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) {
 
-	  // Implementation of the state machine
-	  if (_state == 0) { // waiting for menu pin being pressed.
-	    if (pulseLevel == _pulseActive) {
-	      _state = 1; // step to state 1
-	      _startTime = now; // remember starting time
-				_pulseLocked = _pulseReleased;
-	    } // if
+		  // Detect the input information
+		  int pulseLevel = digitalRead(Pin1); // current button signal.
+		  unsigned long now = millis(); // current (relative) time in msecs.
 
-	  } else if (_state == 1) { // waiting for menu pin being released.
+		  // Implementation of the state machine
+		  if (_state == 0) { // waiting for menu pin being pressed.
+		    if (pulseLevel == _pulseActive) {
+		      _state = 1; // step to state 1
+		      _startTime = now; // remember starting time
+					_pulseLocked = _pulseReleased;
+		    } // if
 
-			if ((pulseLevel == _pulseReleased) && (millis_since(_startTime) < _debounceTicks)) {
-	      // button was released to quickly so I assume some debouncing.
-		  	// go back to state 0 without calling a function.
-				_state = 0;
+		  } else if (_state == 1) { // waiting for menu pin being released.
 
-			} else if ((pulseLevel == _pulseActive) && (_pulseLocked != _pulseActive) && (millis_since(_startTime) > _debounceTicks)) {
-				_pulseLocked = _pulseActive;
-				PulseEvent(PinMode_PULSE);
-				ret=1;
+				if ((pulseLevel == _pulseReleased) && (millis_since(_startTime) < _debounceTicks)) {
+		      // button was released to quickly so I assume some debouncing.
+			  	// go back to state 0 without calling a function.
+					_state = 0;
 
-	    } else if (pulseLevel == _pulseReleased) { //debounced
-	      _state = 2; // step to state 2
-	      _stopTime = now; // remember stopping time
-				_pulseLocked = _pulseReleased;
-				if(_pulseLocked == _pulseActive) PulseEvent(PinMode_PULSE);
-				ret=1;
+				} else if ((pulseLevel == _pulseActive) && (_pulseLocked != _pulseActive) && (millis_since(_startTime) > _debounceTicks)) {
+					_pulseLocked = _pulseActive;
+					PulseEvent(PinMode_PULSE);
+					ret=1;
 
-	    } else if ((pulseLevel == _pulseActive) && (millis_since(_startTime) > _pressTicks)) {
-	      _state = 6; // step to state 6
-				PulseEvent(PinMode_LONG_CLICK_HOLD);
-				ret=1;
+		    } else if (pulseLevel == _pulseReleased) { //debounced
+		      _state = 2; // step to state 2
+		      _stopTime = now; // remember stopping time
+					_pulseLocked = _pulseReleased;
+					if(_pulseLocked == _pulseActive) PulseEvent(PinMode_PULSE);
+					ret=1;
 
-	    } else {
-	      // wait. Stay in this state.
-	    } // if
+		    } else if ((pulseLevel == _pulseActive) && (millis_since(_startTime) > _pressTicks)) {
+		      _state = 6; // step to state 6
+					PulseEvent(PinMode_LONG_CLICK_HOLD);
+					ret=1;
 
-	  } else if (_state == 2) { // waiting for menu pin being pressed the second time or timeout.
-			if(_pulseLocked == _pulseReleased) {
-				_pulseLocked = _pulseActive; //workaorund...not really Pressed
-				PulseEvent(PinMode_PULSE_LOW);
-				ret=1;
+		    } else {
+		      // wait. Stay in this state.
+		    } // if
 
-			} else if (/*_doubleClickFunc == NULL || */millis_since(_startTime) > _clickTicks) {
-	      // this was only a single short click
-	      _state = 0; // restart.
-				PulseEvent(PinMode_CLICK);
-				ret=1;
+		  } else if (_state == 2) { // waiting for menu pin being pressed the second time or timeout.
+				if(_pulseLocked == _pulseReleased) {
+					_pulseLocked = _pulseActive; //workaorund...not really Pressed
+					PulseEvent(PinMode_PULSE_LOW);
+					ret=1;
 
-	    } else if ((pulseLevel == _pulseActive) && (millis_since(_stopTime) > _debounceTicks)) {
-	      _state = 3; // step to state 3
-	      _startTime = now; // remember starting time
-				ret=1;
-	    } // if
+				} else if (/*_doubleClickFunc == NULL || */millis_since(_startTime) > _clickTicks) {
+		      // this was only a single short click
+		      _state = 0; // restart.
+					PulseEvent(PinMode_CLICK);
+					ret=1;
 
-	  } else if (_state == 3) { // waiting for menu pin being released finally.
-	    // Stay here for at least _debounceTicks because else we might end up in state 1 if the
-	    // button bounces for too long.
-	    if (pulseLevel == _pulseReleased && (millis_since(_startTime) > _debounceTicks)) {
-	      // this was a 2 click sequence.
-	      _state = 0; // restart.
-				PulseEvent(PinMode_PULSE_LOW);
-				PulseEvent(PinMode_DOUBLE_CLICK);
-				ret=1;
-	    } // if
+		    } else if ((pulseLevel == _pulseActive) && (millis_since(_stopTime) > _debounceTicks)) {
+		      _state = 3; // step to state 3
+		      _startTime = now; // remember starting time
+					ret=1;
+		    } // if
 
-	  } else if (_state == 6) { // waiting for menu pin being release after long press.
-	    if (pulseLevel == _pulseReleased) {
-		    _state = 0; // restart.
-				PulseEvent(PinMode_PULSE_LOW);
-				PulseEvent(PinMode_LONG_CLICK);
-				ret=1;
-	    } else {
-		  	// button is being long pressed
-	    } // if
-	  } // if
+		  } else if (_state == 3) { // waiting for menu pin being released finally.
+		    // Stay here for at least _debounceTicks because else we might end up in state 1 if the
+		    // button bounces for too long.
+		    if (pulseLevel == _pulseReleased && (millis_since(_startTime) > _debounceTicks)) {
+		      // this was a 2 click sequence.
+		      _state = 0; // restart.
+					PulseEvent(PinMode_PULSE_LOW);
+					PulseEvent(PinMode_DOUBLE_CLICK);
+					ret=1;
+		    } // if
 
+		  } else if (_state == 6) { // waiting for menu pin being release after long press.
+		    if (pulseLevel == _pulseReleased) {
+			    _state = 0; // restart.
+					PulseEvent(PinMode_PULSE_LOW);
+					PulseEvent(PinMode_LONG_CLICK);
+					ret=1;
+		    } else {
+			  	// button is being long pressed
+		    } // if
+		  } // if
+		}
 		return ret;
 	} // OneButton.tick()
 

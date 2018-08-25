@@ -10,7 +10,6 @@
 	INCLUDE_DEBUG_OUTPUT: for ZeroRegs Dump Function
 ************************************/
 
-
 #include <myBaseModule.h>
 #include <led.h>
 
@@ -94,9 +93,8 @@ public:
 
 			#ifdef HAS_INFO_POLL
 				tickLoop = seconds2ticks(INFO_POLL_CYCLE_TIME);
+				tick=seconds2ticks(2); // run infoPoll on startup, wait till everything is initialized
 				sysclock.add(*this);
-
-				execInfoPoll(); //run infoPoll on startup
 			#endif
 
 		}
@@ -112,20 +110,18 @@ public:
 
   #if HAS_INFO_POLL
 		virtual void trigger (__attribute__((unused)) AlarmClock& clock) {
+			//it's not asyncrong. runready...
       execInfoPoll();
     }
 
 		// exec infoPoll Function of all Modules
 		static void execInfoPoll() {
 			const typeModuleInfo* pmt = ModuleTab;
-
-			ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) {
-				while(pmt->typecode >= 0) {
-					pmt->module->infoPoll(preScaler);
-					pmt++;
-				}
-				preScaler = (preScaler<INFO_POLL_PRESCALER_MAX ? preScaler+1 : 0);
+			while(pmt->typecode >= 0) {
+				pmt->module->infoPoll(preScaler);
+				pmt++;
 			}
+			preScaler = (preScaler<INFO_POLL_PRESCALER_MAX ? preScaler+1 : 0);
 		}
   #endif
 
@@ -138,7 +134,9 @@ public:
 			// Ultra Low Power after idle time
 			if((cSafePower.is_safePower() && Activity::idleCycles(0,SAFE_POWER_MAX_IDLETIME))) {
 	  		//send((char*)"",MODULE_ACTIVITY_POWERDOWN);
+				#if INCLUDE_DEBUG_OUTPUT
 	  		if(DEBUG) { DS_P("awake: ");DU(millis_since(cSafePower.getLastAwakeTime()),0);DS_P("ms\n"); }
+				#endif
 	  		// addToRingBuffer(MODULE_DATAPROCESSING, MODULE_ACTIVITY_POWERDOWN, NULL, 0); //execute PowerDown command with RingBuffer because Debug Messages have to be flushed!
 				enablePowerDown();
 	  		ret = true;

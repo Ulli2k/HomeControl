@@ -23,8 +23,9 @@ SysClock sysclock;
   extern "C" {
   	//sysTicks will be triggered once per 1 ms
   	int sysTickHook(void) {
-      if(sysclock.active()) { --sysclock; }
-  	  return 0; //0: default SysTickHock Function execution
+      if(sysclock.active())
+        --sysclock;
+      return 0; //0: default SysTickHock Function execution
   	}
   }
 #else

@@ -4,7 +4,7 @@
 #define _MY_SAFE_POWER_h
 
 //TODO: Timer0 & 1 dependancy with setLowPower
-//TODO: async notwendif?
+//TODO: UART OFF to safe Power
 //TODO: ATMEGA328 --> ohne RTC -> max sleep 8S danach IDLE Time abwarten und wieder 8S Sleep
 //TODO: DeepSleep
 				//WDT (6µA) maximal 2 Sekunden sleep, dafür in ms Raster  (https://github.com/adafruit/Adafruit_SleepyDog/blob/master/examples/Sleep/Sleep.ino)
@@ -12,7 +12,7 @@
 
 
 /******** DEFINE dependencies ******
-	SAFE_POWER_AUTO_DEFAULT_VALUE: go into sleep after startup
+	SAFE_POWER_AUTO_ACTIVE: go into sleep after startup
 
 	HAS_RTC: in case of not availability of RTC, sleep mode will be looped for intervalls
 	INCLUDE_DEBUG_OUTPUT_ prints awake time
@@ -20,8 +20,8 @@
 ************************************/
 
 #include <myBaseModule.h>
-
 #include <AlarmClock.h>
+
 #ifdef __AVR_ATmega328P__
 	ISR (WDT_vect) {
 		// WDIE & WDIF is cleared in hardware upon entering this ISR
@@ -30,10 +30,6 @@
 #endif
 
 #define SAFE_POWER_MIN_SLEEP_TIME_MS		15	//[ms] prevents safePower from Sleep
-
-#ifndef SAFE_POWER_AUTO_DEFAULT_VALUE
-	#define SAFE_POWER_AUTO_DEFAULT_VALUE	false
-#endif
 
 class safePower : public myBaseModule, public Alarm {
 
@@ -51,7 +47,9 @@ public:
 
 	void initialize() {
 		PowerOpti_AllPins_OFF;
+		#ifdef HAS_RTC
 		rtc.initialize(); // geht nicht über Classen  konstruktor
+		#endif
 	}
 
 	virtual void trigger (__attribute__((unused)) AlarmClock& clock) {}
@@ -118,7 +116,7 @@ public:
 		safePower_auto = on;
 	}
 
-	void setPowerDown() REDUCED_FUNCTION_OPTIMIZATION {
+	void setPowerDown() {
 
 	    sysclock.disable();
 	    uint32_t ticks = sysclock.next();
@@ -172,7 +170,7 @@ public:
 	// 	return INTwakeUp;
 	// }
 
-	uint32_t doSleep (uint32_t ticks) { //return ticks
+	uint32_t doSleep (uint32_t ticks) REDUCED_FUNCTION_OPTIMIZATION { //return ticks
     uint32_t offset = 0;
 
 		#ifdef HAS_RTC
@@ -206,7 +204,11 @@ public:
 
 };
 
-bool safePower::safePower_auto = SAFE_POWER_AUTO_DEFAULT_VALUE;
+#ifdef SAFE_POWER_AUTO_ACTIVE
+bool safePower::safePower_auto = true;
+#else
+bool safePower::safePower_auto = false;
+#endif
 // #ifndef HAS_RTC
 // 	uint8_t safePower::safePower_Multiplier_Counter = 0;
 // #endif

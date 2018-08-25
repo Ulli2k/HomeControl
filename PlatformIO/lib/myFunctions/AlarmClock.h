@@ -88,7 +88,7 @@ public:
   public:
     SysClock() : enabled(false)   { }
     void initialize()         { enable(); }
-    bool active()             { return enabled; }
+    bool active()             { ATOMIC_BLOCK( ATOMIC_RESTORESTATE ) { return enabled; } }
     void enable ()            { enabled=true; }
     void disable ()           { enabled=false; }
   };
@@ -102,7 +102,7 @@ public:
     uint32_t last_millis;
     bool enabled;
   public:
-    SysClock() : enabled(false), last_millis(0)   { }
+    SysClock() :  last_millis(0)   { enabled=false; }
     void initialize()         { last_millis = millis(); enable(); }
     bool active()             { return enabled; }
     void enable ()            { enabled=true; }
