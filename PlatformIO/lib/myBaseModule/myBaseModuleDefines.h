@@ -45,7 +45,8 @@ typedef uint8_t byte; //workarround because byte is defined in Arduino.h
 #define MODULE_ANALOG_PIN													0x0A
 	#define MODULE_ANALOG_PIN_VCC												0x1A
 	#define MODULE_ANALOG_PIN_SAMPLE										0x2A
-
+#define MODULE_PWM_PIN														0x0B
+	#define MODULE_PWM_PIN_SIMPLE												0x1B
 
 
 #define MODULE_TYP(m) 						(uint8_t)(m & 0x0F)
