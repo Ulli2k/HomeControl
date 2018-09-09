@@ -70,6 +70,11 @@ ActivityType activity;
   // Analog2PinType ana2Pin;
 #endif
 
+#ifdef HAS_PWM_PIN
+  #include <pwmPin.h>
+  typedef pwmPin<5, 2750, 50> PwmPinType;
+  PwmPinType pPin;
+#endif
 // #ifdef HAS_ROLLO
 // 	#include <myRollo.h>
 // 	myROLLO myRollo;
@@ -111,8 +116,12 @@ const typeModuleInfo ModuleTab[] = {
   // { MODULE_ANALOG_PIN       , &ana2Pin     },
 #endif
 
+#ifdef HAS_PWM_PIN
+  { MODULE_PWM_PIN          , &pPin     },
+#endif
+
 #ifdef HAS_LEDs
-  { MODULE_LED             , &cLED    },
+  { MODULE_LED              , &cLED    },
 #endif
 
 // #ifdef HAS_ROLLO
