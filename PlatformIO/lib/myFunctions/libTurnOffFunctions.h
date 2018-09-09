@@ -122,6 +122,21 @@
 																		PM->APBCMASK.reg &= ~(PM_APBCMASK_SERCOM0 | PM_APBCMASK_SERCOM1 | PM_APBCMASK_SERCOM2 | PM_APBCMASK_SERCOM3 | PM_APBCMASK_SERCOM4 | PM_APBCMASK_SERCOM5); \
 																	}
 */
+/* from http://www.rocketscream.com/blog/docs-item/using-rtc-in-low-power-mode-on-mini-ultra-pro/#tab-id-2
+// Switch unused pins as input and enabled built-in pullup
+ for (pinNumber = 0; pinNumber < 23; pinNumber++)
+ {
+ pinMode(pinNumber, INPUT_PULLUP);
+ }
+
+ for (pinNumber = 32; pinNumber < 42; pinNumber++)
+ {
+ pinMode(pinNumber, INPUT_PULLUP);
+ }
+
+ pinMode(25, INPUT_PULLUP);
+ pinMode(26, INPUT_PULLUP);
+ */
 #warning turn off clocks in PM not needed in idle mode?
 //https://github.com/nebs/arduino-zero-timer-demo/blob/master/.pioenvs/zero/FrameworkDeviceInc/samd21/include/component/pm.h
 //or Turnoff Clocks
@@ -215,7 +230,7 @@
 		#define FKT_USB_OFF
 		#define FKT_USB_ON
 		#define FKT_SERCOM_OFF
-		
+
 	#define FKT_TurnAllOff			{\
 															FKT_BOD_OFF;\
 															FKT_AIN_OFF;\

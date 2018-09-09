@@ -18,7 +18,11 @@
 	#define bLED_PIN_INVERSE	false
 #endif
 
+#ifdef LED_ACTIVITY
 template <uint8_t LEDpin, bool LEDinverse=bLED_PIN_INVERSE, bool Activity=LED_ACTIVITY, uint8_t ActivityDelay=DELAY_ACTIVITY_LED>
+#else
+template <uint8_t LEDpin, bool LEDinverse=bLED_PIN_INVERSE, bool Activity=false, uint8_t ActivityDelay=0>
+#endif
 class LED : public myBaseModule {
 
   private:

@@ -80,7 +80,7 @@ private:
 public:
 
 #ifdef HAS_INFO_POLL
-    Activity() : Alarm(0) { async(false);	}
+    Activity() : Alarm(0) { async(false /*needed for execInfoPoll*/);	}
 #endif
 
 		const char* getFunctionCharacter() { return "modpD"; }
@@ -93,7 +93,7 @@ public:
 
 			#ifdef HAS_INFO_POLL
 				tickLoop = seconds2ticks(INFO_POLL_CYCLE_TIME);
-				tick=seconds2ticks(2); // run infoPoll on startup, wait till everything is initialized
+				tick=1; // run infoPoll on startup. async=false to wait till everything is initialized
 				sysclock.add(*this);
 			#endif
 
