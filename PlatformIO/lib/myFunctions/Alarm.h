@@ -28,6 +28,9 @@ public:
   bool async() const {
     return asyn;
   }
+  bool active() {
+    return (tick?true:false);
+  }
 };
 
 
