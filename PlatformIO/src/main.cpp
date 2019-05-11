@@ -57,9 +57,17 @@ ActivityType activity;
 
 #ifdef HAS_DIGITAL_PIN
   #include <digitalPin.h>
-  // typedef digitalPin<Relay_SetReset,8,9> SwitchType;
-  typedef digitalPin<PinMode_ALL_EVENTS,9, true> DigitalPinType;
+
+  // typedef twoWayRelay<9,3> DigitalPinType;
+  // typedef Rollo<3,9> DigitalPinType;
+  typedef Button<PinMode_ALL_EVENTS,9,true,1,2> DigitalPinType;
   DigitalPinType digPin;
+
+  // #ifdef HAS_ROLLO
+  typedef Rollo<6,8,2> DigitalPinRolloType;
+  DigitalPinRolloType digPinRollo;
+  // #endif
+
 #endif
 
 #ifdef HAS_ANALOG_PIN
@@ -75,10 +83,6 @@ ActivityType activity;
   typedef pwmPin<5, 2750, 50> PwmPinType;
   PwmPinType pPin;
 #endif
-// #ifdef HAS_ROLLO
-// 	#include <myRollo.h>
-// 	myROLLO myRollo;
-// #endif
 
 // #ifdef HAS_IR_TX || HAS_IR_RX
 //   #include <myIRMP.h>
@@ -109,6 +113,7 @@ const typeModuleInfo ModuleTab[] = {
 
 #ifdef HAS_DIGITAL_PIN
   { MODULE_DIGITAL_PIN      , &digPin     },
+  { MODULE_DIGITAL_PIN      , &digPinRollo     },
 #endif
 
 #ifdef HAS_ANALOG_PIN
