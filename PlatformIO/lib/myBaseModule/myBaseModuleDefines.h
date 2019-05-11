@@ -39,9 +39,11 @@ typedef uint8_t byte; //workarround because byte is defined in Arduino.h
 	#define MODULE_LED_LED															0x18
 	#define MODULE_LED_ACTIVITY													0x28
 #define MODULE_DIGITAL_PIN												0x09
-	#define MODULE_DIGITAL_PIN_SIMPLE										0x19
-	#define MODULE_DIGITAL_PIN_RELAY_SR									0x29
-	#define MODULE_DIGITAL_PIN_EVENT										0x39
+	// #define MODULE_DIGITAL_PIN_SIMPLE										0x19
+	// #define MODULE_DIGITAL_PIN_RELAY_SR									0x29
+	#define MODULE_DIGITAL_PIN_FKT											0x19
+	#define MODULE_DIGITAL_PIN_EVENT										0xC9
+
 #define MODULE_ANALOG_PIN													0x0A
 	#define MODULE_ANALOG_PIN_VCC												0x1A
 	#define MODULE_ANALOG_PIN_SAMPLE										0x2A
